@@ -9,7 +9,7 @@ const _inter = Inter({ subsets: ['latin'], variable: '--font-inter' })
 const _jetbrainsMono = JetBrains_Mono({ subsets: ['latin'], variable: '--font-jetbrains-mono' })
 
 export const metadata: Metadata = {
-  title: 'Havoc',
+  title: 'Havoc Bypass',
   description: 'Sistema de gerenciamento de licenças com HWID binding, expiração e Discord ID.',
 }
 

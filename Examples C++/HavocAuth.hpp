@@ -1,6 +1,6 @@
 #pragma once
 // =============================================================================
-// HavocAuth — cliente C++ headless para a API de auth (Havoc Auth System)
+// HavocAuth — cliente C++ headless para a API de auth (Havoc Bypass Auth System)
 //
 // USO:
 //

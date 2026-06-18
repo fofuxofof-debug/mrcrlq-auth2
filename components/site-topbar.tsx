@@ -43,7 +43,7 @@ export function SiteTopbar() {
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
         <Link href="/" className="group" onClick={() => setMobileOpen(false)}>
           <span className="logo-shimmer-dark logo-glow-dark text-xl sm:text-2xl font-black tracking-tight transition-transform duration-500 group-hover:scale-[1.04]">
-            Havoc
+            Havoc Bypass
           </span>
         </Link>
 

@@ -1,7 +1,9 @@
 // =============================================================================
 // Auth do PAINEL admin (não confundir com auth da API pra C++).
-// Centraliza credenciais e valor do cookie de sessão.
-// Lê tudo de env vars — NUNCA hardcode nada aqui.
+// Suporta múltiplos usuários via env vars:
+//   - ADMIN_USERNAME + ADMIN_PASSWORD  (primário, single-user, modo legado)
+//   - ADMIN_USERS                       (multi-user, formato "user1:pass1,user2:pass2")
+// Os dois modos coexistem — todos os usuários definidos podem logar.
 // Compatível com runtime Node e Edge (middleware) — não usa node:crypto.
 // =============================================================================
 
@@ -10,8 +12,40 @@ function readEnv(name: string): string | undefined {
   return v && v.trim() ? v.trim() : undefined
 }
 
-const ADMIN_USERNAME = readEnv('ADMIN_USERNAME')
-const ADMIN_PASSWORD = readEnv('ADMIN_PASSWORD')
+interface UserCred {
+  username: string
+  password: string
+}
+
+function parseUsers(): UserCred[] {
+  const list: UserCred[] = []
+
+  // Modo single (legacy)
+  const singleU = readEnv('ADMIN_USERNAME')
+  const singleP = readEnv('ADMIN_PASSWORD')
+  if (singleU && singleP) {
+    list.push({ username: singleU, password: singleP })
+  }
+
+  // Modo multi: "user1:pass1,user2:pass2"
+  const multi = readEnv('ADMIN_USERS')
+  if (multi) {
+    for (const pair of multi.split(',')) {
+      const trimmed = pair.trim()
+      if (!trimmed) continue
+      const idx = trimmed.indexOf(':')
+      if (idx <= 0) continue
+      const u = trimmed.slice(0, idx).trim()
+      const p = trimmed.slice(idx + 1)
+      if (u && p) list.push({ username: u, password: p })
+    }
+  }
+
+  return list
+}
+
+const USERS: UserCred[] = parseUsers()
+
 const AUTH_SECRET = readEnv('AUTH_SECRET') ?? 'dev_secret_unsafe_change_me'
 
 export const SESSION_COOKIE_NAME = 'panel_session'
@@ -21,15 +55,15 @@ export const SESSION_COOKIE_NAME = 'panel_session'
 // não consegue forjar uma sessão.
 export const SESSION_COOKIE_VALUE = `panel:${AUTH_SECRET.slice(0, 48)}`
 
-// Retorna true se o painel tem credenciais configuradas. Se faltar env var,
-// nenhum login é aceito (fail-closed por segurança).
+// Retorna true se o painel tem ao menos um usuário configurado.
+// Se faltar, nenhum login é aceito (fail-closed por segurança).
 export function isPanelConfigured(): boolean {
-  return !!(ADMIN_USERNAME && ADMIN_PASSWORD)
+  return USERS.length > 0
 }
 
 export function verifyAdminCredentials(username: string, password: string): boolean {
   if (!isPanelConfigured()) return false
-  return username === ADMIN_USERNAME && password === ADMIN_PASSWORD
+  return USERS.some((u) => u.username === username && u.password === password)
 }
 
 export function isAuthenticated(cookieValue: string | undefined | null): boolean {

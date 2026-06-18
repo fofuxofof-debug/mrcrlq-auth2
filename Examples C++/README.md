@@ -1,7 +1,7 @@
-# Havoc Auth — Exemplo C++
+# Havoc Bypass Auth — Exemplo C++
 
 Cliente de autenticação em C++ pra integrar com a API do painel
-(Havoc Auth System) em qualquer projeto Windows.
+(Havoc Bypass Auth System) em qualquer projeto Windows.
 
 ## Arquivos
 

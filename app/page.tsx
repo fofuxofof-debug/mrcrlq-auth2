@@ -108,7 +108,7 @@ export default function HomePage() {
             className="logo-shimmer-dark logo-glow-dark text-6xl sm:text-7xl md:text-9xl font-black tracking-tight card-in leading-none"
             style={{ animationDelay: '100ms' }}
           >
-            Havoc
+            Havoc Bypass
           </h1>
 
           <p
@@ -176,7 +176,7 @@ export default function HomePage() {
           <div className="reveal reveal-up mb-12 sm:mb-16 flex flex-col items-center text-center">
             <p className="text-[10px] sm:text-xs uppercase tracking-[0.4em] text-zinc-500 font-bold mb-3">━ Recursos ━</p>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-zinc-900 max-w-2xl leading-tight">
-              Por que escolher a <span className="logo-shimmer-dark">Havoc</span>?
+              Por que escolher a <span className="logo-shimmer-dark">Havoc Bypass</span>?
             </h2>
             <p className="mt-4 text-sm sm:text-base text-zinc-500 max-w-lg">
               A solução completa pra quem leva o jogo a sério.
@@ -185,7 +185,7 @@ export default function HomePage() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-4">
             {[
-              { icon: Eye,    title: 'Indetectável',  desc: 'Tecnologia anti-ban de última geração. Seu acesso nunca será detectado.', delay: 0 },
+              { icon: Eye,    title: 'Indetectável',  desc: 'Tecnologia de ponta. Seu acesso nunca será detectado.', delay: 0 },
               { icon: Headset,title: 'Suporte VIP',   desc: 'Atendimento exclusivo no Discord com resposta em menos de 5 minutos.',  delay: 120 },
               { icon: Lock,   title: 'Privacidade',   desc: '100% anônimo. Não coletamos dados pessoais nem informações do dispositivo.', delay: 240 },
             ].map((f) => {
@@ -237,7 +237,7 @@ export default function HomePage() {
                 price="R$200"
                 pricePeriod="/mês"
                 priceUsd="$40 USD"
-                features={['Aimbot + ESP', 'Anti-Ban premium', 'Atualizações frequentes', 'Suporte no Discord']}
+                features={['Aimbot + ESP', 'Atualizações frequentes', 'Suporte no Discord']}
                 delay={0}
               />
               <PricingCard

@@ -25,7 +25,7 @@ int wmain() {
     SetConsoleOutputCP(CP_UTF8);
 
     std::wcout << L"================================================\n"
-               << L"   Havoc Auth Client — Example\n"
+               << L"   Havoc Bypass Auth Client — Example\n"
                << L"================================================\n\n";
 
     havoc::AuthClient auth(kHost, kPort, kHttps);

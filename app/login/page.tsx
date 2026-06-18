@@ -44,7 +44,7 @@ export default function LoginPage() {
       <div className="w-full max-w-sm card-in">
         <div className="mb-8 flex flex-col items-center gap-3">
           <h1 className="logo-shimmer-dark logo-glow-dark text-5xl font-black tracking-tight">
-            Havoc
+            Havoc Bypass
           </h1>
         </div>
 
@@ -67,7 +67,6 @@ export default function LoginPage() {
                   autoComplete="username"
                   value={username}
                   onChange={(e) => setUsername(e.target.value)}
-                  placeholder="havoc"
                   className="flex-1 bg-transparent text-zinc-900 placeholder-zinc-400 focus:outline-none text-sm"
                 />
               </div>
