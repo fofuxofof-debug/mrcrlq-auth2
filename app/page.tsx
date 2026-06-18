@@ -9,7 +9,6 @@ import {
 import { SiteTopbar } from '@/components/site-topbar'
 import { SiteFooter } from '@/components/site-footer'
 import { PricingCard } from '@/components/pricing-card'
-import { VideoPlayer } from '@/components/video-player'
 
 // Count-up animado pros stats
 function CountUp({ to, suffix = '', prefix = '' }: { to: number; suffix?: string; prefix?: string }) {
@@ -61,9 +60,6 @@ function FAQItem({ q, a, delay = 0 }: { q: string; a: string; delay?: number }) 
 }
 
 export default function HomePage() {
-  // Estado: vídeo do showcase está tocando? (controla visibilidade do texto)
-  const [showcasePlaying, setShowcasePlaying] = useState(false)
-
   // Scroll reveal
   useEffect(() => {
     if (typeof window === 'undefined' || typeof IntersectionObserver === 'undefined') return
@@ -208,54 +204,6 @@ export default function HomePage() {
                 </div>
               )
             })}
-          </div>
-        </div>
-      </section>
-
-      {/* ===== SHOWCASES ===== */}
-      <section id="showcases" className="relative z-10 px-5 sm:px-6 py-20 sm:py-28">
-        <div className="mx-auto max-w-6xl">
-          <div className="reveal reveal-up mb-12 sm:mb-16 flex flex-col items-center text-center">
-            <p className="text-[10px] sm:text-xs uppercase tracking-[0.4em] text-zinc-500 font-bold mb-3">━ Showcases ━</p>
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-zinc-900 max-w-2xl leading-tight">
-              Veja em ação
-            </h2>
-          </div>
-
-          <div className="mx-auto w-full max-w-3xl px-1 sm:px-0">
-            <div
-              className="reveal reveal-up hover-lift relative overflow-hidden rounded-2xl border border-zinc-200/80 group shadow-[0_1px_2px_rgba(0,0,0,0.03)] w-full min-h-[220px] sm:min-h-[400px]"
-              style={{ backgroundColor: 'rgb(0,0,0)' }}
-            >
-              {/* Video player ocupa o card todo */}
-              <div className="absolute inset-0 z-0">
-                <VideoPlayer
-                  src="/Video/private2.mp4"
-                  className="h-full w-full"
-                  onPlayingChange={setShowcasePlaying}
-                />
-              </div>
-
-              {/* Tint laranja/vermelho (mix-blend) */}
-              <div className="pointer-events-none absolute inset-0 z-10 bg-gradient-to-br from-orange-500/20 via-transparent to-red-500/10 mix-blend-screen opacity-60 group-hover:opacity-80 transition-opacity duration-700" />
-
-              {/* Conteúdo: badge + título + descrição. Some quando o vídeo toca. */}
-              <div
-                className={`relative z-20 p-4 sm:p-10 flex flex-col pointer-events-none transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-                  showcasePlaying
-                    ? 'opacity-0 -translate-y-3 blur-sm'
-                    : 'opacity-100 translate-y-0 blur-0'
-                }`}
-              >
-                <span className="self-start mb-2 sm:mb-4 inline-flex items-center rounded-full border border-white/30 bg-white/10 px-2.5 sm:px-3 py-0.5 sm:py-1 text-[9px] sm:text-[10px] font-bold uppercase tracking-widest text-white backdrop-blur-md">
-                  FreeFire
-                </span>
-                <h3 className="text-lg sm:text-3xl font-black text-white mb-1 sm:mb-2 drop-shadow-lg leading-tight">Free Fire Showcase</h3>
-                <p className="text-xs sm:text-sm text-white/85 leading-relaxed max-w-md drop-shadow-md">
-                  Aimbot, ESP, wallhack e configurações avançadas. Compatível com último patch.
-                </p>
-              </div>
-            </div>
           </div>
         </div>
       </section>
