@@ -1,0 +1,583 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  --background: rgb(244, 249, 254);
+  --foreground: rgb(15, 15, 15);
+  --card: rgb(255, 255, 255);
+  --card-foreground: rgb(15, 15, 15);
+  --popover: rgb(255, 255, 255);
+  --popover-foreground: rgb(15, 15, 15);
+  --primary: rgb(15, 15, 15);
+  --primary-foreground: rgb(255, 255, 255);
+  --secondary: rgb(245, 245, 245);
+  --secondary-foreground: rgb(15, 15, 15);
+  --muted: rgb(245, 245, 245);
+  --muted-foreground: rgb(110, 110, 110);
+  --accent: rgb(240, 240, 240);
+  --accent-foreground: rgb(15, 15, 15);
+  --destructive: rgb(220, 60, 60);
+  --destructive-foreground: rgb(255, 255, 255);
+  --success: rgb(40, 140, 60);
+  --success-foreground: rgb(255, 255, 255);
+  --warning: rgb(190, 130, 30);
+  --warning-foreground: rgb(255, 255, 255);
+  --border: rgb(228, 228, 228);
+  --input: rgb(248, 248, 248);
+  --ring: rgb(15, 15, 15);
+  --radius: 0.75rem;
+  --sidebar: rgb(245, 245, 245);
+  --sidebar-foreground: rgb(15, 15, 15);
+  --sidebar-primary: rgb(15, 15, 15);
+  --sidebar-primary-foreground: rgb(255, 255, 255);
+  --sidebar-accent: rgb(238, 238, 238);
+  --sidebar-accent-foreground: rgb(15, 15, 15);
+  --sidebar-border: rgb(228, 228, 228);
+  --sidebar-ring: rgb(15, 15, 15);
+}
+
+.dark {
+  --background: rgb(10, 14, 22);
+  --foreground: rgb(240, 244, 250);
+  --card: rgb(20, 24, 34);
+  --card-foreground: rgb(240, 244, 250);
+  --popover: rgb(20, 24, 34);
+  --popover-foreground: rgb(240, 244, 250);
+  --primary: rgb(245, 245, 245);
+  --primary-foreground: rgb(15, 15, 15);
+  --secondary: rgb(24, 28, 38);
+  --secondary-foreground: rgb(240, 244, 250);
+  --muted: rgb(24, 28, 38);
+  --muted-foreground: rgb(150, 158, 175);
+  --accent: rgb(28, 32, 42);
+  --accent-foreground: rgb(240, 244, 250);
+  --destructive: rgb(220, 60, 60);
+  --destructive-foreground: rgb(255, 255, 255);
+  --success: rgb(70, 180, 110);
+  --success-foreground: rgb(15, 15, 15);
+  --warning: rgb(220, 170, 60);
+  --warning-foreground: rgb(15, 15, 15);
+  --border: rgb(40, 46, 60);
+  --input: rgb(22, 26, 36);
+  --ring: rgb(180, 190, 210);
+  --sidebar: rgb(14, 18, 28);
+  --sidebar-foreground: rgb(240, 244, 250);
+  --sidebar-primary: rgb(245, 245, 245);
+  --sidebar-primary-foreground: rgb(15, 15, 15);
+  --sidebar-accent: rgb(28, 32, 42);
+  --sidebar-accent-foreground: rgb(240, 244, 250);
+  --sidebar-border: rgb(40, 46, 60);
+  --sidebar-ring: rgb(180, 190, 210);
+}
+
+@theme inline {
+  --font-sans: 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-success-foreground: var(--success-foreground);
+  --color-warning: var(--warning);
+  --color-warning-foreground: var(--warning-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+* {
+  border-color: var(--border);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+html, body {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: rgba(0,0,0,0.15); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: rgba(0,0,0,0.3); }
+
+/* Animations */
+@keyframes card-in {
+  0% { opacity: 0; transform: translateY(8px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.card-in { animation: card-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+@keyframes page-in {
+  0% { opacity: 0; transform: translateY(6px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.page-in { animation: page-in 0.35s cubic-bezier(0.22,1,0.36,1) both; }
+
+.hover-lift {
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, border-color 0.2s ease-out;
+}
+.hover-lift:hover {
+  transform: translateY(-1px);
+  border-color: rgba(0,0,0,0.12);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.08);
+}
+
+/* ============ Logo glitch + glow ============ */
+@keyframes logo-glow {
+  0%, 100% { text-shadow: 0 0 8px rgba(255,255,255,0.15), 0 0 18px rgba(255,255,255,0.05); }
+  50% { text-shadow: 0 0 14px rgba(255,255,255,0.4), 0 0 32px rgba(255,255,255,0.15); }
+}
+.logo-glow { animation: logo-glow 3s ease-in-out infinite; }
+
+@keyframes logo-shimmer {
+  0% { background-position: -200% center; }
+  100% { background-position: 200% center; }
+}
+.logo-shimmer {
+  background-image: linear-gradient(
+    90deg,
+    rgb(220,220,220) 0%,
+    rgb(255,255,255) 25%,
+    rgb(180,180,180) 50%,
+    rgb(255,255,255) 75%,
+    rgb(220,220,220) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: logo-shimmer 4s linear infinite;
+}
+
+/* Variante escura do shimmer para fundos claros */
+.logo-shimmer-dark {
+  background-image: linear-gradient(
+    90deg,
+    rgb(60,60,60) 0%,
+    rgb(0,0,0) 25%,
+    rgb(120,120,120) 50%,
+    rgb(0,0,0) 75%,
+    rgb(60,60,60) 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+          background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: logo-shimmer 4s linear infinite;
+}
+@keyframes logo-glow-dark {
+  0%, 100% { text-shadow: 0 0 6px rgba(0,0,0,0.06), 0 0 14px rgba(0,0,0,0.03); }
+  50%      { text-shadow: 0 0 10px rgba(0,0,0,0.16), 0 0 24px rgba(0,0,0,0.06); }
+}
+.logo-glow-dark { animation: logo-glow-dark 3s ease-in-out infinite; }
+
+/* ============ Click ripple / button shine ============ */
+@keyframes button-shine {
+  0% { transform: translateX(-100%) skewX(-20deg); }
+  100% { transform: translateX(220%) skewX(-20deg); }
+}
+.button-shine {
+  position: relative;
+  overflow: hidden;
+}
+.button-shine::after {
+  content: '';
+  position: absolute;
+  top: 0; bottom: 0;
+  left: 0;
+  width: 60%;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    rgba(255,255,255,0.18) 50%,
+    transparent 100%
+  );
+  transform: translateX(-100%) skewX(-20deg);
+  pointer-events: none;
+  transition: opacity 0.2s;
+  opacity: 0;
+}
+.button-shine:hover::after {
+  opacity: 1;
+  animation: button-shine 1.1s ease-out;
+}
+
+/* ============ Pulse soft glow ============ */
+@keyframes soft-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255,255,255,0.0), 0 0 18px rgba(255,255,255,0.08); }
+  50% { box-shadow: 0 0 0 4px rgba(255,255,255,0.06), 0 0 28px rgba(255,255,255,0.18); }
+}
+.soft-pulse { animation: soft-pulse 2.5s ease-in-out infinite; }
+
+/* ============ Fade in stagger (rows) ============ */
+@keyframes row-in {
+  0% { opacity: 0; transform: translateX(-6px); }
+  100% { opacity: 1; transform: translateX(0); }
+}
+.row-in { animation: row-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+/* ============ Spin slow (decorative) ============ */
+@keyframes spin-slow {
+  to { transform: rotate(360deg); }
+}
+.spin-slow { animation: spin-slow 14s linear infinite; }
+
+/* ============ Background grid ambient (desativado, mantido pra compat) ============ */
+.bg-grid {
+  /* substituído pelo céu */
+}
+
+/* ============ Sky background (tom branco com leve azulado em todo o fundo) ============ */
+.bg-sky {
+  background-color: rgb(244, 249, 254); /* quase branco com toque sutil de azul */
+  background-image:
+    /* Variação muito suave: cantos com pitada extra de azul */
+    radial-gradient(ellipse 60% 50% at 0% 0%,   rgba(186, 222, 250, 0.22) 0%, transparent 65%),
+    radial-gradient(ellipse 55% 45% at 100% 0%, rgba(199, 232, 249, 0.18) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 40% at 0% 100%, rgba(199, 232, 249, 0.15) 0%, transparent 65%),
+    radial-gradient(ellipse 60% 50% at 100% 100%, rgba(186, 222, 250, 0.20) 0%, transparent 65%);
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+}
+
+/* Versão dark do céu — noite suave */
+.dark .bg-sky {
+  background-color: rgb(10, 14, 22);
+  background-image:
+    radial-gradient(ellipse 60% 50% at 0% 0%,   rgba(60, 80, 130, 0.25) 0%, transparent 65%),
+    radial-gradient(ellipse 55% 45% at 100% 0%, rgba(50, 70, 110, 0.20) 0%, transparent 65%),
+    radial-gradient(ellipse 50% 40% at 0% 100%, rgba(50, 70, 110, 0.15) 0%, transparent 65%),
+    radial-gradient(ellipse 60% 50% at 100% 100%, rgba(60, 80, 130, 0.22) 0%, transparent 65%);
+}
+
+/* Transição suave durante o toggle de tema */
+html.theme-transitioning,
+html.theme-transitioning body,
+html.theme-transitioning *,
+html.theme-transitioning *::before,
+html.theme-transitioning *::after {
+  transition:
+    background-color 600ms ease,
+    background-image 600ms ease,
+    color 600ms ease,
+    border-color 600ms ease,
+    fill 600ms ease,
+    stroke 600ms ease,
+    box-shadow 600ms ease !important;
+}
+
+/* Nuvens flutuantes em azul muito suave (só desktop) */
+.cloud {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(60px);
+  pointer-events: none;
+  will-change: transform, opacity;
+}
+.cloud-1 {
+  width: 38vw; height: 38vw;
+  top: 5%; left: -10%;
+  background: radial-gradient(circle, rgba(186, 230, 253, 0.45), rgba(186, 230, 253, 0));
+  animation: drift-a 32s ease-in-out infinite;
+}
+.cloud-2 {
+  width: 32vw; height: 32vw;
+  top: 45%; right: -10%;
+  background: radial-gradient(circle, rgba(199, 232, 249, 0.38), rgba(199, 232, 249, 0));
+  animation: drift-c 38s ease-in-out infinite;
+}
+.cloud-3 {
+  width: 28vw; height: 28vw;
+  bottom: 8%; left: 22%;
+  background: radial-gradient(circle, rgba(207, 235, 250, 0.30), rgba(207, 235, 250, 0));
+  animation: drift-b 30s ease-in-out infinite;
+}
+
+/* ============ Otimização mobile: cortar animações pesadas ============ */
+@media (max-width: 768px) {
+  .cloud, .cloud-1, .cloud-2, .cloud-3 { display: none !important; }
+  .drift-a, .drift-b, .drift-c, .drift-d { animation: none !important; }
+  .bg-aurora, .bg-aurora-dark { display: none !important; }
+  .scan-line, .scan-line-dark { display: none !important; }
+
+  /* Reveal mais leve / mais curto */
+  .reveal.in-view,
+  .reveal-up.in-view,
+  .reveal-left.in-view,
+  .reveal-right.in-view,
+  .reveal-zoom.in-view {
+    animation-duration: 0.5s !important;
+  }
+  @keyframes reveal-up    { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes reveal-in    { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes reveal-left  { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: translateX(0); } }
+  @keyframes reveal-right { from { opacity: 0; transform: translateX(12px); }  to { opacity: 1; transform: translateX(0); } }
+  @keyframes reveal-zoom  { from { opacity: 0; transform: scale(0.97); }       to { opacity: 1; transform: scale(1); } }
+
+  /* Encurta hover-lift (não tem hover real no touch, mas previne shift) */
+  .hover-lift { transition: none; }
+  .hover-lift:hover { transform: none; box-shadow: none; }
+
+  /* Logo glow/shimmer pesados — desativa loops infinitos */
+  .logo-glow, .logo-glow-dark { animation: none !important; }
+
+  /* Spin slow e button-shine: cortados no mobile */
+  .spin-slow { animation: none !important; }
+  .button-shine::after { display: none !important; }
+}
+
+/* ============ Scroll reveal (entrar com a rolagem) ============ */
+.reveal {
+  opacity: 0;
+  will-change: transform, opacity;
+}
+.reveal.in-view {
+  animation: reveal-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+.reveal-up.in-view  { animation: reveal-up 0.9s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.reveal-left.in-view  { animation: reveal-left 0.9s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.reveal-right.in-view { animation: reveal-right 0.9s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.reveal-zoom.in-view  { animation: reveal-zoom 0.9s cubic-bezier(0.22, 1, 0.36, 1) both; }
+
+@keyframes reveal-in    { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes reveal-up    { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes reveal-left  { from { opacity: 0; transform: translateX(-32px); } to { opacity: 1; transform: translateX(0); } }
+@keyframes reveal-right { from { opacity: 0; transform: translateX(32px);  } to { opacity: 1; transform: translateX(0); } }
+@keyframes reveal-zoom  { from { opacity: 0; transform: scale(0.94);       } to { opacity: 1; transform: scale(1); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal, .reveal-up, .reveal-left, .reveal-right, .reveal-zoom {
+    opacity: 1 !important;
+    animation: none !important;
+  }
+}
+
+/* ============ Drift orbs (fundo animado) ============ */
+@keyframes drift-a {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  33%      { transform: translate3d(6vw, -4vh, 0) scale(1.08); }
+  66%      { transform: translate3d(-5vw, 5vh, 0) scale(0.94); }
+}
+@keyframes drift-b {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  50%      { transform: translate3d(-7vw, 6vh, 0); }
+}
+@keyframes drift-c {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%      { transform: translate3d(9vw, -5vh, 0) scale(1.12); }
+}
+@keyframes drift-d {
+  0%, 100% { transform: translate3d(0, 0, 0); }
+  40%      { transform: translate3d(-4vw, -6vh, 0); }
+  80%      { transform: translate3d(5vw, 4vh, 0); }
+}
+@keyframes pulse-soft {
+  0%, 100% { opacity: 0.55; }
+  50%      { opacity: 1; }
+}
+
+.drift-a { animation: drift-a 24s ease-in-out infinite, pulse-soft 8s ease-in-out infinite; }
+.drift-b { animation: drift-b 30s ease-in-out infinite, pulse-soft 11s ease-in-out infinite; }
+.drift-c { animation: drift-c 36s ease-in-out infinite, pulse-soft 9s ease-in-out infinite; }
+.drift-d { animation: drift-d 40s ease-in-out infinite, pulse-soft 13s ease-in-out infinite; }
+
+/* Aurora rotativa subliminal */
+@keyframes aurora-spin {
+  from { transform: rotate(0deg) scale(1); }
+  to   { transform: rotate(360deg) scale(1); }
+}
+.bg-aurora {
+  position: absolute;
+  inset: -30%;
+  background:
+    conic-gradient(
+      from 0deg at 50% 50%,
+      rgba(255,255,255,0.00) 0deg,
+      rgba(255,255,255,0.045) 90deg,
+      rgba(255,255,255,0.00) 180deg,
+      rgba(255,255,255,0.035) 270deg,
+      rgba(255,255,255,0.00) 360deg
+    );
+  filter: blur(70px);
+  opacity: 0.55;
+  animation: aurora-spin 60s linear infinite;
+  pointer-events: none;
+}
+
+/* Aurora variante escura (pra fundos brancos) */
+.bg-aurora-dark {
+  position: absolute;
+  inset: -30%;
+  background:
+    conic-gradient(
+      from 0deg at 50% 50%,
+      rgba(0,0,0,0.00) 0deg,
+      rgba(0,0,0,0.045) 90deg,
+      rgba(0,0,0,0.00) 180deg,
+      rgba(0,0,0,0.030) 270deg,
+      rgba(0,0,0,0.00) 360deg
+    );
+  filter: blur(70px);
+  opacity: 0.55;
+  animation: aurora-spin 60s linear infinite;
+  pointer-events: none;
+}
+
+/* Linhas verticais sutis cruzando devagar */
+@keyframes scan-line {
+  0%   { transform: translateY(-100%); opacity: 0; }
+  10%  { opacity: 1; }
+  90%  { opacity: 1; }
+  100% { transform: translateY(100vh); opacity: 0; }
+}
+.scan-line {
+  position: absolute;
+  left: var(--x, 30%);
+  top: 0;
+  width: 1px;
+  height: 100vh;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(255,255,255,0.12) 50%,
+    transparent 100%
+  );
+  animation: scan-line var(--dur, 14s) linear infinite;
+  animation-delay: var(--delay, 0s);
+  pointer-events: none;
+}
+
+/* Variante escura da scan line */
+.scan-line-dark {
+  position: absolute;
+  left: var(--x, 30%);
+  top: 0;
+  width: 1px;
+  height: 100vh;
+  background: linear-gradient(
+    180deg,
+    transparent 0%,
+    rgba(0,0,0,0.10) 50%,
+    transparent 100%
+  );
+  animation: scan-line var(--dur, 14s) linear infinite;
+  animation-delay: var(--delay, 0s);
+  pointer-events: none;
+}
+
+/* Smooth transitions globalmente em interativos */
+button, a, input, select, [role="button"] {
+  transition:
+    color 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    background-color 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+
+/* ============ Video player custom range ============ */
+.vp-range {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 5px;
+  width: 100%;
+  border-radius: 9999px;
+  outline: none;
+  cursor: pointer;
+  transition: height 0.2s ease;
+}
+.vp-range:hover {
+  height: 7px;
+}
+.vp-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #ffffff;
+  cursor: pointer;
+  border: 0;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.45);
+  transition: transform 0.2s ease;
+}
+.vp-range:hover::-webkit-slider-thumb {
+  transform: scale(1.25);
+}
+.vp-range::-moz-range-thumb {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #ffffff;
+  cursor: pointer;
+  border: 0;
+  box-shadow: 0 0 8px rgba(0, 0, 0, 0.45);
+  transition: transform 0.2s ease;
+}
+.vp-range:hover::-moz-range-thumb {
+  transform: scale(1.25);
+}
+.vp-range::-webkit-slider-runnable-track,
+.vp-range::-moz-range-track {
+  background: transparent;
+  border: 0;
+}
+
+/* Wrapper do seek que cresce a área tocável vertical (sem aumentar visual) */
+.vp-seek-wrap {
+  display: flex;
+  align-items: center;
+  padding: 8px 0; /* hit area extra */
+  cursor: pointer;
+}
+.vp-seek-wrap .vp-seek { display: block; }
+
+/* ============ Touch / mobile (área tocável maior) ============ */
+@media (pointer: coarse), (max-width: 640px) {
+  .vp-range {
+    height: 6px;
+  }
+  .vp-range::-webkit-slider-thumb {
+    width: 18px;
+    height: 18px;
+  }
+  .vp-range::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+  }
+  .vp-seek-wrap {
+    padding: 12px 0; /* hit area maior em touch */
+  }
+}

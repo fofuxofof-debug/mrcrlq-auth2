@@ -1,0 +1,17 @@
+# v0 runtime files
+__v0_runtime_loader.js
+__v0_devtools.tsx
+__v0_jsx-dev-runtime.ts
+
+# Common ignores
+node_modules
+.next/
+.env*.local
+.DS_Store
+
+# Arquivos grandes — não vão pro git. Se precisar do vídeo no deploy,
+# hospede em um CDN (Cloudflare R2, S3, Bunny, etc) e referencie por URL.
+public/Video/*.mp4
+public/Video/*.webm
+public/Video/*.mov
+*.mp4
