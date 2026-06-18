@@ -50,6 +50,10 @@ const AUTH_SECRET = readEnv('AUTH_SECRET') ?? 'dev_secret_unsafe_change_me'
 
 export const SESSION_COOKIE_NAME = 'panel_session'
 
+// Cookie separado que guarda apenas o nome do usuário logado (display only).
+// Sem implicação de segurança: o gate de auth é o SESSION_COOKIE.
+export const USER_COOKIE_NAME = 'panel_user'
+
 // O valor do cookie é derivado do AUTH_SECRET. Como o AUTH_SECRET é segredo
 // (env var, fora do git), o valor do cookie também é. Quem só tem o source
 // não consegue forjar uma sessão.
