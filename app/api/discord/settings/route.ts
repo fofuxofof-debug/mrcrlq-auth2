@@ -1,13 +1,11 @@
 import { NextResponse, type NextRequest } from 'next/server'
 import { cookies } from 'next/headers'
 import { getBotToken, setRuntimeBotToken, verifyBotToken } from '@/lib/discord'
-
-const SESSION_COOKIE = 'panel_session'
-const VALID_TOKEN = 'mrcrlq:authorized'
+import { SESSION_COOKIE_NAME, isAuthenticated } from '@/lib/admin-auth'
 
 async function requireAdmin() {
   const c = await cookies()
-  return c.get(SESSION_COOKIE)?.value === VALID_TOKEN
+  return isAuthenticated(c.get(SESSION_COOKIE_NAME)?.value)
 }
 
 // Mascarar token pra exibir na UI (não expõe valor real)

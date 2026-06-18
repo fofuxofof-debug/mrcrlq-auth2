@@ -1,12 +1,10 @@
 import { NextResponse, type NextRequest } from 'next/server'
-
-const SESSION_COOKIE = 'panel_session'
-const VALID_TOKEN = 'mrcrlq:authorized'
+import { SESSION_COOKIE_NAME, isAuthenticated } from '@/lib/admin-auth'
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl
-  const session = request.cookies.get(SESSION_COOKIE)?.value
-  const isAuthed = session === VALID_TOKEN
+  const session = request.cookies.get(SESSION_COOKIE_NAME)?.value
+  const isAuthed = isAuthenticated(session)
 
   // Protege /dashboard
   if (pathname.startsWith('/dashboard') && !isAuthed) {
@@ -20,11 +18,6 @@ export function middleware(request: NextRequest) {
     const url = request.nextUrl.clone()
     url.pathname = '/dashboard'
     return NextResponse.redirect(url)
-  }
-
-  // Root: deixa a landing page publica
-  if (pathname === '/') {
-    return NextResponse.next()
   }
 
   return NextResponse.next()

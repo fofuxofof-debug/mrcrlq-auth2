@@ -1,14 +1,24 @@
 import { NextResponse, type NextRequest } from 'next/server'
+import {
+  SESSION_COOKIE_NAME,
+  SESSION_COOKIE_VALUE,
+  isPanelConfigured,
+  isAuthenticated,
+  verifyAdminCredentials,
+} from '@/lib/admin-auth'
 
-const SESSION_COOKIE = 'panel_session'
-const VALID_TOKEN = 'mrcrlq:authorized'
-
-// Credenciais locais (fixas)
-const ADMIN_USERNAME = 'mrcrlq'
-const ADMIN_PASSWORD = '1964f'
+export const runtime = 'nodejs'
+export const dynamic = 'force-dynamic'
 
 // POST /api/auth/session  → login
 export async function POST(request: NextRequest) {
+  if (!isPanelConfigured()) {
+    return NextResponse.json(
+      { success: false, error: 'panel_not_configured', message: 'Painel sem credenciais configuradas. Defina ADMIN_USERNAME e ADMIN_PASSWORD nas env vars.' },
+      { status: 500 }
+    )
+  }
+
   let body: { username?: string; password?: string }
   try {
     body = await request.json()
@@ -19,7 +29,7 @@ export async function POST(request: NextRequest) {
   const username = body.username?.trim() ?? ''
   const password = body.password ?? ''
 
-  if (username !== ADMIN_USERNAME || password !== ADMIN_PASSWORD) {
+  if (!verifyAdminCredentials(username, password)) {
     return NextResponse.json(
       { success: false, error: 'invalid_credentials', message: 'Usuário ou senha incorretos.' },
       { status: 401 }
@@ -27,8 +37,9 @@ export async function POST(request: NextRequest) {
   }
 
   const response = NextResponse.json({ success: true })
-  response.cookies.set(SESSION_COOKIE, VALID_TOKEN, {
+  response.cookies.set(SESSION_COOKIE_NAME, SESSION_COOKIE_VALUE, {
     httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     path: '/',
     maxAge: 60 * 60 * 24 * 7, // 7 dias
@@ -39,7 +50,7 @@ export async function POST(request: NextRequest) {
 // DELETE /api/auth/session  → logout
 export async function DELETE() {
   const response = NextResponse.json({ success: true })
-  response.cookies.set(SESSION_COOKIE, '', {
+  response.cookies.set(SESSION_COOKIE_NAME, '', {
     httpOnly: true,
     sameSite: 'lax',
     path: '/',
@@ -50,6 +61,6 @@ export async function DELETE() {
 
 // GET /api/auth/session  → status
 export async function GET(request: NextRequest) {
-  const session = request.cookies.get(SESSION_COOKIE)?.value
-  return NextResponse.json({ authenticated: session === VALID_TOKEN })
+  const cookie = request.cookies.get(SESSION_COOKIE_NAME)?.value
+  return NextResponse.json({ authenticated: isAuthenticated(cookie) })
 }

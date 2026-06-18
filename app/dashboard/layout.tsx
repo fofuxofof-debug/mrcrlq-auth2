@@ -2,9 +2,7 @@ import React from 'react'
 import { cookies } from 'next/headers'
 import { redirect } from 'next/navigation'
 import { DashboardShell } from '@/components/dashboard-shell'
-
-const SESSION_COOKIE = 'panel_session'
-const VALID_TOKEN = 'mrcrlq:authorized'
+import { SESSION_COOKIE_NAME, isAuthenticated } from '@/lib/admin-auth'
 
 export default async function DashboardLayout({
   children,
@@ -12,16 +10,16 @@ export default async function DashboardLayout({
   children: React.ReactNode
 }) {
   const cookieStore = await cookies()
-  const session = cookieStore.get(SESSION_COOKIE)?.value
+  const session = cookieStore.get(SESSION_COOKIE_NAME)?.value
 
-  if (session !== VALID_TOKEN) {
+  if (!isAuthenticated(session)) {
     redirect('/login')
   }
 
   // Usuário fake passado pro shell (compatibilidade com componente antigo)
   const fakeUser = {
     id: 'local-admin',
-    email: 'mrcrlq@local',
+    email: process.env.ADMIN_USERNAME ?? 'admin',
   }
 
   return <DashboardShell user={fakeUser as never}>{children}</DashboardShell>
