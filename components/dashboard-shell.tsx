@@ -85,7 +85,7 @@ export function DashboardShell({
             style={{ borderColor: 'var(--sidebar-border)' }}
           >
             <span className={`${dark ? 'logo-shimmer' : 'logo-shimmer-dark'} ${dark ? 'logo-glow' : 'logo-glow-dark'} text-2xl font-black tracking-tight transition-transform duration-300 group-hover:scale-[1.04]`}>
-              Mrclrlq
+              Havoc
             </span>
           </div>
         </Link>
@@ -156,7 +156,7 @@ export function DashboardShell({
         >
           <Link href="/dashboard">
             <span className={`${dark ? 'logo-shimmer' : 'logo-shimmer-dark'} ${dark ? 'logo-glow' : 'logo-glow-dark'} text-xl font-black tracking-tight`}>
-              Mrclrlq
+              Havoc
             </span>
           </Link>
           <Button variant="ghost" size="icon" onClick={() => setMobileOpen(!mobileOpen)}>

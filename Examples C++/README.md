@@ -1,14 +1,14 @@
-# Mrclrlq Auth — Exemplo C++
+# Havoc Auth — Exemplo C++
 
 Cliente de autenticação em C++ pra integrar com a API do painel
-(Mrclrlq Auth System) em qualquer projeto Windows.
+(Havoc Auth System) em qualquer projeto Windows.
 
 ## Arquivos
 
-- **`MrclrlqAuth.hpp`** — Header único, sem dependências externas.
+- **`HavocAuth.hpp`** — Header único, sem dependências externas.
   Contém:
-  - `mrcrlq::AuthClient` — classe principal (login + heartbeat)
-  - `mrcrlq::hwid::generate()` — HWID estável (volume serial + CPU + MAC, hash SHA256)
+  - `havoc::AuthClient` — classe principal (login + heartbeat)
+  - `havoc::hwid::generate()` — HWID estável (volume serial + CPU + MAC, hash SHA256)
   - HTTP via WinHTTP, JSON parser leve embutido
 - **`AuthExample.cpp`** — Console standalone que pede a key, valida e
   fica fazendo heartbeat até a sessão ser invalidada.
@@ -31,9 +31,9 @@ Linker já está configurado via `#pragma comment` (winhttp.lib, iphlpapi.lib, b
 ## Uso mínimo no seu projeto
 
 ```cpp
-#include "MrclrlqAuth.hpp"
+#include "HavocAuth.hpp"
 
-mrcrlq::AuthClient auth("auth.mrcrlq.com", 443, true /* https */);
+havoc::AuthClient auth("auth.havoc.com", 443, true /* https */);
 
 auto r = auth.Login(L"KEY-XXXXX-XXXXX-XXXXX-XXXXX");
 if (!r.success) {
@@ -42,7 +42,7 @@ if (!r.success) {
 }
 
 // Sessão ativa. Inicia thread de heartbeat (cada 60s).
-auth.StartHeartbeat([](const mrcrlq::HeartbeatResult& hb) {
+auth.StartHeartbeat([](const havoc::HeartbeatResult& hb) {
     if (!hb.success) {
         // Key foi banida/pausada/expirada durante a sessão.
         // Desativa features e/ou ExitProcess(0).
@@ -60,7 +60,7 @@ auth.StopHeartbeat();
 | Ambiente   | host                   | port | https |
 | ---------- | ---------------------- | ---- | ----- |
 | Local dev  | `192.168.1.16`         | 3000 | false |
-| Produção   | `auth.mrcrlq.com`      | 443  | true  |
+| Produção   | `auth.havoc.com`       | 443  | true  |
 
 ## Notas
 

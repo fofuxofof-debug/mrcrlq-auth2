@@ -108,7 +108,7 @@ export default function HomePage() {
             className="logo-shimmer-dark logo-glow-dark text-6xl sm:text-7xl md:text-9xl font-black tracking-tight card-in leading-none"
             style={{ animationDelay: '100ms' }}
           >
-            Mrclrlq
+            Havoc
           </h1>
 
           <p
@@ -176,7 +176,7 @@ export default function HomePage() {
           <div className="reveal reveal-up mb-12 sm:mb-16 flex flex-col items-center text-center">
             <p className="text-[10px] sm:text-xs uppercase tracking-[0.4em] text-zinc-500 font-bold mb-3">━ Recursos ━</p>
             <h2 className="text-3xl sm:text-4xl md:text-5xl font-black tracking-tight text-zinc-900 max-w-2xl leading-tight">
-              Por que escolher a <span className="logo-shimmer-dark">Mrclrlq</span>?
+              Por que escolher a <span className="logo-shimmer-dark">Havoc</span>?
             </h2>
             <p className="mt-4 text-sm sm:text-base text-zinc-500 max-w-lg">
               A solução completa pra quem leva o jogo a sério.

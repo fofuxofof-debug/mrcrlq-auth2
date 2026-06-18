@@ -1,12 +1,12 @@
 #pragma once
 // =============================================================================
-// MrclrlqAuth — cliente C++ headless para a API de auth (Mrclrlq Auth System)
+// HavocAuth — cliente C++ headless para a API de auth (Havoc Auth System)
 //
 // USO:
 //
-//   #include "MrclrlqAuth.hpp"
+//   #include "HavocAuth.hpp"
 //
-//   mrcrlq::AuthClient auth("192.168.1.16", 3000, false /* https */);
+//   havoc::AuthClient auth("192.168.1.16", 3000, false /* https */);
 //
 //   auto r = auth.Login("KEY-XXXXX-XXXXX-XXXXX-XXXXX");
 //   if (!r.success) {
@@ -15,7 +15,7 @@
 //   }
 //
 //   // Sessão ativa. Token está em auth.GetSessionToken().
-//   auth.StartHeartbeat([](const mrcrlq::HeartbeatResult& hb) {
+//   auth.StartHeartbeat([](const havoc::HeartbeatResult& hb) {
 //       if (!hb.success) {
 //           std::wcout << L"Sessão perdida: " << hb.error << L"\n";
 //           ExitProcess(0); // ou desativa features
@@ -49,7 +49,7 @@
 #pragma comment(lib, "iphlpapi.lib")
 #pragma comment(lib, "bcrypt.lib")
 
-namespace mrcrlq {
+namespace havoc {
 
 // ---------- Resultado de Login ----------
 struct LoginResult {
@@ -247,7 +247,7 @@ namespace detail {
         const std::wstring& path, const std::string& body)
     {
         HttpResponse r;
-        HINTERNET session = WinHttpOpen(L"MrclrlqAuth/1.0",
+        HINTERNET session = WinHttpOpen(L"HavocAuth/1.0",
             WINHTTP_ACCESS_TYPE_DEFAULT_PROXY, WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
         if (!session) return r;
 
@@ -309,7 +309,7 @@ namespace detail {
 // =============================================================================
 class AuthClient {
 public:
-    // host = "auth.mrcrlq.com" (prod) ou "192.168.1.16" (dev)
+    // host = "auth.havoc.com" (prod) ou "192.168.1.16" (dev)
     AuthClient(const std::string& host, int port = 443, bool https = true)
         : host_(detail::utf8_to_wstring(host)),
           port_(static_cast<INTERNET_PORT>(port)),
@@ -438,4 +438,4 @@ private:
     std::thread         worker_;
 };
 
-} // namespace mrcrlq
+} // namespace havoc

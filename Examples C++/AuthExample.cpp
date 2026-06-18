@@ -1,5 +1,5 @@
 // =============================================================================
-// AuthExample.cpp — exemplo standalone de uso do MrclrlqAuth.hpp
+// AuthExample.cpp — exemplo standalone de uso do HavocAuth.hpp
 // 
 // Como compilar (cl.exe):
 //   cl /EHsc /std:c++17 AuthExample.cpp
@@ -8,7 +8,7 @@
 // via #pragma comment dentro do header.
 // =============================================================================
 
-#include "MrclrlqAuth.hpp"
+#include "HavocAuth.hpp"
 #include <iostream>
 #include <iomanip>
 
@@ -16,7 +16,7 @@
 // Para teste local:
 //   host = "192.168.1.16", port = 3000, https = false
 // Para produção:
-//   host = "auth.mrcrlq.com", port = 443, https = true
+//   host = "auth.havoc.com", port = 443, https = true
 constexpr auto kHost  = "192.168.1.16";
 constexpr int  kPort  = 3000;
 constexpr bool kHttps = false;
@@ -25,10 +25,10 @@ int wmain() {
     SetConsoleOutputCP(CP_UTF8);
 
     std::wcout << L"================================================\n"
-               << L"   Mrclrlq Auth Client — Example\n"
+               << L"   Havoc Auth Client — Example\n"
                << L"================================================\n\n";
 
-    mrcrlq::AuthClient auth(kHost, kPort, kHttps);
+    havoc::AuthClient auth(kHost, kPort, kHttps);
 
     std::wcout << L"HWID: " << auth.GetHwid() << L"\n\n";
 
@@ -65,7 +65,7 @@ int wmain() {
     // ----- Inicia heartbeat -----
     std::wcout << L"Heartbeat iniciado (cada 60s). Ctrl+C pra sair.\n\n";
 
-    auth.StartHeartbeat([](const mrcrlq::HeartbeatResult& hb) {
+    auth.StartHeartbeat([](const havoc::HeartbeatResult& hb) {
         SYSTEMTIME st; GetLocalTime(&st);
         std::wcout << L"["
                    << std::setw(2) << std::setfill(L'0') << st.wHour   << L":"

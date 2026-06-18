@@ -11,7 +11,7 @@ export function SiteFooter() {
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4 mb-10">
           <div>
             <div className="logo-shimmer-dark logo-glow-dark text-2xl font-black tracking-tight mb-3">
-              Mrclrlq
+              Havoc
             </div>
             <p className="text-sm text-zinc-600 leading-relaxed max-w-xs">
               Plataforma completa de licenciamento para produtos digitais, com auth
@@ -48,7 +48,7 @@ export function SiteFooter() {
         </div>
 
         <div className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t border-zinc-200/80 pt-6 text-[11px] text-zinc-500">
-          <span>© 2026 Mrclrlq. Todos os direitos reservados.</span>
+          <span>© 2026 Havoc. Todos os direitos reservados.</span>
           <span className="uppercase tracking-widest">Auth System v1.0</span>
         </div>
       </div>

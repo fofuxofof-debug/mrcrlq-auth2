@@ -89,10 +89,10 @@ export default function DiscordPage() {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({
-          username: 'Mrclrlq Auth',
+          username: 'Havoc Auth',
           embeds: [{
             title: 'Webhook conectado',
-            description: 'Notificações da Mrclrlq estão configuradas.',
+            description: 'Notificações da Havoc estão configuradas.',
             color: isNaN(colorHex) ? 0x0f0f0f : colorHex,
             timestamp: new Date().toISOString(),
           }],

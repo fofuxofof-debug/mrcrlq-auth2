@@ -27,10 +27,10 @@ interface MemDB {
   logs: AuthLog[]
   seeded: boolean
 }
-const globalAny = globalThis as unknown as { __mrcrlqMem?: MemDB }
+const globalAny = globalThis as unknown as { __havocMem?: MemDB }
 const mem: MemDB =
-  globalAny.__mrcrlqMem ?? { keys: new Map(), hwids: new Map(), logs: [], seeded: false }
-if (process.env.NODE_ENV !== 'production') globalAny.__mrcrlqMem = mem
+  globalAny.__havocMem ?? { keys: new Map(), hwids: new Map(), logs: [], seeded: false }
+if (process.env.NODE_ENV !== 'production') globalAny.__havocMem = mem
 
 // =============================================================================
 // Keys

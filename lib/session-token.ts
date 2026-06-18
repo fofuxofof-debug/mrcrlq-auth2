@@ -9,7 +9,7 @@ import { createHmac, timingSafeEqual } from 'crypto'
 // Secret server-side. Em produção, define via env. Fallback só pra dev.
 const SECRET =
   process.env.AUTH_SECRET ??
-  'mrclrlq_dev_secret_change_me_in_production_or_set_AUTH_SECRET_env'
+  'havoc_dev_secret_change_me_in_production_or_set_AUTH_SECRET_env'
 
 const SESSION_TTL_MS = 5 * 60 * 1000 // 5 minutos. Cliente faz heartbeat a cada ~60s.
 
