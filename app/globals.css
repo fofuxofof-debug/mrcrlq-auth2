@@ -132,22 +132,22 @@ html, body {
 
 /* Animations */
 @keyframes card-in {
-  0% { opacity: 0; transform: translateY(8px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% { opacity: 0; transform: translate3d(0, 8px, 0); }
+  100% { opacity: 1; transform: translate3d(0, 0, 0); }
 }
-.card-in { animation: card-in 0.4s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.card-in { animation: card-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
 @keyframes page-in {
-  0% { opacity: 0; transform: translateY(6px); }
-  100% { opacity: 1; transform: translateY(0); }
+  0% { opacity: 0; transform: translate3d(0, 6px, 0); }
+  100% { opacity: 1; transform: translate3d(0, 0, 0); }
 }
-.page-in { animation: page-in 0.35s cubic-bezier(0.22,1,0.36,1) both; }
+.page-in { animation: page-in 0.28s cubic-bezier(0.22,1,0.36,1) both; }
 
 .hover-lift {
-  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out, border-color 0.2s ease-out;
+  transition: transform 0.18s ease-out, box-shadow 0.18s ease-out, border-color 0.18s ease-out;
 }
 .hover-lift:hover {
-  transform: translateY(-1px);
+  transform: translate3d(0, -1px, 0);
   border-color: rgba(0,0,0,0.12);
   box-shadow: 0 8px 24px rgba(0,0,0,0.08);
 }
@@ -302,7 +302,10 @@ html.theme-transitioning *::after {
   border-radius: 50%;
   filter: blur(60px);
   pointer-events: none;
-  will-change: transform, opacity;
+  /* contain isola pintura/layout: muda só esse elemento, nao reflow tudo */
+  contain: layout style paint;
+  /* will-change so quando precisa — mas como a animacao e infinita, fica */
+  will-change: transform;
 }
 .cloud-1 {
   width: 38vw; height: 38vw;
@@ -324,61 +327,76 @@ html.theme-transitioning *::after {
 }
 
 /* ============ Otimização mobile: cortar animações pesadas ============ */
-@media (max-width: 768px) {
+@media (max-width: 768px), (pointer: coarse) {
+  /* Tudo que é loop infinito = morre no mobile (economiza CPU/bateria) */
   .cloud, .cloud-1, .cloud-2, .cloud-3 { display: none !important; }
   .drift-a, .drift-b, .drift-c, .drift-d { animation: none !important; }
   .bg-aurora, .bg-aurora-dark { display: none !important; }
   .scan-line, .scan-line-dark { display: none !important; }
+  .logo-glow, .logo-glow-dark { animation: none !important; }
+  .spin-slow { animation: none !important; }
+  .soft-pulse { animation: none !important; }
+  .button-shine::after { display: none !important; }
 
-  /* Reveal mais leve / mais curto */
+  /* Logo shimmer: vira gradient estático (sem keyframe rodando) */
+  .logo-shimmer, .logo-shimmer-dark {
+    animation: none !important;
+    background-size: 100% auto;
+    background-position: 0 center;
+  }
+
+  /* Reveal mais rápido e curto no mobile (menos distância, menos duração) */
   .reveal.in-view,
   .reveal-up.in-view,
   .reveal-left.in-view,
   .reveal-right.in-view,
   .reveal-zoom.in-view {
-    animation-duration: 0.5s !important;
+    animation-duration: 0.35s !important;
+    animation-timing-function: ease-out !important;
   }
-  @keyframes reveal-up    { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes reveal-in    { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-  @keyframes reveal-left  { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: translateX(0); } }
-  @keyframes reveal-right { from { opacity: 0; transform: translateX(12px); }  to { opacity: 1; transform: translateX(0); } }
-  @keyframes reveal-zoom  { from { opacity: 0; transform: scale(0.97); }       to { opacity: 1; transform: scale(1); } }
 
-  /* Encurta hover-lift (não tem hover real no touch, mas previne shift) */
-  .hover-lift { transition: none; }
-  .hover-lift:hover { transform: none; box-shadow: none; }
+  /* Encurta hover-lift (touch não tem hover real, evita layout shift) */
+  .hover-lift { transition: none !important; }
+  .hover-lift:hover { transform: none !important; box-shadow: none !important; }
 
-  /* Logo glow/shimmer pesados — desativa loops infinitos */
-  .logo-glow, .logo-glow-dark { animation: none !important; }
-
-  /* Spin slow e button-shine: cortados no mobile */
-  .spin-slow { animation: none !important; }
-  .button-shine::after { display: none !important; }
+  /* Transition global mais leve no mobile — sem transform/box-shadow */
+  button, a, input, select, [role="button"] {
+    transition:
+      color 0.2s ease,
+      background-color 0.2s ease,
+      border-color 0.2s ease !important;
+  }
 }
 
 /* ============ Scroll reveal (entrar com a rolagem) ============ */
 .reveal {
   opacity: 0;
-  will-change: transform, opacity;
 }
 .reveal.in-view {
-  animation: reveal-in 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: reveal-in 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
-.reveal-up.in-view  { animation: reveal-up 0.9s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.reveal-left.in-view  { animation: reveal-left 0.9s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.reveal-right.in-view { animation: reveal-right 0.9s cubic-bezier(0.22, 1, 0.36, 1) both; }
-.reveal-zoom.in-view  { animation: reveal-zoom 0.9s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.reveal-up.in-view  { animation: reveal-up 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.reveal-left.in-view  { animation: reveal-left 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.reveal-right.in-view { animation: reveal-right 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
+.reveal-zoom.in-view  { animation: reveal-zoom 0.6s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
-@keyframes reveal-in    { from { opacity: 0; transform: translateY(28px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes reveal-up    { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: translateY(0); } }
-@keyframes reveal-left  { from { opacity: 0; transform: translateX(-32px); } to { opacity: 1; transform: translateX(0); } }
-@keyframes reveal-right { from { opacity: 0; transform: translateX(32px);  } to { opacity: 1; transform: translateX(0); } }
-@keyframes reveal-zoom  { from { opacity: 0; transform: scale(0.94);       } to { opacity: 1; transform: scale(1); } }
+@keyframes reveal-in    { from { opacity: 0; transform: translate3d(0, 20px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
+@keyframes reveal-up    { from { opacity: 0; transform: translate3d(0, 28px, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
+@keyframes reveal-left  { from { opacity: 0; transform: translate3d(-22px, 0, 0); } to { opacity: 1; transform: translate3d(0, 0, 0); } }
+@keyframes reveal-right { from { opacity: 0; transform: translate3d(22px, 0, 0);  } to { opacity: 1; transform: translate3d(0, 0, 0); } }
+@keyframes reveal-zoom  { from { opacity: 0; transform: scale(0.96);              } to { opacity: 1; transform: scale(1); } }
 
+/* Acessibilidade: respeita preferencia do sistema. Desliga TUDO que e animacao,
+   nao so as de reveal (incluindo loops infinitos) */
 @media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
   .reveal, .reveal-up, .reveal-left, .reveal-right, .reveal-zoom {
     opacity: 1 !important;
-    animation: none !important;
   }
 }
 
@@ -498,12 +516,11 @@ html.theme-transitioning *::after {
 /* Smooth transitions globalmente em interativos */
 button, a, input, select, [role="button"] {
   transition:
-    color 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-    background-color 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-    border-color 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-    box-shadow 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-    transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
-    opacity 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    color 0.2s ease,
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
 }
 
 
