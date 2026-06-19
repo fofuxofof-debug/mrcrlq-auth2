@@ -40,14 +40,14 @@ export function SiteTopbar() {
         backgroundColor: scrolled || mobileOpen ? 'rgba(244, 249, 254, 0.85)' : 'transparent',
       }}
     >
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
-        <Link href="/" className="group" onClick={() => setMobileOpen(false)}>
+      <div className="mx-auto grid max-w-6xl grid-cols-[1fr_auto_1fr] items-center gap-4 px-4 py-3 sm:px-6 sm:py-4">
+        <Link href="/" className="group justify-self-start" onClick={() => setMobileOpen(false)}>
           <span className="logo-shimmer-dark logo-glow-dark text-xl sm:text-2xl font-black tracking-tight transition-transform duration-500 group-hover:scale-[1.04]">
             Havoc Bypass
           </span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-1">
+        <nav className="hidden md:flex items-center justify-center gap-1 justify-self-center">
           {navLinks.map((l) => (
             <a
               key={l.href}
@@ -60,7 +60,7 @@ export function SiteTopbar() {
           ))}
         </nav>
 
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 justify-self-end">
           <Link
             href="/login"
             className="button-shine group relative inline-flex items-center gap-2 rounded-full bg-zinc-900 px-4 sm:px-5 py-2 text-xs sm:text-sm font-bold text-white hover:bg-black hover:scale-[1.04] active:scale-[0.97] hover:shadow-[0_0_28px_rgba(0,0,0,0.18)]"
