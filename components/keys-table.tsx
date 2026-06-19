@@ -1,12 +1,15 @@
 'use client'
 
-import type { LicenseKey } from '@/lib/types'
+import type { LicenseKey, HWID } from '@/lib/types'
 import { getDaysRemaining, formatDate } from '@/lib/keys'
 import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Eye, Copy, Loader2, Monitor } from 'lucide-react'
+import { Eye, Copy, Loader2, Monitor, Cpu } from 'lucide-react'
 import Link from 'next/link'
 import { toast } from 'sonner'
+
+// A linha da tabela aceita keys enriquecidas com hwids vindos da API.
+type KeyRow = LicenseKey & { hwids?: HWID[] }
 
 function statusFor(key: LicenseKey) {
   const isExpired = new Date(key.expires_at) <= new Date()
@@ -29,11 +32,51 @@ function StatusBadge({ licenseKey }: { licenseKey: LicenseKey }) {
   return <Badge variant="outline" className={c.className}>{c.label}</Badge>
 }
 
+// Render do HWID: mostra os primeiros 12 chars + "..." e botao de copiar.
+// Se ha mais de 1 HWID, mostra "+N" pra indicar.
+function HwidCell({ hwids }: { hwids?: HWID[] }) {
+  if (!hwids || hwids.length === 0) {
+    return <span className="text-xs text-muted-foreground">—</span>
+  }
+  const first = hwids[0].hwid
+  const shortened = first.length > 12 ? `${first.slice(0, 12)}…` : first
+  const extra = hwids.length - 1
+
+  const copy = (e: React.MouseEvent) => {
+    e.preventDefault()
+    e.stopPropagation()
+    navigator.clipboard.writeText(first)
+    toast.success(`HWID copiado (${first.slice(0, 8)}…)`)
+  }
+
+  return (
+    <div className="flex items-center gap-2">
+      <code
+        title={first}
+        className="rounded bg-secondary px-2 py-1 font-mono text-[11px] text-foreground"
+      >
+        {shortened}
+      </code>
+      <Button
+        variant="ghost"
+        size="icon"
+        className="h-6 w-6 text-muted-foreground hover:text-foreground"
+        onClick={copy}
+      >
+        <Copy className="h-3 w-3" />
+      </Button>
+      {extra > 0 && (
+        <span className="text-[11px] text-muted-foreground">+{extra}</span>
+      )}
+    </div>
+  )
+}
+
 export function KeysTable({
   keys,
   isLoading,
 }: {
-  keys: LicenseKey[]
+  keys: KeyRow[]
   isLoading: boolean
   onMutate: () => void
 }) {
@@ -94,9 +137,19 @@ export function KeysTable({
               <div className="grid grid-cols-2 gap-3 text-xs mb-3">
                 <div className="flex flex-col">
                   <span className="text-muted-foreground flex items-center gap-1">
+                    <Cpu className="h-3 w-3" /> HWID
+                  </span>
+                  <span className="text-foreground font-medium">
+                    <HwidCell hwids={key.hwids} />
+                  </span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-muted-foreground flex items-center gap-1">
                     <Monitor className="h-3 w-3" /> Dispositivos
                   </span>
-                  <span className="text-foreground font-medium">{key.max_devices}</span>
+                  <span className="text-foreground font-medium">
+                    {(key.hwids?.length ?? 0)}/{key.max_devices}
+                  </span>
                 </div>
                 <div className="flex flex-col">
                   <span className="text-muted-foreground">Validade</span>
@@ -143,6 +196,7 @@ export function KeysTable({
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Key</th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Label</th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Status</th>
+                <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">HWID</th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Dispositivos</th>
                 <th className="px-4 py-3 text-left text-xs font-medium uppercase tracking-wider text-muted-foreground">Expira</th>
                 <th className="px-4 py-3 text-right text-xs font-medium uppercase tracking-wider text-muted-foreground">Ações</th>
@@ -151,6 +205,7 @@ export function KeysTable({
             <tbody className="divide-y divide-border">
               {keys.map((key) => {
                 const daysLeft = getDaysRemaining(key.expires_at)
+                const used = key.hwids?.length ?? 0
                 return (
                   <tr key={key.id} className="transition-colors hover:bg-secondary/50">
                     <td className="whitespace-nowrap px-4 py-3">
@@ -170,7 +225,10 @@ export function KeysTable({
                     </td>
                     <td className="whitespace-nowrap px-4 py-3 text-sm text-foreground">{key.label ?? '-'}</td>
                     <td className="whitespace-nowrap px-4 py-3"><StatusBadge licenseKey={key} /></td>
-                    <td className="whitespace-nowrap px-4 py-3 text-sm text-muted-foreground">{key.max_devices}</td>
+                    <td className="whitespace-nowrap px-4 py-3">
+                      <HwidCell hwids={key.hwids} />
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-3 text-sm text-muted-foreground">{used}/{key.max_devices}</td>
                     <td className="whitespace-nowrap px-4 py-3">
                       <div className="flex flex-col">
                         <span className="text-sm text-foreground">{formatDate(key.expires_at)}</span>

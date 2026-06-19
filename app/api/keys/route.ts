@@ -1,8 +1,16 @@
 import { NextResponse, type NextRequest } from 'next/server'
-import { keysDb, logsDb, generateKey } from '@/lib/db'
+import { keysDb, hwidsDb, logsDb, generateKey } from '@/lib/db'
 
 export async function GET() {
-  return NextResponse.json({ data: await keysDb.list() })
+  const keys = await keysDb.list()
+  // Enriquece cada key com seus HWIDs vinculados (pra exibicao na tabela)
+  const enriched = await Promise.all(
+    keys.map(async (k) => ({
+      ...k,
+      hwids: await hwidsDb.listByKey(k.id),
+    }))
+  )
+  return NextResponse.json({ data: enriched })
 }
 
 export async function POST(request: NextRequest) {
