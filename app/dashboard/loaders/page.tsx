@@ -1,8 +1,10 @@
 'use client'
 
-import { useState } from 'react'
-import { Download, Flame, Crosshair, Target, Cpu, ExternalLink, Check } from 'lucide-react'
+import { useState, useMemo } from 'react'
+import useSWR from 'swr'
+import { Download, Flame, Crosshair, Target, Cpu, ExternalLink, Check, Users } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import type { LicenseKey } from '@/lib/types'
 
 interface LoaderVariant {
   id: string
@@ -14,6 +16,7 @@ interface LoaderVariant {
 
 interface LoaderProduct {
   game: string
+  productId: string  // valor que vem do campo `product` da key (lowercase)
   tag: string
   icon: typeof Flame
   accent: string
@@ -25,6 +28,7 @@ interface LoaderProduct {
 const products: LoaderProduct[] = [
   {
     game: 'FreeFire',
+    productId: 'freefire',
     tag: 'BlueStacks · HD-Player',
     icon: Flame,
     accent: 'from-orange-500/25 via-orange-400/10 to-red-400/5',
@@ -38,6 +42,7 @@ const products: LoaderProduct[] = [
   },
   {
     game: 'Valorant',
+    productId: 'valorant',
     tag: 'Aim Color',
     icon: Crosshair,
     accent: 'from-violet-500/25 via-fuchsia-400/10 to-violet-400/5',
@@ -49,6 +54,7 @@ const products: LoaderProduct[] = [
   },
   {
     game: 'CS2',
+    productId: 'cs2',
     tag: 'Counter-Strike 2',
     icon: Target,
     accent: 'from-amber-500/25 via-yellow-400/10 to-amber-400/5',
@@ -60,7 +66,9 @@ const products: LoaderProduct[] = [
   },
 ]
 
-function ProductCard({ p, idx }: { p: LoaderProduct; idx: number }) {
+const fetcher = (url: string) => fetch(url).then((r) => r.json())
+
+function ProductCard({ p, idx, userCount }: { p: LoaderProduct; idx: number; userCount: number }) {
   const [selected, setSelected] = useState(p.variants[0].id)
   const [downloading, setDownloading] = useState(false)
   const [done, setDone] = useState(false)
@@ -101,6 +109,13 @@ function ProductCard({ p, idx }: { p: LoaderProduct; idx: number }) {
           <p className="text-sm font-bold text-zinc-900">{p.game}</p>
           <p className="text-[10px] text-zinc-500 uppercase tracking-widest mt-0.5">{p.tag}</p>
         </div>
+        <span
+          className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-zinc-700 shadow-sm"
+          title={`${userCount} usuário${userCount === 1 ? '' : 's'} criado${userCount === 1 ? '' : 's'} para ${p.game}`}
+        >
+          <Users className="h-3 w-3 text-zinc-500" />
+          <span className="tabular-nums">{userCount}</span>
+        </span>
       </div>
 
       <div className="relative p-5 sm:p-6 flex flex-col gap-4">
@@ -193,6 +208,22 @@ function ProductCard({ p, idx }: { p: LoaderProduct; idx: number }) {
 }
 
 export default function LoadersPage() {
+  // Busca todas as keys pra contar quantas tem por produto
+  const { data: keysResp } = useSWR<{ data: LicenseKey[] }>('/api/keys', fetcher, {
+    refreshInterval: 30_000, // atualiza a cada 30s
+  })
+  const keys = keysResp?.data ?? []
+
+  const counts = useMemo(() => {
+    const map: Record<string, number> = {}
+    for (const k of keys) {
+      const p = (k.product ?? '').toLowerCase()
+      if (!p) continue
+      map[p] = (map[p] ?? 0) + 1
+    }
+    return map
+  }, [keys])
+
   return (
     <div className="page-in flex flex-col gap-6 max-w-6xl">
       <div>
@@ -204,7 +235,7 @@ export default function LoadersPage() {
 
       <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
         {products.map((p, i) => (
-          <ProductCard key={p.game} p={p} idx={i} />
+          <ProductCard key={p.game} p={p} idx={i} userCount={counts[p.productId] ?? 0} />
         ))}
       </div>
 

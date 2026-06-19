@@ -22,6 +22,7 @@ export async function POST(request: NextRequest) {
     notes?: string | null
     quantity?: number
     custom_key?: string | null
+    product?: string | null
   }
   try {
     body = await request.json()
@@ -33,6 +34,9 @@ export async function POST(request: NextRequest) {
   const days = Math.max(Number(body.expires_in_days) || 30, 1)
   const devices = Math.max(Number(body.max_devices) || 1, 1)
   const expires = new Date(Date.now() + days * 24 * 60 * 60 * 1000).toISOString()
+
+  // Normaliza o produto pra slug (lowercase, sem espacos)
+  const product = body.product?.trim().toLowerCase() || null
 
   // Se custom_key foi passado, valida unicidade e usa como key.
   const customKey = body.custom_key?.trim() || null
@@ -52,11 +56,12 @@ export async function POST(request: NextRequest) {
       expires_at: expires,
       discord_id: body.discord_id || null,
       notes: body.notes || null,
+      product,
     })
     await logsDb.create({
       key_id: k.id,
       event_type: 'key_created',
-      details: { key: k.key, label: k.label, custom: true },
+      details: { key: k.key, label: k.label, product, custom: true },
     })
     return NextResponse.json({ data: [k], count: 1 })
   }
@@ -71,11 +76,12 @@ export async function POST(request: NextRequest) {
       expires_at: expires,
       discord_id: body.discord_id || null,
       notes: body.notes || null,
+      product,
     })
     await logsDb.create({
       key_id: k.id,
       event_type: 'key_created',
-      details: { key: k.key, label: k.label },
+      details: { key: k.key, label: k.label, product },
     })
     created.push(k)
   }

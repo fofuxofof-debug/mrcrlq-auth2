@@ -10,6 +10,12 @@ import { Label } from '@/components/ui/label'
 import { Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
 
+const GAMES = [
+  { value: 'freefire', label: 'FreeFire' },
+  { value: 'valorant', label: 'Valorant' },
+  { value: 'cs2',      label: 'CS2' },
+] as const
+
 export function CreateKeyDialog({
   open,
   onOpenChange,
@@ -23,6 +29,7 @@ export function CreateKeyDialog({
   const [maxDevices, setMaxDevices] = useState('1')
   const [expiryDays, setExpiryDays] = useState('30')
   const [discordId, setDiscordId] = useState('')
+  const [product, setProduct] = useState<string>('freefire')
   const [isLoading, setIsLoading] = useState(false)
 
   const handleCreate = async (e: React.FormEvent) => {
@@ -43,6 +50,7 @@ export function CreateKeyDialog({
           discord_id: discordId || null,
           // Se discord_id estiver preenchido, usa como key (override)
           custom_key: discordId || null,
+          product,
         }),
       })
 
@@ -57,6 +65,7 @@ export function CreateKeyDialog({
       setMaxDevices('1')
       setExpiryDays('30')
       setDiscordId('')
+      setProduct('freefire')
       onCreated()
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Erro ao criar key')
@@ -76,14 +85,27 @@ export function CreateKeyDialog({
         </DialogHeader>
         <form onSubmit={handleCreate} className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
+            <Label className="text-sm text-zinc-600">Game</Label>
+            <select
+              value={product}
+              onChange={(e) => setProduct(e.target.value)}
+              className="h-9 rounded-md border border-zinc-200 bg-[rgb(248,248,248)] px-3 text-sm text-zinc-900 outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-900/20 transition-colors"
+            >
+              {GAMES.map((g) => (
+                <option key={g.value} value={g.value}>{g.label}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="flex flex-col gap-2">
             <Label className="text-sm text-zinc-600">User</Label>
             <Input
-              placeholder="Ex: Cliente VIP"
               value={user}
               onChange={(e) => setUser(e.target.value)}
               className="border-zinc-200 bg-[rgb(248,248,248)] text-zinc-900 placeholder:text-zinc-400 focus-visible:ring-zinc-900/30"
             />
           </div>
+
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col gap-2">
               <Label className="text-sm text-zinc-600">Max Dispositivos</Label>
@@ -106,10 +128,10 @@ export function CreateKeyDialog({
               />
             </div>
           </div>
+
           <div className="flex flex-col gap-2">
             <Label className="text-sm text-zinc-600">Discord ID</Label>
             <Input
-              placeholder="Ex: 123456789012345678 (vira a key)"
               value={discordId}
               onChange={(e) => setDiscordId(e.target.value)}
               className="border-zinc-200 bg-[rgb(248,248,248)] text-zinc-900 placeholder:text-zinc-400 focus-visible:ring-zinc-900/30"
@@ -118,6 +140,7 @@ export function CreateKeyDialog({
               Se preenchido, esse valor será usado como a própria key.
             </p>
           </div>
+
           <Button
             type="submit"
             disabled={isLoading}

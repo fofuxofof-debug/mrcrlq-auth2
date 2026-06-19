@@ -223,11 +223,9 @@ export default function HomePage() {
 
           {/* PUBLIC */}
           <div className="mb-16">
-            <div className="reveal reveal-up mb-6 flex items-end justify-between flex-wrap gap-3">
-              <div>
-                <span className="inline-block text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-500 mb-1">FreeFire · Public</span>
-                <h3 className="text-2xl sm:text-3xl font-black text-zinc-900">Plano Public</h3>
-              </div>
+            <div className="reveal reveal-up mb-8 flex flex-col items-center text-center gap-2">
+              <span className="inline-block text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-500">FreeFire · Public</span>
+              <h3 className="text-2xl sm:text-3xl font-black text-zinc-900">Plano Public</h3>
               <p className="text-sm text-zinc-500 max-w-md">Praticidade, estabilidade e excelente custo-benefício.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
@@ -256,11 +254,9 @@ export default function HomePage() {
 
           {/* PRIVATE */}
           <div className="mb-16">
-            <div className="reveal reveal-up mb-6 flex items-end justify-between flex-wrap gap-3">
-              <div>
-                <span className="inline-block text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-500 mb-1">FreeFire · Private</span>
-                <h3 className="text-2xl sm:text-3xl font-black text-zinc-900">Plano Private</h3>
-              </div>
+            <div className="reveal reveal-up mb-8 flex flex-col items-center text-center gap-2">
+              <span className="inline-block text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-500">FreeFire · Private</span>
+              <h3 className="text-2xl sm:text-3xl font-black text-zinc-900">Plano Private</h3>
               <p className="text-sm text-zinc-500 max-w-md">Build privado com anti-screenshare avançado.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
@@ -301,11 +297,9 @@ export default function HomePage() {
 
           {/* REMOTE */}
           <div className="mb-16">
-            <div className="reveal reveal-up mb-6 flex items-end justify-between flex-wrap gap-3">
-              <div>
-                <span className="inline-block text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-500 mb-1">FreeFire · Remote</span>
-                <h3 className="text-2xl sm:text-3xl font-black text-zinc-900">Plano Remote</h3>
-              </div>
+            <div className="reveal reveal-up mb-8 flex flex-col items-center text-center gap-2">
+              <span className="inline-block text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-500">FreeFire · Remote</span>
+              <h3 className="text-2xl sm:text-3xl font-black text-zinc-900">Plano Remote</h3>
               <p className="text-sm text-zinc-500 max-w-md">Controle total via web. Sem interface no PC.</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
@@ -348,11 +342,9 @@ export default function HomePage() {
 
           {/* VALORANT */}
           <div className="mb-4">
-            <div className="reveal reveal-up mb-6 flex items-end justify-between flex-wrap gap-3">
-              <div>
-                <span className="inline-block text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-500 mb-1">Valorant · Aimcolor</span>
-                <h3 className="text-2xl sm:text-3xl font-black text-zinc-900">Aimcolor</h3>
-              </div>
+            <div className="reveal reveal-up mb-8 flex flex-col items-center text-center gap-2">
+              <span className="inline-block text-[10px] font-bold uppercase tracking-[0.4em] text-zinc-500">Valorant · Aimcolor</span>
+              <h3 className="text-2xl sm:text-3xl font-black text-zinc-900">Aimcolor</h3>
               <p className="text-sm text-zinc-500 max-w-md">Aimbot, trigger bot e aim assist para Valorant.</p>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">

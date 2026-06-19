@@ -7,6 +7,7 @@ export interface LicenseKey {
   expires_at: string
   discord_id: string | null
   notes: string | null
+  product: string | null   // ex: 'freefire' | 'valorant' | 'cs2'
   created_at: string
   updated_at: string
   created_by: string | null

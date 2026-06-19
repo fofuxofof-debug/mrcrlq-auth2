@@ -77,6 +77,7 @@ export const keysDb = {
       expires_at: input.expires_at,
       discord_id: input.discord_id ?? null,
       notes: input.notes ?? null,
+      product: input.product ?? null,
       created_at: now,
       updated_at: now,
       created_by: input.created_by ?? null,
