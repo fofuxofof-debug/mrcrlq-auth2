@@ -105,7 +105,7 @@ export default function HomePage() {
           </div>
 
           <h1
-            className="logo-shimmer-dark logo-glow-dark text-6xl sm:text-7xl md:text-9xl font-black tracking-tight card-in leading-none"
+            className="logo-shimmer-dark logo-glow-dark text-6xl sm:text-7xl md:text-9xl font-black tracking-tight card-in leading-[1.05] pb-2"
             style={{ animationDelay: '100ms' }}
           >
             Havoc Bypass

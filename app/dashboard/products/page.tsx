@@ -126,20 +126,19 @@ export default function ProductsPage() {
       {Object.entries(grouped).map(([cat, items], gi) => (
         <div
           key={cat}
-          className="card-in rounded-2xl border border-zinc-200/80 overflow-hidden shadow-[0_1px_2px_rgba(0,0,0,0.03)]"
-          style={{ backgroundColor: 'rgb(255,255,255)', animationDelay: `${gi * 60}ms` }}
+          className="card-in rounded-2xl border border-border overflow-hidden shadow-[0_1px_2px_rgba(0,0,0,0.03)] bg-card"
+          style={{ animationDelay: `${gi * 60}ms` }}
         >
           <div
-            className="flex items-center justify-between border-b border-zinc-200/80 px-5 py-3"
-            style={{ backgroundColor: 'rgb(248,248,248)' }}
+            className="flex items-center justify-between border-b border-border px-5 py-3 bg-secondary"
           >
-            <span className="text-xs font-bold uppercase tracking-widest text-zinc-700">{cat}</span>
-            <span className="text-[10px] uppercase tracking-widest text-zinc-500">
+            <span className="text-xs font-bold uppercase tracking-widest text-foreground">{cat}</span>
+            <span className="text-[10px] uppercase tracking-widest text-muted-foreground">
               {items.length} plano{items.length === 1 ? '' : 's'}
             </span>
           </div>
 
-          <div className="divide-y divide-zinc-200/80">
+          <div className="divide-y divide-border">
             {items.map((p, i) => {
               const isEditing = editingId === p.id && draft
               return (
@@ -153,7 +152,7 @@ export default function ProductsPage() {
                       <select
                         value={draft!.category}
                         onChange={(e) => setDraft({ ...draft!, category: e.target.value })}
-                        className="rounded-lg border border-zinc-200 bg-[rgb(248,248,248)] px-2 py-1.5 text-xs text-zinc-900 outline-none focus:border-zinc-500"
+                        className="rounded-lg border border-border bg-secondary px-2 py-1.5 text-xs text-foreground outline-none focus:border-foreground/40"
                       >
                         {['Public', 'Private', 'Remote', 'Valorant'].map((c) => (
                           <option key={c} value={c}>
@@ -164,26 +163,23 @@ export default function ProductsPage() {
                       <input
                         value={draft!.name}
                         onChange={(e) => setDraft({ ...draft!, name: e.target.value })}
-                        placeholder="Nome"
-                        className="flex-1 min-w-0 rounded-lg border border-zinc-200 bg-[rgb(248,248,248)] px-2 py-1.5 text-sm text-zinc-900 outline-none focus:border-zinc-500"
+                        className="flex-1 min-w-0 rounded-lg border border-border bg-secondary px-2 py-1.5 text-sm text-foreground outline-none focus:border-foreground/40"
                       />
                       <input
                         value={draft!.price}
                         onChange={(e) => setDraft({ ...draft!, price: e.target.value })}
-                        placeholder="R$0"
-                        className="w-28 rounded-lg border border-zinc-200 bg-[rgb(248,248,248)] px-2 py-1.5 text-sm text-zinc-900 outline-none focus:border-zinc-500 font-mono"
+                        className="w-28 rounded-lg border border-border bg-secondary px-2 py-1.5 text-sm text-foreground outline-none focus:border-foreground/40 font-mono"
                       />
                       <input
                         value={draft!.period}
                         onChange={(e) => setDraft({ ...draft!, period: e.target.value })}
-                        placeholder="/mês"
-                        className="w-24 rounded-lg border border-zinc-200 bg-[rgb(248,248,248)] px-2 py-1.5 text-sm text-zinc-700 outline-none focus:border-zinc-500"
+                        className="w-24 rounded-lg border border-border bg-secondary px-2 py-1.5 text-sm text-muted-foreground outline-none focus:border-foreground/40"
                       />
                       <div className="flex gap-1">
                         <Button
                           size="icon"
                           onClick={saveEdit}
-                          className="h-8 w-8 bg-zinc-900 text-white hover:bg-black"
+                          className="h-8 w-8 bg-foreground text-background hover:opacity-90"
                         >
                           <Save className="h-3.5 w-3.5" />
                         </Button>
@@ -191,7 +187,7 @@ export default function ProductsPage() {
                           size="icon"
                           variant="ghost"
                           onClick={cancelEdit}
-                          className="h-8 w-8 text-zinc-500 hover:text-zinc-900"
+                          className="h-8 w-8 text-muted-foreground hover:text-foreground"
                         >
                           <X className="h-3.5 w-3.5" />
                         </Button>
@@ -200,26 +196,26 @@ export default function ProductsPage() {
                   ) : (
                     <>
                       <div className="flex-1 min-w-0">
-                        <p className="text-sm font-semibold text-zinc-900">{p.name}</p>
-                        <p className="text-[11px] text-zinc-500 mt-0.5 uppercase tracking-widest">
+                        <p className="text-sm font-semibold text-foreground">{p.name}</p>
+                        <p className="text-[11px] text-muted-foreground mt-0.5 uppercase tracking-widest">
                           {p.category}
                         </p>
                       </div>
                       <div className="flex items-baseline gap-1">
                         <span
-                          className="text-lg font-black text-zinc-900 tabular-nums"
+                          className="text-lg font-black text-foreground tabular-nums"
                           style={{ fontFamily: "var(--font-jetbrains-mono), 'JetBrains Mono', monospace" }}
                         >
                           {p.price}
                         </span>
-                        <span className="text-xs text-zinc-500">{p.period}</span>
+                        <span className="text-xs text-muted-foreground">{p.period}</span>
                       </div>
                       <button
                         onClick={() => toggleStatus(p.id)}
                         className={`text-[10px] font-bold uppercase tracking-widest rounded-full px-2.5 py-1 border transition-colors duration-300 ${
                           p.status === 'active'
-                            ? 'bg-green-50 text-green-700 border-green-300 hover:bg-green-100'
-                            : 'bg-zinc-50 text-zinc-500 border-zinc-200 hover:bg-zinc-100'
+                            ? 'bg-green-500/10 text-green-600 border-green-500/30 hover:bg-green-500/20'
+                            : 'bg-secondary text-muted-foreground border-border hover:bg-accent'
                         }`}
                       >
                         {p.status}
@@ -229,7 +225,7 @@ export default function ProductsPage() {
                           size="icon"
                           variant="ghost"
                           onClick={() => startEdit(p)}
-                          className="h-8 w-8 text-zinc-500 hover:text-zinc-900 hover:bg-[rgb(240,240,240)]"
+                          className="h-8 w-8 text-muted-foreground hover:text-foreground hover:bg-accent"
                         >
                           <Edit3 className="h-3.5 w-3.5" />
                         </Button>
@@ -237,7 +233,7 @@ export default function ProductsPage() {
                           size="icon"
                           variant="ghost"
                           onClick={() => removeProduct(p.id)}
-                          className="h-8 w-8 text-zinc-500 hover:text-red-600 hover:bg-red-50"
+                          className="h-8 w-8 text-muted-foreground hover:text-destructive hover:bg-destructive/10"
                         >
                           <Trash2 className="h-3.5 w-3.5" />
                         </Button>
@@ -251,7 +247,7 @@ export default function ProductsPage() {
         </div>
       ))}
 
-      <p className="text-xs text-zinc-500">
+      <p className="text-xs text-muted-foreground">
         <Package className="inline h-3 w-3 mr-1" />
         Alterações salvas localmente. Sincronização com a landing requer integração ao backend.
       </p>

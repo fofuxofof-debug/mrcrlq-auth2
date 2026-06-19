@@ -159,7 +159,57 @@ html, body {
 }
 .route-fade-in { animation: route-fade-in 0.32s cubic-bezier(0.22, 1, 0.36, 1) both; }
 
-/* ============ Indicador lateral nos links da sidebar (hover) ============ */
+/* ============ Field anim: underline cresce do centro no focus + label sobe ============ */
+.field-anim {
+  position: relative;
+}
+.field-anim::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 2px;
+  background: var(--foreground);
+  transform: translate3d(-50%, 0, 0);
+  transition: width 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+  pointer-events: none;
+  border-radius: 2px;
+  opacity: 0.85;
+}
+.field-anim:focus-within::after {
+  width: 100%;
+}
+
+.field-anim > label,
+.field-anim > [role="label"] {
+  display: inline-block;
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), color 0.25s ease, letter-spacing 0.25s ease;
+  transform-origin: left center;
+}
+.field-anim:focus-within > label,
+.field-anim:focus-within > [role="label"] {
+  transform: translate3d(0, -1px, 0) scale(1.02);
+  color: var(--foreground);
+  letter-spacing: 0.04em;
+}
+
+/* Input/textarea: caret colorido + transicao suave de letter-spacing */
+.field-anim input,
+.field-anim textarea {
+  caret-color: var(--foreground);
+  transition: letter-spacing 0.3s ease, border-color 0.25s ease, background-color 0.25s ease, box-shadow 0.25s ease;
+}
+.field-anim input:focus,
+.field-anim textarea:focus {
+  letter-spacing: 0.01em;
+}
+
+@media (max-width: 768px), (pointer: coarse) {
+  .field-anim::after { transition-duration: 0.22s !important; }
+  .field-anim > label,
+  .field-anim > [role="label"] { transition-duration: 0.18s !important; }
+}
 .nav-link {
   position: relative;
 }

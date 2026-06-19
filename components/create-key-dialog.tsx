@@ -4,10 +4,13 @@ import React, { useState } from 'react'
 import {
   Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle,
 } from '@/components/ui/dialog'
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { Loader2 } from 'lucide-react'
+import { Loader2, Gamepad2 } from 'lucide-react'
 import { toast } from 'sonner'
 
 const GAMES = [
@@ -48,7 +51,6 @@ export function CreateKeyDialog({
           max_devices: devices,
           expires_in_days: days,
           discord_id: discordId || null,
-          // Se discord_id estiver preenchido, usa como key (override)
           custom_key: discordId || null,
           product,
         }),
@@ -76,67 +78,77 @@ export function CreateKeyDialog({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="border-zinc-200 bg-white text-zinc-900 sm:max-w-md">
+      <DialogContent className="border-border bg-card text-foreground sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="text-zinc-900">Criar Nova Key</DialogTitle>
-          <DialogDescription className="text-zinc-500">
+          <DialogTitle className="text-foreground">Criar Nova Key</DialogTitle>
+          <DialogDescription className="text-muted-foreground">
             Configure os parametros da licenca
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleCreate} className="flex flex-col gap-4">
-          <div className="flex flex-col gap-2">
-            <Label className="text-sm text-zinc-600">Game</Label>
-            <select
-              value={product}
-              onChange={(e) => setProduct(e.target.value)}
-              className="h-9 rounded-md border border-zinc-200 bg-[rgb(248,248,248)] px-3 text-sm text-zinc-900 outline-none focus:border-zinc-500 focus:ring-1 focus:ring-zinc-900/20 transition-colors"
-            >
-              {GAMES.map((g) => (
-                <option key={g.value} value={g.value}>{g.label}</option>
-              ))}
-            </select>
+          <div className="field-anim flex flex-col gap-2">
+            <Label className="text-sm text-muted-foreground inline-flex items-center gap-1.5">
+              <Gamepad2 className="h-3.5 w-3.5" />
+              Game
+            </Label>
+            <Select value={product} onValueChange={setProduct}>
+              <SelectTrigger className="border-border bg-secondary text-foreground hover:border-foreground/40 focus:ring-foreground/30 transition-all duration-200">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent className="border-border bg-card text-foreground">
+                {GAMES.map((g) => (
+                  <SelectItem
+                    key={g.value}
+                    value={g.value}
+                    className="text-foreground focus:bg-accent focus:text-foreground cursor-pointer"
+                  >
+                    {g.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <Label className="text-sm text-zinc-600">User</Label>
+          <div className="field-anim flex flex-col gap-2">
+            <Label className="text-sm text-muted-foreground">User</Label>
             <Input
               value={user}
               onChange={(e) => setUser(e.target.value)}
-              className="border-zinc-200 bg-[rgb(248,248,248)] text-zinc-900 placeholder:text-zinc-400 focus-visible:ring-zinc-900/30"
+              className="border-border bg-secondary text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-foreground/30"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="flex flex-col gap-2">
-              <Label className="text-sm text-zinc-600">Max Dispositivos</Label>
+            <div className="field-anim flex flex-col gap-2">
+              <Label className="text-sm text-muted-foreground">Max Dispositivos</Label>
               <Input
                 type="number"
                 min={1}
                 value={maxDevices}
                 onChange={(e) => setMaxDevices(e.target.value)}
-                className="border-zinc-200 bg-[rgb(248,248,248)] text-zinc-900 focus-visible:ring-zinc-900/30"
+                className="border-border bg-secondary text-foreground focus-visible:ring-foreground/30"
               />
             </div>
-            <div className="flex flex-col gap-2">
-              <Label className="text-sm text-zinc-600">Validade (dias)</Label>
+            <div className="field-anim flex flex-col gap-2">
+              <Label className="text-sm text-muted-foreground">Validade (dias)</Label>
               <Input
                 type="number"
                 min={1}
                 value={expiryDays}
                 onChange={(e) => setExpiryDays(e.target.value)}
-                className="border-zinc-200 bg-[rgb(248,248,248)] text-zinc-900 focus-visible:ring-zinc-900/30"
+                className="border-border bg-secondary text-foreground focus-visible:ring-foreground/30"
               />
             </div>
           </div>
 
-          <div className="flex flex-col gap-2">
-            <Label className="text-sm text-zinc-600">Discord ID</Label>
+          <div className="field-anim flex flex-col gap-2">
+            <Label className="text-sm text-muted-foreground">Discord ID</Label>
             <Input
               value={discordId}
               onChange={(e) => setDiscordId(e.target.value)}
-              className="border-zinc-200 bg-[rgb(248,248,248)] text-zinc-900 placeholder:text-zinc-400 focus-visible:ring-zinc-900/30"
+              className="border-border bg-secondary text-foreground placeholder:text-muted-foreground/60 focus-visible:ring-foreground/30"
             />
-            <p className="text-[11px] text-zinc-500">
+            <p className="text-[11px] text-muted-foreground">
               Se preenchido, esse valor será usado como a própria key.
             </p>
           </div>
@@ -144,7 +156,7 @@ export function CreateKeyDialog({
           <Button
             type="submit"
             disabled={isLoading}
-            className="bg-zinc-900 text-white hover:bg-black transition-all duration-300 hover:scale-[1.01] active:scale-[0.97]"
+            className="bg-foreground text-background hover:opacity-90 transition-all duration-300 hover:scale-[1.01] active:scale-[0.97]"
           >
             {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
             Criar Key

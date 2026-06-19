@@ -88,42 +88,41 @@ function ProductCard({ p, idx, userCount }: { p: LoaderProduct; idx: number; use
 
   return (
     <div
-      className="card-in hover-lift relative overflow-hidden rounded-2xl border border-zinc-200/80 group shadow-[0_1px_2px_rgba(0,0,0,0.03)]"
-      style={{ backgroundColor: 'rgb(255,255,255)', animationDelay: `${idx * 100}ms` }}
+      className="card-in hover-lift relative overflow-hidden rounded-2xl border border-border group shadow-[0_1px_2px_rgba(0,0,0,0.03)] bg-card"
+      style={{ animationDelay: `${idx * 100}ms` }}
     >
       <div
         className={`pointer-events-none absolute -top-24 -right-16 h-56 w-56 rounded-full bg-gradient-to-br ${p.accent} blur-3xl opacity-70 group-hover:opacity-100 transition-opacity duration-700`}
       />
 
       <div
-        className="flex items-center gap-3 border-b border-zinc-200/80 px-5 py-3 relative"
-        style={{ backgroundColor: 'rgb(248,248,248)' }}
+        className="flex items-center gap-3 border-b border-border px-5 py-3 relative bg-secondary"
       >
         <span
-          className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-zinc-900/[0.06] ring-1 ring-zinc-900/10 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3"
+          className="inline-flex h-8 w-8 items-center justify-center rounded-lg bg-foreground/[0.06] ring-1 ring-foreground/10 transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3"
           style={{ boxShadow: `0 0 18px ${p.glow}` }}
         >
-          <Icon className="h-4 w-4 text-zinc-900" />
+          <Icon className="h-4 w-4 text-foreground" />
         </span>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-bold text-zinc-900">{p.game}</p>
-          <p className="text-[10px] text-zinc-500 uppercase tracking-widest mt-0.5">{p.tag}</p>
+          <p className="text-sm font-bold text-foreground">{p.game}</p>
+          <p className="text-[10px] text-muted-foreground uppercase tracking-widest mt-0.5">{p.tag}</p>
         </div>
         <span
-          className="inline-flex items-center gap-1.5 rounded-full border border-zinc-200 bg-white px-2.5 py-1 text-[11px] font-semibold text-zinc-700 shadow-sm"
+          className="inline-flex items-center gap-1.5 rounded-full border border-border bg-card px-2.5 py-1 text-[11px] font-semibold text-foreground shadow-sm"
           title={`${userCount} usuário${userCount === 1 ? '' : 's'} criado${userCount === 1 ? '' : 's'} para ${p.game}`}
         >
-          <Users className="h-3 w-3 text-zinc-500" />
+          <Users className="h-3 w-3 text-muted-foreground" />
           <span className="tabular-nums">{userCount}</span>
         </span>
       </div>
 
       <div className="relative p-5 sm:p-6 flex flex-col gap-4">
-        <p className="text-sm text-zinc-600 leading-relaxed">{p.description}</p>
+        <p className="text-sm text-muted-foreground leading-relaxed">{p.description}</p>
 
         {p.variants.length > 1 ? (
           <div className="flex flex-col gap-1.5">
-            <label className="text-[10px] font-bold uppercase tracking-widest text-zinc-500">
+            <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground">
               Versão
             </label>
             <div className="grid grid-cols-3 gap-1.5">
@@ -133,8 +132,8 @@ function ProductCard({ p, idx, userCount }: { p: LoaderProduct; idx: number; use
                   onClick={() => setSelected(v.id)}
                   className={`px-3 py-2 rounded-lg text-xs font-bold uppercase tracking-widest border transition-all duration-300 ${
                     selected === v.id
-                      ? 'bg-zinc-900 text-white border-transparent shadow-[0_4px_16px_rgba(0,0,0,0.18)] scale-[1.02]'
-                      : 'bg-white text-zinc-600 border-zinc-200 hover:bg-[rgb(245,245,245)] hover:text-zinc-900 hover:border-zinc-400'
+                      ? 'bg-foreground text-background border-transparent shadow-[0_4px_16px_rgba(0,0,0,0.18)] scale-[1.02]'
+                      : 'bg-card text-muted-foreground border-border hover:bg-accent hover:text-foreground hover:border-foreground/30'
                   }`}
                 >
                   {v.name}
@@ -146,24 +145,24 @@ function ProductCard({ p, idx, userCount }: { p: LoaderProduct; idx: number; use
 
         <div
           key={variant.id}
-          className="row-in rounded-lg border border-zinc-200/80 bg-[rgb(250,250,250)] p-3 sm:p-4"
+          className="row-in rounded-lg border border-border bg-secondary p-3 sm:p-4"
         >
-          <p className="text-sm font-semibold text-zinc-900">{variant.name}</p>
-          <p className="text-xs text-zinc-600 mt-1 leading-relaxed">{variant.description}</p>
-          <div className="mt-3 flex items-center gap-3 text-[10px] uppercase tracking-widest text-zinc-500">
+          <p className="text-sm font-semibold text-foreground">{variant.name}</p>
+          <p className="text-xs text-muted-foreground mt-1 leading-relaxed">{variant.description}</p>
+          <div className="mt-3 flex items-center gap-3 text-[10px] uppercase tracking-widest text-muted-foreground">
             <span className="inline-flex items-center gap-1">
               <Cpu className="h-3 w-3" />
               v
               <span
-                className="text-zinc-700 tabular-nums"
+                className="text-foreground tabular-nums"
                 style={{ fontFamily: "var(--font-jetbrains-mono), 'JetBrains Mono', monospace" }}
               >
                 {variant.version}
               </span>
             </span>
-            <span className="text-zinc-300">·</span>
+            <span className="text-muted-foreground/50">·</span>
             <span
-              className="text-zinc-700 tabular-nums"
+              className="text-foreground tabular-nums"
               style={{ fontFamily: "var(--font-jetbrains-mono), 'JetBrains Mono', monospace" }}
             >
               {variant.size}
@@ -175,7 +174,7 @@ function ProductCard({ p, idx, userCount }: { p: LoaderProduct; idx: number; use
           <Button
             onClick={handleDownload}
             disabled={downloading}
-            className="button-shine flex-1 bg-zinc-900 text-white hover:bg-black hover:scale-[1.02] active:scale-[0.97] disabled:opacity-50"
+            className="button-shine flex-1 bg-foreground text-background hover:opacity-90 hover:scale-[1.02] active:scale-[0.97] disabled:opacity-50"
           >
             {done ? (
               <>
@@ -184,7 +183,7 @@ function ProductCard({ p, idx, userCount }: { p: LoaderProduct; idx: number; use
               </>
             ) : downloading ? (
               <>
-                <span className="inline-block h-3.5 w-3.5 mr-2 rounded-full border-2 border-white/30 border-t-white animate-spin" />
+                <span className="inline-block h-3.5 w-3.5 mr-2 rounded-full border-2 border-current/30 border-t-current animate-spin" />
                 Baixando...
               </>
             ) : (
@@ -196,7 +195,7 @@ function ProductCard({ p, idx, userCount }: { p: LoaderProduct; idx: number; use
           </Button>
           <Button
             variant="ghost"
-            className="button-shine border border-zinc-200 bg-white text-zinc-700 hover:bg-[rgb(245,245,245)] hover:text-zinc-900 hover:border-zinc-400"
+            className="button-shine border border-border bg-card text-muted-foreground hover:bg-accent hover:text-foreground hover:border-foreground/30"
           >
             <ExternalLink className="h-4 w-4 mr-2" />
             Tutorial
