@@ -100,13 +100,17 @@ export function DashboardShell({
                 key={item.href}
                 href={item.href}
                 style={{ animationDelay: `${idx * 60}ms` }}
-                className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium card-in transition-all duration-300 ease-out ${
+                className={`nav-link group flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium card-in transition-all duration-200 ease-out ${
                   isActive
-                    ? 'bg-foreground text-background shadow-[0_4px_16px_rgba(0,0,0,0.15)] scale-[1.02]'
+                    ? 'is-active bg-foreground text-background shadow-[0_4px_16px_rgba(0,0,0,0.15)] scale-[1.02]'
                     : 'text-muted-foreground hover:bg-accent hover:text-foreground hover:translate-x-1'
                 }`}
               >
-                <item.icon className="h-4 w-4" />
+                <item.icon
+                  className={`h-4 w-4 transition-transform duration-300 ease-out ${
+                    isActive ? '' : 'group-hover:scale-110 group-hover:rotate-[-4deg]'
+                  }`}
+                />
                 {item.label}
               </Link>
             )
@@ -216,7 +220,7 @@ export function DashboardShell({
           </div>
         )}
 
-        <main className="flex-1 overflow-auto p-4 md:p-8 bg-sky">
+        <main key={pathname} className="route-fade-in flex-1 overflow-auto p-4 md:p-8 bg-sky">
           {children}
         </main>
       </div>
