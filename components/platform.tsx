@@ -754,15 +754,6 @@ export function Platform() {
 
         {/* Dynamic Tab Body with Smooth Transition */}
         <div key={active} className="mx-auto max-w-[1440px] p-3 sm:p-5 lg:p-8 animate-fade-in-up">
-              className="ml-2 rounded bg-red-500/30 hover:bg-red-500/50 px-2 py-0.5 text-[11px] text-white underline underline-offset-2 transition-colors"
-            >
-              Configurações
-            </button>
-          </div>
-        )}
-
-        {/* Dynamic Tab Body with Smooth Transition */}
-        <div key={active} className="mx-auto max-w-[1440px] p-5 lg:p-8 animate-fade-in-up">
           {active === 'Overview' && currentUser.role === 'admin' && (
             <OverviewTab currentUser={currentUser} copiedKey={copiedKey} onCopy={handleCopy} />
           )}
@@ -919,17 +910,51 @@ function OverviewTab({
         </div>
       </div>
 
-      <div className="mt-5 rounded-xl border border-border/70 bg-card">
-        <div className="flex flex-col justify-between gap-3 border-b border-border/60 p-5 sm:flex-row sm:items-center">
+      <div className="mt-5 rounded-xl border border-border/70 bg-card overflow-hidden">
+        <div className="flex flex-col justify-between gap-3 border-b border-border/60 p-4 sm:p-5 sm:flex-row sm:items-center">
           <div>
-            <h3 className="text-sm font-medium">Recent activity</h3>
-            <p className="mt-1 text-xs text-muted-foreground">The latest events from your workspace</p>
+            <h3 className="text-sm font-semibold">Recent activity</h3>
+            <p className="mt-0.5 text-xs text-muted-foreground">The latest events from your workspace</p>
           </div>
-          <button className="w-fit text-xs text-pink-400 hover:text-pink-400 font-semibold">
-            View audit log <ArrowRight className="ml-1 inline size-3" />
+          <button className="w-fit text-xs text-pink-400 hover:text-pink-300 font-semibold flex items-center">
+            View audit log <ArrowRight className="ml-1 size-3" />
           </button>
         </div>
-        <div className="overflow-x-auto">
+
+        {/* Mobile View: Cards */}
+        <div className="sm:hidden divide-y divide-border/40">
+          {userActivity.map(([event, detail, time, status]) => (
+            <div key={event} className="p-3.5 space-y-1.5 hover:bg-pink-950/20 transition-colors">
+              <div className="flex items-center justify-between gap-2">
+                <p className="font-semibold text-xs text-foreground truncate">{event}</p>
+                <span
+                  className={`inline-flex shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                    status === 'success'
+                      ? 'bg-pink-950/40 text-pink-300 border border-pink-500/30'
+                      : status === 'warning'
+                      ? 'bg-amber-950/40 text-amber-300 border border-amber-500/30'
+                      : status === 'info'
+                      ? 'bg-pink-950/40 text-pink-400 border border-pink-500/30'
+                      : 'bg-muted text-muted-foreground'
+                  }`}
+                >
+                  {status === 'success'
+                    ? 'Completed'
+                    : status === 'warning'
+                    ? 'Review'
+                    : status === 'info'
+                    ? 'New'
+                    : 'Updated'}
+                </span>
+              </div>
+              <p className="text-[11px] text-muted-foreground leading-snug">{detail}</p>
+              <p className="text-[10px] font-mono text-muted-foreground/80">{time}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop View: Table */}
+        <div className="hidden sm:block overflow-x-auto">
           <table className="w-full min-w-[620px] text-left text-xs">
             <thead>
               <tr className="border-b border-border/50 text-[10px] uppercase tracking-wider text-muted-foreground">
@@ -1440,21 +1465,185 @@ function LicensesTab({
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Buscar por Discord ID, nome, key ou jogo..."
+              placeholder="Buscar por ID, nome ou jogo..."
               className="w-full rounded-lg border border-border bg-card py-2 pl-9 pr-4 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
         </div>
       </div>
 
-      <div className="mt-4 rounded-xl border border-border/70 bg-card overflow-hidden">
-        {/* Dica de rolagem horizontal para celular */}
-        <div className="flex sm:hidden items-center justify-between px-3 py-2 border-b border-border/40 text-[10px] text-muted-foreground bg-muted/20">
-          <span className="flex items-center gap-1 font-medium">
-            <span className="text-pink-400">←</span> Deslize para ver todas as colunas <span className="text-pink-400">→</span>
-          </span>
-          <span className="font-mono text-pink-400 font-semibold">{filtered.length} keys</span>
-        </div>
+      {/* =========================================================================
+       * 1. MOBILE VIEW (Cards otimizados para Celular - Sem rolagem lateral quebrada)
+       * ========================================================================= */}
+      <div className="sm:hidden flex flex-col gap-3 mt-4">
+        {filtered.length === 0 ? (
+          <div className="rounded-xl border border-border/70 bg-card p-6 text-center text-xs text-muted-foreground">
+            Nenhuma licença encontrada.
+          </div>
+        ) : (
+          filtered.map((lic) => {
+            const isExp = lic.status === 'Expired' || isLicenseExpired(lic.expiry)
+            const isLife = isLifetime(lic.expiry) || isLifetime(lic.tempo)
+            return (
+              <div
+                key={lic.key}
+                className="rounded-2xl border border-border/80 bg-card p-4 shadow-sm space-y-3 transition-colors hover:border-pink-500/30"
+              >
+                {/* Linha 1: Avatar, Nome, Jogo e Badge de Status + 3 Pontinhos */}
+                <div className="flex items-start justify-between gap-2.5">
+                  <div className="flex items-center gap-2.5 min-w-0 flex-1">
+                    {lic.discordAvatar ? (
+                      <img
+                        src={lic.discordAvatar}
+                        alt={lic.name}
+                        className="size-10 rounded-full border border-pink-500/30 object-cover shrink-0"
+                      />
+                    ) : (
+                      <span className="grid size-10 shrink-0 place-items-center rounded-full bg-pink-950/60 text-xs font-bold text-pink-400 border border-pink-500/30">
+                        {lic.name.slice(0, 2).toUpperCase()}
+                      </span>
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className="font-bold text-sm text-foreground truncate flex items-center gap-1.5">
+                        <span className="truncate">{lic.name}</span>
+                        {lic.discordUsername && (
+                          <span className="text-[11px] text-pink-400 font-mono font-normal truncate">
+                            @{lic.discordUsername}
+                          </span>
+                        )}
+                      </p>
+                      <p className="flex items-center gap-1 text-[11px] text-muted-foreground mt-0.5 truncate">
+                        <Gamepad2 className="size-3 text-pink-500 shrink-0" />
+                        <span className="truncate">{lic.game}</span>
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-1.5 shrink-0">
+                    <span
+                      className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
+                        lic.status === 'Suspended'
+                          ? 'border border-rose-500/40 bg-rose-950/60 text-rose-300'
+                          : isExp
+                          ? 'border border-zinc-700/60 bg-zinc-900/80 text-zinc-400'
+                          : 'border border-pink-500/40 bg-pink-950/60 text-pink-300 shadow-sm shadow-pink-500/10'
+                      }`}
+                    >
+                      <span
+                        className={`size-1.5 rounded-full ${
+                          lic.status === 'Suspended'
+                            ? 'bg-rose-500'
+                            : isExp
+                            ? 'bg-zinc-500'
+                            : 'bg-pink-500 animate-pulse'
+                        }`}
+                      />
+                      {lic.status === 'Suspended' ? 'Suspenso' : isExp ? 'Expirado' : 'Ativo'}
+                    </span>
+
+                    <button
+                      onClick={() => {
+                        setSelectedDetailsLicense(lic)
+                        setEditingTempo(lic.plano || lic.tempo)
+                        setEditingCustomTempo('')
+                      }}
+                      className="size-8 grid place-items-center rounded-lg border border-border/80 bg-zinc-900/80 text-muted-foreground hover:border-pink-500/30 hover:text-pink-400 active:scale-95 transition-all"
+                      aria-label="Abrir detalhes"
+                      title="Ver detalhes da licença"
+                    >
+                      <MoreHorizontal className="size-4" />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Linha 2: Discord ID (Key) com botão de Copiar */}
+                <div className="flex items-center justify-between gap-2 rounded-xl bg-zinc-950/70 border border-border/60 p-2.5">
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <Hash className="size-3.5 text-pink-500 shrink-0" />
+                    <span className="font-mono text-xs font-semibold text-foreground truncate select-all">
+                      {lic.discordId}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      onCopy(lic.discordId, lic.discordId)
+                      showToast('Key (Discord ID) copiada!')
+                    }}
+                    className="shrink-0 flex items-center gap-1 px-2.5 py-1 rounded-md bg-pink-950/60 border border-pink-500/30 text-[11px] font-semibold text-pink-300 hover:bg-pink-900/50 active:scale-95 transition-all"
+                  >
+                    {copiedKey === lic.discordId ? (
+                      <>
+                        <Check className="size-3 text-pink-400" />
+                        <span>Copiado</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="size-3 text-pink-400" />
+                        <span>Copiar</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+
+                {/* Linha 3: Duração e Dispositivo (HWID) */}
+                <div className="grid grid-cols-2 gap-2 pt-2 border-t border-border/40 text-xs">
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Duração</span>
+                    <span
+                      className={`inline-flex w-fit items-center gap-1.5 rounded-md border px-2 py-0.5 text-[11px] font-semibold ${
+                        lic.status === 'Suspended'
+                          ? 'border-rose-500/30 bg-rose-950/40 text-rose-300'
+                          : isExp
+                          ? 'border-zinc-800 bg-zinc-900/60 text-zinc-400'
+                          : isLife
+                          ? 'border-pink-500/40 bg-pink-950/60 text-pink-200 shadow-sm shadow-pink-500/10'
+                          : 'border-pink-500/30 bg-pink-950/40 text-pink-300'
+                      }`}
+                    >
+                      <Clock
+                        className={`size-3 shrink-0 ${
+                          lic.status === 'Suspended'
+                            ? 'text-rose-400'
+                            : isExp
+                            ? 'text-zinc-500'
+                            : 'text-pink-400'
+                        }`}
+                      />
+                      <span className="truncate">{formatRemainingTime(lic.expiry, lic.tempo)}</span>
+                    </span>
+                  </div>
+
+                  <div className="flex flex-col gap-1">
+                    <span className="text-[10px] text-muted-foreground uppercase tracking-wider font-medium">Dispositivo (HWID)</span>
+                    {lic.hwid && lic.hwid.trim() !== '' ? (
+                      <div className="flex flex-col gap-0.5">
+                        <span className="inline-flex w-fit items-center gap-1.5 rounded-md border border-pink-500/35 bg-pink-950/40 px-2 py-0.5 text-[11px] font-bold text-pink-300 shadow-sm shadow-pink-500/10">
+                          <span className="size-1.5 rounded-full bg-pink-500 animate-pulse" />
+                          <Laptop className="size-3 text-pink-400 shrink-0" />
+                          1 / 1 Vinculado
+                        </span>
+                        <span className="font-mono text-[9px] text-muted-foreground truncate" title={lic.hwid}>
+                          {lic.hwid.length > 14 ? `${lic.hwid.slice(0, 8)}···${lic.hwid.slice(-4)}` : lic.hwid}
+                        </span>
+                      </div>
+                    ) : (
+                      <span className="inline-flex w-fit items-center gap-1.5 rounded-md border border-border/80 bg-muted/40 px-2 py-0.5 text-[11px] font-medium text-muted-foreground">
+                        <Monitor className="size-3 text-muted-foreground shrink-0" />
+                        0 / 1 Livre
+                      </span>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )
+          })
+        )}
+      </div>
+
+      {/* =========================================================================
+       * 2. DESKTOP VIEW (Tabela completa para Desktop e Tablets)
+       * ========================================================================= */}
+      <div className="hidden sm:block mt-4 rounded-xl border border-border/70 bg-card overflow-hidden">
         <div className="overflow-x-auto min-h-[360px] pb-24">
           <table className="w-full min-w-[760px] text-left text-xs">
             <thead>
@@ -3050,7 +3239,59 @@ function UsersTab({ currentUser }: { currentUser: AuthAccount }) {
       </div>
 
       <div className="mt-6 overflow-hidden rounded-xl border border-border/70 bg-card">
-        <div className="overflow-x-auto">
+        {/* Mobile View: Cards */}
+        <div className="sm:hidden divide-y divide-border/40">
+          {users.map((user) => (
+            <div key={user.email} className="p-4 space-y-3 hover:bg-pink-950/20 transition-colors">
+              <div className="flex items-start justify-between gap-2">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="grid size-9 shrink-0 place-items-center rounded-full bg-gradient-to-tr from-pink-500/20 to-rose-500/20 text-xs font-bold text-pink-400 border border-pink-500/30">
+                    {user.initials}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-semibold text-xs text-foreground truncate">{user.name}</p>
+                    <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 shrink-0">
+                  <span
+                    className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${
+                      user.status === 'Active'
+                        ? 'border border-pink-500/30 bg-pink-950/40 text-pink-300'
+                        : 'border border-rose-500/30 bg-rose-950/40 text-rose-300'
+                    }`}
+                  >
+                    {user.status}
+                  </span>
+                  <button className="text-muted-foreground hover:text-foreground p-1">
+                    <MoreHorizontal className="size-4" />
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-2 pt-2 border-t border-border/40 text-xs">
+                <div>
+                  <span className="text-[10px] text-muted-foreground uppercase block font-medium">Função</span>
+                  <span className="text-[11px] font-medium text-foreground">{user.role}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-muted-foreground uppercase block font-medium">Licenças</span>
+                  <span className="text-[11px] font-semibold text-pink-400 font-mono">{user.licenses}</span>
+                </div>
+                <div>
+                  <span className="text-[10px] text-muted-foreground uppercase block font-medium">2FA</span>
+                  <span className={`inline-flex items-center gap-1 text-[11px] font-medium ${user.mfa === 'Disabled' ? 'text-zinc-400' : 'text-pink-300'}`}>
+                    <Shield className="size-3" />
+                    {user.mfa}
+                  </span>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop View: Table */}
+        <div className="hidden sm:block overflow-x-auto">
           <table className="w-full min-w-[700px] text-left text-xs">
             <thead>
               <tr className="border-b border-border/60 bg-muted/20 text-[10px] uppercase tracking-wider text-muted-foreground">
@@ -3413,7 +3654,37 @@ function LogsTab({ currentUser }: { currentUser: AuthAccount }) {
       </div>
 
       <div className="overflow-hidden rounded-xl border border-border/70 bg-card">
-        <div className="overflow-x-auto">
+        {/* Mobile View: Cards */}
+        <div className="sm:hidden divide-y divide-border/40 font-mono">
+          {logs.map((log, i) => (
+            <div key={i} className="p-3.5 space-y-2 hover:bg-pink-950/20 transition-colors">
+              <div className="flex items-center justify-between gap-2">
+                <span
+                  className={`inline-block rounded px-2 py-0.5 text-[9px] font-bold ${
+                    log.level === 'SUCCESS'
+                      ? 'border border-pink-500/30 bg-pink-950/40 text-pink-300'
+                      : log.level === 'INFO'
+                      ? 'border border-pink-500/20 bg-pink-950/30 text-pink-400'
+                      : log.level === 'WARN'
+                      ? 'border border-amber-500/30 bg-amber-950/40 text-amber-300'
+                      : 'border border-rose-500/30 bg-rose-950/40 text-rose-300'
+                  }`}
+                >
+                  {log.level}
+                </span>
+                <span className="text-xs font-semibold text-foreground font-mono">{log.status}</span>
+              </div>
+              <div className="flex items-center justify-between text-xs font-sans">
+                <span className="text-foreground font-medium truncate">{log.client}</span>
+                <span className="text-[10px] font-mono text-muted-foreground shrink-0">{log.time}</span>
+              </div>
+              <p className="text-[10px] font-mono text-muted-foreground/80">{log.ip}</p>
+            </div>
+          ))}
+        </div>
+
+        {/* Desktop View: Table */}
+        <div className="hidden sm:block overflow-x-auto">
           <table className="w-full min-w-[580px] text-left text-xs">
             <thead>
               <tr className="border-b border-border/60 bg-muted/20 text-[10px] uppercase tracking-wider text-muted-foreground">
