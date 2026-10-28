@@ -6,6 +6,7 @@ import {
   Activity, AlertTriangle, ArrowRight, Ban, BarChart3, Bell, Camera, Check, CheckCircle2, ChevronDown, Clock, Code2,
   Copy, Download, ExternalLink, Eye, FileText, Filter, Gamepad2, Gauge, Globe, Hash, Image as ImageIcon,
   KeyRound, Laptop, LayoutDashboard, LayoutGrid, LifeBuoy, LockKeyhole, LogOut, Maximize2, Menu, Monitor, MoreHorizontal,
+  PanelLeft,
   Plus, Power, PowerOff, RefreshCw, RotateCcw, Save, Search, Server, Settings2, Shield, ShieldAlert, ShieldCheck, Smartphone, Sparkles, Terminal,
   Trash2, UploadCloud, User, Users, X, Zap
 } from 'lucide-react'
@@ -713,10 +714,10 @@ export function Platform() {
           <div className="flex items-center gap-2.5 sm:gap-3">
             <button
               onClick={() => setMobileNav(true)}
-              className="size-9 grid place-items-center rounded-xl bg-card border border-pink-500/30 text-pink-400 hover:text-pink-300 hover:bg-pink-950/40 lg:hidden btn-interactive shadow-sm shadow-pink-500/10 transition-all active:scale-95"
+              className="size-9 grid place-items-center rounded-xl bg-pink-950/40 border border-pink-500/35 text-pink-400 hover:text-pink-300 hover:bg-pink-900/50 lg:hidden btn-interactive shadow-sm shadow-pink-500/15 transition-all active:scale-95"
               aria-label="Abrir menu"
             >
-              <LayoutGrid className="size-4 text-pink-400" />
+              <PanelLeft className="size-4.5 text-pink-400" />
             </button>
             <div>
               <p className="text-[10px] sm:text-xs text-pink-400 font-semibold tracking-wider uppercase">Workspace</p>
