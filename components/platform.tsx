@@ -114,8 +114,8 @@ type NavItemLabel = typeof navItems[number][0]
 
 const stats = [
   { label: 'Active licenses', value: '12,842', change: '+12.4%', icon: KeyRound, tone: 'blue' },
-  { label: 'Total users', value: '8,491', change: '+8.2%', icon: Users, tone: 'violet' },
-  { label: 'Auth requests', value: '248.6k', change: '+18.7%', icon: Activity, tone: 'cyan' },
+  { label: 'Total users', value: '8,491', change: '+8.2%', icon: Users, tone: 'pink' },
+  { label: 'Auth requests', value: '248.6k', change: '+18.7%', icon: Activity, tone: 'pink' },
   { label: 'Success rate', value: '99.82%', change: '+0.4%', icon: ShieldCheck, tone: 'green' },
 ]
 
@@ -529,7 +529,7 @@ export function Platform() {
 
                 <form onSubmit={handleLogin} className="mt-5 space-y-4">
                   {loginError && (
-                    <div className="rounded-lg border border-red-500/30 bg-red-50 px-3 py-2 text-xs text-red-600">
+                    <div className="rounded-lg border border-rose-500/30 bg-rose-950/40 px-3 py-2 text-xs text-rose-300">
                       {loginError}
                     </div>
                   )}
@@ -575,7 +575,7 @@ export function Platform() {
                     </button>
                     <button
                       type="submit"
-                      className="w-full sm:w-auto flex items-center justify-center gap-1.5 rounded-lg bg-pink-950/400 hover:bg-pink-600 px-4 py-2 text-xs font-semibold text-white btn-interactive hover-lift shadow-md shadow-pink-500/25"
+                      className="w-full sm:w-auto flex items-center justify-center gap-1.5 rounded-lg bg-pink-600 hover:bg-pink-500 px-4 py-2 text-xs font-semibold text-white btn-interactive hover-lift shadow-md shadow-pink-500/25"
                     >
                       Entrar no Dashboard <ArrowRight className="size-3.5" />
                     </button>
@@ -638,7 +638,7 @@ export function Platform() {
               }}
               className={`flex items-center gap-3 rounded-lg px-3 py-2 text-left text-xs transition-all duration-200 btn-interactive ${
                 active === label
-                  ? 'bg-pink-950/400 text-white shadow-md shadow-pink-500/25 font-semibold translate-x-1'
+                  ? 'bg-pink-600 text-white shadow-md shadow-pink-500/25 font-semibold translate-x-1'
                   : 'text-muted-foreground hover:bg-pink-950/40 hover:text-pink-200 hover:translate-x-1'
               }`}
             >
@@ -673,7 +673,7 @@ export function Platform() {
                   localStorage.setItem('hooked_auth_logged_out', 'true')
                 } catch {}
               }}
-              className="rounded-md p-1.5 text-muted-foreground hover:bg-red-50 hover:text-red-600 transition-colors btn-interactive"
+              className="rounded-md p-1.5 text-muted-foreground hover:bg-rose-950/40 hover:text-rose-400 transition-colors btn-interactive"
               title="Sair da conta"
             >
               <LogOut className="size-4" />
@@ -796,7 +796,7 @@ function OverviewTab({
           <p className="mt-2 text-sm text-muted-foreground">Here&apos;s what&apos;s happening across your applications.</p>
         </div>
         <button className="flex w-fit items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs text-muted-foreground hover:text-foreground">
-          <span className="size-1.5 rounded-full bg-emerald-500" />
+          <span className="size-1.5 rounded-full bg-pink-500 animate-pulse" />
           All systems operational <ChevronDown className="size-3" />
         </button>
       </div>
@@ -809,19 +809,11 @@ function OverviewTab({
           >
             <div className="flex items-start justify-between">
               <span
-                className={`grid size-8 sm:size-9 place-items-center rounded-lg transition-transform duration-300 group-hover:scale-110 ${
-                  tone === 'blue'
-                    ? 'bg-pink-950/40 text-pink-400 border border-pink-500/25'
-                    : tone === 'violet'
-                    ? 'bg-amber-50 text-amber-600 border border-amber-200/60'
-                    : tone === 'cyan'
-                    ? 'bg-pink-950/60 text-pink-400 border border-pink-500/25'
-                    : 'bg-emerald-50 text-emerald-700 border border-emerald-200/60'
-                }`}
+                className="grid size-8 sm:size-9 place-items-center rounded-lg bg-pink-950/40 text-pink-400 border border-pink-500/25 transition-transform duration-300 group-hover:scale-110"
               >
                 <Icon className="size-3.5 sm:size-4" />
               </span>
-              <span className="text-[10px] sm:text-[11px] font-semibold text-emerald-600">{change}</span>
+              <span className="text-[10px] sm:text-[11px] font-semibold text-pink-400">{change}</span>
             </div>
             <p className="mt-3 sm:mt-5 text-xl sm:text-2xl font-bold tracking-[-0.04em] transition-colors group-hover:text-primary">{value}</p>
             <p className="mt-1 text-[11px] sm:text-xs text-muted-foreground">{label}</p>
@@ -846,7 +838,7 @@ function OverviewTab({
                 <div key={i} className="group relative flex flex-1 items-end h-full">
                   <div
                     className={`w-full rounded-t-sm transition-all duration-300 group-hover:bg-pink-600 group-hover:brightness-110 ${
-                      i > 20 ? 'bg-pink-950/400' : 'bg-pink-500/40'
+                      i > 20 ? 'bg-pink-600' : 'bg-pink-500/40'
                     }`}
                     style={{ height: `${height}%` }}
                   />
@@ -876,9 +868,9 @@ function OverviewTab({
           </div>
           <div className="mt-6 flex flex-col gap-4">
             {[
-              ['Desktop Client', 'v2.4.0', '99.98%', 'bg-pink-950/400'],
-              ['Web Dashboard', 'v1.8.2', '99.99%', 'bg-amber-500'],
-              ['Mobile SDK', 'v3.1.0', '98.74%', 'bg-pink-400'],
+              ['Desktop Client', 'v2.4.0', '99.98%', 'bg-pink-500'],
+              ['Web Dashboard', 'v1.8.2', '99.99%', 'bg-pink-400'],
+              ['Mobile SDK', 'v3.1.0', '98.74%', 'bg-pink-500/80'],
             ].map(([name, version, uptime, color]) => (
               <div key={name} className="flex items-center gap-3">
                 <span className={`size-2 rounded-full ${color}`} />
@@ -886,7 +878,7 @@ function OverviewTab({
                   <p className="text-xs font-semibold">{name}</p>
                   <p className="text-[10px] text-muted-foreground">{version}</p>
                 </div>
-                <p className="text-xs font-semibold text-emerald-600">{uptime}</p>
+                <p className="text-xs font-semibold text-pink-400">{uptime}</p>
               </div>
             ))}
           </div>
@@ -930,9 +922,9 @@ function OverviewTab({
                     <span
                       className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${
                         status === 'success'
-                          ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                          ? 'bg-pink-950/40 text-pink-300 border border-pink-500/30'
                           : status === 'warning'
-                          ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                          ? 'bg-amber-950/40 text-amber-300 border border-amber-500/30'
                           : status === 'info'
                           ? 'bg-pink-950/40 text-pink-400 border border-pink-500/30'
                           : 'bg-muted text-muted-foreground'
@@ -959,7 +951,7 @@ function OverviewTab({
           <div className="flex items-center gap-2">
             <Server className="size-4 text-pink-500" />
             <h3 className="text-sm font-semibold">Production API</h3>
-            <span className="ml-auto rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
+            <span className="ml-auto rounded-full bg-pink-950/40 px-2.5 py-0.5 text-[10px] font-bold text-pink-300 border border-pink-500/30">
               Operational
             </span>
           </div>
@@ -971,7 +963,7 @@ function OverviewTab({
               aria-label="Copy API key"
             >
               {copiedKey === 'prod-api' ? (
-                <Check className="size-4 text-emerald-600" />
+                <Check className="size-4 text-pink-400" />
               ) : (
                 <Copy className="size-4" />
               )}
@@ -1356,7 +1348,7 @@ function LicensesTab({
 
           {/* Botão Importar Backup */}
           <label className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-foreground hover:bg-accent transition-colors cursor-pointer">
-            <UploadCloud className="size-3.5 text-emerald-400" />
+            <UploadCloud className="size-3.5 text-pink-400" />
             <span>Restaurar (.json)</span>
             <input
               type="file"
@@ -1465,7 +1457,7 @@ function LicensesTab({
                           title="Copiar Key"
                         >
                           {copiedKey === lic.discordId ? (
-                            <Check className="size-3.5 text-emerald-600" />
+                            <Check className="size-3.5 text-pink-400" />
                           ) : (
                             <Copy className="size-3.5" />
                           )}
@@ -1507,10 +1499,12 @@ function LicensesTab({
                     <td className="px-5 py-4">
                       <span
                         className={`inline-flex items-center gap-1.5 rounded-md border px-2.5 py-1 text-[11px] font-semibold ${
-                          lic.status === 'Expired' || isLicenseExpired(lic.expiry)
-                            ? 'border-red-200/80 bg-red-50/70 text-red-800'
+                          lic.status === 'Suspended'
+                            ? 'border-rose-500/30 bg-rose-950/40 text-rose-300'
+                            : lic.status === 'Expired' || isLicenseExpired(lic.expiry)
+                            ? 'border-zinc-800 bg-zinc-900/60 text-zinc-400'
                             : isLifetime(lic.expiry) || isLifetime(lic.tempo)
-                            ? 'border-purple-200/80 bg-purple-50/70 text-purple-800'
+                            ? 'border-pink-500/40 bg-pink-950/60 text-pink-200 shadow-sm shadow-pink-500/10'
                             : 'border-pink-500/30 bg-pink-950/40 text-pink-300'
                         }`}
                         title={
@@ -1521,11 +1515,11 @@ function LicensesTab({
                       >
                         <Clock
                           className={`size-3 ${
-                            lic.status === 'Expired' || isLicenseExpired(lic.expiry)
-                              ? 'text-red-500'
-                              : isLifetime(lic.expiry) || isLifetime(lic.tempo)
-                              ? 'text-purple-500'
-                              : 'text-pink-500'
+                            lic.status === 'Suspended'
+                              ? 'text-rose-400'
+                              : lic.status === 'Expired' || isLicenseExpired(lic.expiry)
+                              ? 'text-zinc-500'
+                              : 'text-pink-400'
                           }`}
                         />
                         {formatRemainingTime(lic.expiry, lic.tempo)}
@@ -1536,9 +1530,9 @@ function LicensesTab({
                     <td className="px-5 py-4">
                       {lic.hwid && lic.hwid.trim() !== '' ? (
                         <div className="flex flex-col gap-1">
-                          <span className="inline-flex w-fit items-center gap-1.5 rounded-md border border-emerald-500/30 bg-emerald-50 px-2 py-0.5 text-[11px] font-bold text-emerald-700 shadow-sm">
-                            <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                            <Laptop className="size-3 text-emerald-600" />
+                          <span className="inline-flex w-fit items-center gap-1.5 rounded-md border border-pink-500/35 bg-pink-950/40 px-2 py-0.5 text-[11px] font-bold text-pink-300 shadow-sm shadow-pink-500/10">
+                            <span className="size-1.5 rounded-full bg-pink-500 animate-pulse" />
+                            <Laptop className="size-3 text-pink-400" />
                             1 / 1 Vinculado
                           </span>
                           <span className="font-mono text-[10px] text-muted-foreground/80 tracking-tight" title={lic.hwid}>
@@ -1559,14 +1553,23 @@ function LicensesTab({
                     {/* 5. Status */}
                     <td className="px-5 py-4">
                       <span
-                        className={`inline-flex rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
+                        className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[10px] font-bold ${
                           lic.status === 'Suspended'
-                            ? 'bg-red-50 text-red-700 border border-red-200'
+                            ? 'border border-rose-500/40 bg-rose-950/60 text-rose-300'
                             : lic.status === 'Expired' || isLicenseExpired(lic.expiry)
-                            ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                            : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                            ? 'border border-zinc-700/60 bg-zinc-900/80 text-zinc-400'
+                            : 'border border-pink-500/40 bg-pink-950/60 text-pink-300 shadow-sm shadow-pink-500/10'
                         }`}
                       >
+                        <span
+                          className={`size-1.5 rounded-full ${
+                            lic.status === 'Suspended'
+                              ? 'bg-rose-500'
+                              : lic.status === 'Expired' || isLicenseExpired(lic.expiry)
+                              ? 'bg-zinc-500'
+                              : 'bg-pink-500 animate-pulse'
+                          }`}
+                        />
                         {lic.status === 'Suspended'
                           ? 'Suspenso'
                           : lic.status === 'Expired' || isLicenseExpired(lic.expiry)
@@ -1601,7 +1604,7 @@ function LicensesTab({
       {/* Toast Notification */}
       {toastMessage && (
         <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-6 z-50 flex items-center gap-2 rounded-xl border border-pink-500/30 bg-card px-4 py-3 text-xs shadow-xl shadow-zinc-900/10 backdrop-blur-md animate-fade-in-up">
-          <Check className="size-4 text-emerald-600 shrink-0" />
+          <Check className="size-4 text-pink-400 shrink-0" />
           <span className="font-semibold text-foreground">{toastMessage}</span>
         </div>
       )}
@@ -1640,12 +1643,12 @@ function LicensesTab({
             {/* Sucesso após criação */}
             {generatedKey ? (
               <div className="mt-5 space-y-4">
-                <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-center">
-                  <div className="mx-auto grid size-10 place-items-center rounded-full bg-emerald-100 text-emerald-700 border border-emerald-200">
-                    <Check className="size-5" />
+                <div className="rounded-xl border border-pink-500/30 bg-pink-950/30 p-4 text-center">
+                  <div className="mx-auto grid size-10 place-items-center rounded-full bg-pink-950/60 text-pink-400 border border-pink-500/40">
+                    <Check className="size-5 text-pink-400" />
                   </div>
-                  <h4 className="mt-2 text-sm font-bold text-emerald-900">Licença Gerada com Sucesso!</h4>
-                  <p className="text-[11px] text-emerald-700">A key já está ativa e pronta para uso do cliente.</p>
+                  <h4 className="mt-2 text-sm font-bold text-pink-200">Licença Gerada com Sucesso!</h4>
+                  <p className="text-[11px] text-pink-300/80">A key já está ativa e pronta para uso do cliente.</p>
 
                   <div className="mt-4 flex items-center justify-between rounded-lg border border-border bg-card p-3 shadow-sm">
                     <span className="flex items-center gap-1.5 font-mono text-xs font-bold text-foreground">
@@ -1654,7 +1657,7 @@ function LicensesTab({
                     </span>
                     <button
                       onClick={() => onCopy(generatedKey.discordId, 'modal-key')}
-                      className="flex items-center gap-1 rounded bg-pink-950/400 hover:bg-pink-600 px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm"
+                      className="flex items-center gap-1 rounded bg-pink-600 hover:bg-pink-500 px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm"
                     >
                       {copiedKey === 'modal-key' ? (
                         <>
@@ -1708,7 +1711,7 @@ function LicensesTab({
                   </button>
                   <button
                     onClick={() => setIsModalOpen(false)}
-                    className="flex-1 rounded-lg bg-pink-950/400 hover:bg-pink-600 py-2 text-xs font-semibold text-white shadow-sm"
+                    className="flex-1 rounded-lg bg-pink-600 hover:bg-pink-500 py-2 text-xs font-semibold text-white shadow-sm"
                   >
                     Concluir
                   </button>
@@ -1718,7 +1721,7 @@ function LicensesTab({
               /* Formulário de Criação */
               <form onSubmit={handleCreateLicense} className="mt-5 space-y-4">
                 {formError && (
-                  <div className="rounded-lg border border-red-500/30 bg-red-50 px-3 py-2 text-xs text-red-600">
+                  <div className="rounded-lg border border-rose-500/30 bg-rose-950/40 px-3 py-2 text-xs text-rose-300">
                     {formError}
                   </div>
                 )}
@@ -1765,7 +1768,7 @@ function LicensesTab({
                         </div>
                       </div>
                       <span className="inline-flex items-center gap-1 rounded bg-pink-950/60 px-2 py-0.5 text-[10px] font-bold text-pink-400 border border-pink-500/30">
-                        <Check className="size-3 text-emerald-600" /> Verificado
+                        <Check className="size-3 text-pink-400" /> Verificado
                       </span>
                     </div>
                   ) : (
@@ -1853,7 +1856,7 @@ function LicensesTab({
                   </button>
                   <button
                     type="submit"
-                    className="w-full sm:w-auto flex items-center justify-center gap-1.5 rounded-lg bg-pink-950/400 hover:bg-pink-600 px-4 py-2 text-xs font-semibold text-white shadow-md shadow-pink-500/25"
+                    className="w-full sm:w-auto flex items-center justify-center gap-1.5 rounded-lg bg-pink-600 hover:bg-pink-500 px-4 py-2 text-xs font-semibold text-white shadow-md shadow-pink-500/25"
                   >
                     <Plus className="size-3.5" /> Criar Key
                   </button>
@@ -1932,19 +1935,19 @@ function LicensesTab({
                   <span
                     className={`inline-flex w-fit items-center gap-1.5 rounded-full px-3 py-1 text-xs font-bold ${
                       selectedDetailsLicense.status === 'Suspended'
-                        ? 'bg-red-50 text-red-700 border border-red-200'
+                        ? 'border border-rose-500/40 bg-rose-950/60 text-rose-300'
                         : selectedDetailsLicense.status === 'Expired' || isLicenseExpired(selectedDetailsLicense.expiry)
-                        ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                        : 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                        ? 'border border-zinc-700/60 bg-zinc-900/80 text-zinc-400'
+                        : 'border border-pink-500/40 bg-pink-950/60 text-pink-300 shadow-sm shadow-pink-500/10'
                     }`}
                   >
                     <span
                       className={`size-1.5 rounded-full ${
                         selectedDetailsLicense.status === 'Suspended'
-                          ? 'bg-red-500'
+                          ? 'bg-rose-500'
                           : selectedDetailsLicense.status === 'Expired' || isLicenseExpired(selectedDetailsLicense.expiry)
-                          ? 'bg-amber-500'
-                          : 'bg-emerald-500 animate-pulse'
+                          ? 'bg-zinc-500'
+                          : 'bg-pink-500 animate-pulse'
                       }`}
                     />
                     {selectedDetailsLicense.status === 'Suspended'
@@ -2000,12 +2003,12 @@ function LicensesTab({
                     </div>
                   </div>
                   {selectedDetailsLicense.hwid && selectedDetailsLicense.hwid.trim() !== '' ? (
-                    <span className="inline-flex items-center gap-1.5 rounded-md border border-emerald-500/30 bg-emerald-50 px-2.5 py-1 text-[11px] font-bold text-emerald-700 shadow-sm">
-                      <span className="size-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="inline-flex items-center gap-1.5 rounded-md border border-pink-500/40 bg-pink-950/40 px-2.5 py-1 text-[11px] font-bold text-pink-300 shadow-sm shadow-pink-500/10">
+                      <span className="size-1.5 rounded-full bg-pink-500 animate-pulse" />
                       1 / 1 Vinculado
                     </span>
                   ) : (
-                    <span className="inline-flex items-center rounded-md border border-pink-500/30 bg-pink-950/40 px-2.5 py-1 text-[11px] font-bold text-pink-400">
+                    <span className="inline-flex items-center rounded-md border border-zinc-800 bg-zinc-900/60 px-2.5 py-1 text-[11px] font-bold text-zinc-400">
                       0 / 1 Livre
                     </span>
                   )}
@@ -2093,7 +2096,7 @@ function LicensesTab({
                   <button
                     onClick={handleUpdateTempo}
                     disabled={isUpdatingTempo}
-                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-pink-950/400 hover:bg-pink-600 px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-pink-500/25 transition-all btn-interactive disabled:opacity-50"
+                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-pink-600 hover:bg-pink-500 px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-pink-500/25 transition-all btn-interactive disabled:opacity-50"
                   >
                     {isUpdatingTempo ? (
                       <>
@@ -2117,8 +2120,8 @@ function LicensesTab({
                     onClick={() => handleBanKey(selectedDetailsLicense.key)}
                     className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium transition-all btn-interactive ${
                       selectedDetailsLicense.status === 'Suspended'
-                        ? 'border-emerald-200 bg-emerald-50 text-emerald-700 hover:bg-emerald-100'
-                        : 'border-amber-200 bg-amber-50 text-amber-700 hover:bg-amber-100'
+                        ? 'border-pink-500/40 bg-pink-950/40 text-pink-300 hover:bg-pink-950/60'
+                        : 'border-rose-500/40 bg-rose-950/40 text-rose-300 hover:bg-rose-950/60'
                     }`}
                   >
                     <Ban className="size-3.5" />
@@ -2358,7 +2361,7 @@ function ScreenTab({
             setFormError('')
             setIsAddModalOpen(true)
           }}
-          className="flex w-full sm:w-fit items-center justify-center gap-2 rounded-lg bg-pink-950/400 hover:bg-pink-600 px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-pink-500/25 btn-interactive hover-lift"
+          className="flex w-full sm:w-fit items-center justify-center gap-2 rounded-lg bg-pink-600 hover:bg-pink-500 px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-pink-500/25 btn-interactive hover-lift"
         >
           <Plus className="size-4" /> Adicionar Print
         </button>
@@ -2371,26 +2374,18 @@ function ScreenTab({
           { label: 'Free Fire Prints', value: ffCount.toString(), icon: Gamepad2, tone: 'amber' },
           { label: 'Valorant Prints', value: valCount.toString(), icon: Shield, tone: 'rose' },
           { label: 'FiveM Prints', value: fivemCount.toString(), icon: Monitor, tone: 'cyan' },
-        ].map(({ label, value, icon: Icon, tone }) => (
+        ].map(({ label, value, icon: Icon }) => (
           <div
             key={label}
             className="group rounded-xl border border-border/70 bg-card p-4 sm:p-5 card-hover shadow-sm cursor-default"
           >
             <div className="flex items-start justify-between">
               <span
-                className={`grid size-8 sm:size-9 place-items-center rounded-lg transition-transform duration-300 group-hover:scale-110 ${
-                  tone === 'blue'
-                    ? 'bg-pink-950/40 text-pink-400 border border-pink-500/25'
-                    : tone === 'amber'
-                    ? 'bg-amber-50 text-amber-700 border border-amber-200/60'
-                    : tone === 'rose'
-                    ? 'bg-rose-50 text-rose-700 border border-rose-200/60'
-                    : 'bg-pink-950/60 text-pink-400 border border-pink-500/25'
-                }`}
+                className="grid size-8 sm:size-9 place-items-center rounded-lg bg-pink-950/40 text-pink-400 border border-pink-500/25 transition-transform duration-300 group-hover:scale-110"
               >
                 <Icon className="size-3.5 sm:size-4" />
               </span>
-              <span className="text-[10px] sm:text-[11px] font-medium text-muted-foreground">Repositório</span>
+              <span className="text-[10px] sm:text-[11px] font-medium text-pink-400">Repositório</span>
             </div>
             <p className="mt-3 sm:mt-5 text-xl sm:text-2xl font-bold tracking-[-0.04em] transition-colors group-hover:text-primary">
               {value}
@@ -2409,7 +2404,7 @@ function ScreenTab({
               onClick={() => setFilterGame(tab)}
               className={`flex-1 sm:flex-initial rounded-md px-3 py-1.5 text-xs font-medium btn-interactive transition-all duration-200 whitespace-nowrap ${
                 filterGame === tab
-                  ? 'bg-pink-950/400 text-white shadow-sm font-semibold'
+                  ? 'bg-pink-600 text-white shadow-sm font-semibold'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
@@ -2505,7 +2500,7 @@ function ScreenTab({
                           ? 'bg-amber-500/80 text-white'
                           : print.game === 'Valorant'
                           ? 'bg-rose-500/80 text-white'
-                          : 'bg-pink-950/400/80 text-white'
+                          : 'bg-pink-600/80 text-white'
                       }`}
                     >
                       {print.game}
@@ -2516,10 +2511,10 @@ function ScreenTab({
                     <span
                       className={`rounded-full px-2 py-0.5 text-[10px] font-medium backdrop-blur-md ${
                         print.status === 'Verificado'
-                          ? 'bg-emerald-500/85 text-white'
+                          ? 'bg-pink-600/90 text-white'
                           : print.status === 'Pendente'
-                          ? 'bg-amber-500/85 text-white'
-                          : 'bg-red-500/85 text-white'
+                          ? 'bg-amber-600/90 text-white'
+                          : 'bg-rose-600/90 text-white'
                       }`}
                     >
                       {print.status}
@@ -2647,7 +2642,7 @@ function ScreenTab({
               </div>
               <div>
                 <span className="text-muted-foreground text-[11px] block">Status:</span>
-                <span className="font-semibold text-emerald-600">{selectedPrint.status}</span>
+                <span className="font-semibold text-pink-400">{selectedPrint.status}</span>
               </div>
               <div>
                 <span className="text-muted-foreground text-[11px] block">Data de Captura:</span>
@@ -2665,7 +2660,7 @@ function ScreenTab({
             <div className="mt-4 pt-3 border-t border-border/60 flex flex-col-reverse sm:flex-row justify-between gap-2">
               <button
                 onClick={() => handleDeletePrint(selectedPrint.id)}
-                className="flex items-center justify-center gap-1.5 rounded-lg border border-red-200 bg-red-50 px-3.5 py-2 text-xs font-semibold text-red-600 hover:bg-red-100 transition-colors"
+                className="flex items-center justify-center gap-1.5 rounded-lg border border-rose-500/30 bg-rose-950/30 px-3.5 py-2 text-xs font-semibold text-rose-300 hover:bg-rose-950/50 transition-colors"
               >
                 <Trash2 className="size-3.5" /> Excluir Print
               </button>
@@ -2678,7 +2673,7 @@ function ScreenTab({
                 </button>
                 <button
                   onClick={() => handleDownload(selectedPrint)}
-                  className="flex items-center justify-center gap-1.5 rounded-lg bg-pink-950/400 hover:bg-pink-600 px-4 py-2 text-xs font-semibold text-white transition-colors shadow-md shadow-pink-500/25"
+                  className="flex items-center justify-center gap-1.5 rounded-lg bg-pink-600 hover:bg-pink-500 px-4 py-2 text-xs font-semibold text-white transition-colors shadow-md shadow-pink-500/25"
                 >
                   <Download className="size-3.5" /> Baixar Imagem
                 </button>
@@ -2723,7 +2718,7 @@ function ScreenTab({
 
             <form onSubmit={handleAddPrint} className="mt-4 space-y-4">
               {formError && (
-                <div className="rounded-lg border border-red-500/30 bg-red-50 px-3 py-2 text-xs text-red-600">
+                <div className="rounded-lg border border-rose-500/30 bg-rose-950/40 px-3 py-2 text-xs text-rose-300">
                   {formError}
                 </div>
               )}
@@ -2914,7 +2909,7 @@ function ScreenTab({
       {/* Toast Notification */}
       {toastMsg && (
         <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-6 z-50 flex items-center gap-2 rounded-xl border border-border bg-card/95 px-4 py-3 text-xs shadow-2xl shadow-black/60 backdrop-blur-md animate-fade-in-up">
-          <Check className="size-4 text-emerald-400 shrink-0" />
+          <Check className="size-4 text-pink-400 shrink-0" />
           <span className="font-medium text-foreground">{toastMsg}</span>
         </div>
       )}
@@ -3050,7 +3045,7 @@ function UsersTab({ currentUser }: { currentUser: AuthAccount }) {
                   <td className="px-5 py-4">
                     <span
                       className={`inline-flex items-center gap-1.5 text-[11px] ${
-                        user.mfa === 'Disabled' ? 'text-amber-300' : 'text-emerald-300'
+                        user.mfa === 'Disabled' ? 'text-zinc-400' : 'text-pink-300'
                       }`}
                     >
                       <Shield className="size-3" />
@@ -3063,8 +3058,8 @@ function UsersTab({ currentUser }: { currentUser: AuthAccount }) {
                     <span
                       className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium ${
                         user.status === 'Active'
-                          ? 'bg-emerald-400/10 text-emerald-300'
-                          : 'bg-red-400/10 text-red-300'
+                          ? 'border border-pink-500/30 bg-pink-950/40 text-pink-300'
+                          : 'border border-rose-500/30 bg-rose-950/40 text-rose-300'
                       }`}
                     >
                       {user.status}
@@ -3177,7 +3172,7 @@ function SessionsTab() {
                   <div className="flex items-center gap-2">
                     <h4 className="text-xs font-medium text-foreground">{s.device}</h4>
                     {s.current && (
-                      <span className="rounded bg-emerald-400/15 px-1.5 py-0.5 text-[9px] font-medium text-emerald-600 border border-emerald-500/20">
+                      <span className="rounded bg-pink-950/40 px-1.5 py-0.5 text-[9px] font-bold text-pink-300 border border-pink-500/30">
                         Current Session
                       </span>
                     )}
@@ -3234,7 +3229,7 @@ function AnalyticsTab() {
           <div key={label} className="rounded-xl border border-border/70 bg-card p-3.5 sm:p-4 card-hover">
             <div className="flex items-center justify-between text-xs">
               <span className="text-muted-foreground">{label}</span>
-              <span className="text-emerald-600 font-semibold">{change}</span>
+              <span className="text-pink-400 font-semibold">{change}</span>
             </div>
             <p className="mt-2 text-2xl font-semibold tracking-tight">{value}</p>
           </div>
@@ -3248,10 +3243,10 @@ function AnalyticsTab() {
           <p className="text-xs text-muted-foreground">Distribution across cryptographic schemes</p>
           <div className="mt-6 flex flex-col gap-3">
             {[
-              { name: 'WebAuthn / Passkeys', share: 42, color: 'bg-pink-950/400' },
+              { name: 'WebAuthn / Passkeys', share: 42, color: 'bg-pink-600' },
               { name: 'OAuth2 / OpenID Connect', share: 34, color: 'bg-pink-400' },
               { name: 'API Secret Keys', share: 18, color: 'bg-amber-500' },
-              { name: 'Password + TOTP', share: 6, color: 'bg-emerald-500' },
+              { name: 'Password + TOTP', share: 6, color: 'bg-pink-500' },
             ].map((item) => (
               <div key={item.name}>
                 <div className="flex justify-between text-xs">
@@ -3372,8 +3367,8 @@ function LogsTab({ currentUser }: { currentUser: AuthAccount }) {
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1.5 text-xs text-emerald-600 font-medium">
-            <span className="size-2 animate-pulse rounded-full bg-emerald-500" /> Live Stream
+          <span className="flex items-center gap-1.5 text-xs text-pink-400 font-medium">
+            <span className="size-2 animate-pulse rounded-full bg-pink-500" /> Live Stream
           </span>
           <button className="rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground hover:bg-accent hover:text-foreground">
             Export JSON
@@ -3403,12 +3398,12 @@ function LogsTab({ currentUser }: { currentUser: AuthAccount }) {
                     <span
                       className={`inline-block rounded px-1.5 py-0.5 text-[9px] font-bold ${
                         log.level === 'SUCCESS'
-                          ? 'bg-emerald-500/15 text-emerald-600'
+                          ? 'border border-pink-500/30 bg-pink-950/40 text-pink-300'
                           : log.level === 'INFO'
-                          ? 'bg-pink-950/400/15 text-pink-400'
+                          ? 'border border-pink-500/20 bg-pink-950/30 text-pink-400'
                           : log.level === 'WARN'
-                          ? 'bg-amber-500/15 text-amber-600'
-                          : 'bg-red-500/15 text-red-600'
+                          ? 'border border-amber-500/30 bg-amber-950/40 text-amber-300'
+                          : 'border border-rose-500/30 bg-rose-950/40 text-rose-300'
                       }`}
                     >
                       {log.level}
@@ -3549,8 +3544,8 @@ function SettingsTab({
     <div>
       {/* Toast Alert Flutuante */}
       {toastMsg && (
-        <div className="fixed bottom-6 right-6 z-50 rounded-xl border border-border/80 bg-card/95 px-4 py-3 text-xs font-semibold text-foreground shadow-2xl backdrop-blur-md animate-fade-in flex items-center gap-2.5">
-          <CheckCircle2 className="size-4 text-emerald-400 shrink-0" />
+        <div className="fixed bottom-6 right-6 z-50 rounded-xl border border-pink-500/30 bg-card/95 px-4 py-3 text-xs font-semibold text-foreground shadow-2xl backdrop-blur-md animate-fade-in flex items-center gap-2.5">
+          <CheckCircle2 className="size-4 text-pink-400 shrink-0" />
           <span>{toastMsg}</span>
         </div>
       )}
@@ -3625,8 +3620,8 @@ function SettingsTab({
         <div
           className={`rounded-2xl border p-6 transition-all duration-300 ${
             authEnabled
-              ? 'border-emerald-500/30 bg-gradient-to-b from-emerald-50/60 to-card shadow-md shadow-emerald-500/5'
-              : 'border-red-500/40 bg-gradient-to-b from-red-50/70 to-card shadow-xl shadow-red-500/10 ring-1 ring-red-500/30'
+              ? 'border-pink-500/30 bg-gradient-to-b from-pink-950/25 to-card shadow-md shadow-pink-500/5'
+              : 'border-rose-500/40 bg-gradient-to-b from-rose-950/30 to-card shadow-xl shadow-rose-950/20 ring-1 ring-rose-500/30'
           }`}
         >
           <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
@@ -3634,8 +3629,8 @@ function SettingsTab({
               <span
                 className={`grid size-12 shrink-0 place-items-center rounded-xl transition-all ${
                   authEnabled
-                    ? 'bg-emerald-500/15 text-emerald-600 border border-emerald-500/20'
-                    : 'bg-red-500/15 text-red-600 border border-red-500/20 animate-pulse'
+                    ? 'bg-pink-950/50 text-pink-400 border border-pink-500/30'
+                    : 'bg-rose-950/50 text-rose-400 border border-rose-500/30 animate-pulse'
                 }`}
               >
                 {authEnabled ? <ShieldCheck className="size-6" /> : <PowerOff className="size-6" />}
@@ -3648,13 +3643,13 @@ function SettingsTab({
                   <span
                     className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-bold uppercase tracking-wider ${
                       authEnabled
-                        ? 'bg-emerald-500/15 text-emerald-600 border border-emerald-500/30'
-                        : 'bg-red-500/15 text-red-600 border border-red-500/30 animate-pulse'
+                        ? 'border border-pink-500/30 bg-pink-950/50 text-pink-300'
+                        : 'border border-rose-500/30 bg-rose-950/50 text-rose-300 animate-pulse'
                     }`}
                   >
                     <span
                       className={`size-2 rounded-full ${
-                        authEnabled ? 'bg-emerald-500' : 'bg-red-500 animate-ping'
+                        authEnabled ? 'bg-pink-500 animate-pulse' : 'bg-rose-500 animate-ping'
                       }`}
                     />
                     {authEnabled ? 'Operacional (Online)' : 'Interrompido (Pausado)'}
@@ -3674,7 +3669,7 @@ function SettingsTab({
                   type="button"
                   onClick={() => setConfirmModalOpen(true)}
                   disabled={isLoading}
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-red-600 hover:bg-red-700 px-5 py-2.5 text-xs font-semibold text-white shadow-md shadow-red-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-rose-600 hover:bg-rose-700 px-5 py-2.5 text-xs font-semibold text-white shadow-md shadow-rose-950/40 transition-all hover:scale-[1.02] active:scale-[0.98]"
                 >
                   <PowerOff className="size-4" />
                   Parar / Pausar Auth
@@ -3684,7 +3679,7 @@ function SettingsTab({
                   type="button"
                   onClick={() => handleToggleAuth(true)}
                   disabled={isLoading}
-                  className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-700 px-5 py-2.5 text-xs font-semibold text-white shadow-md shadow-emerald-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] ring-2 ring-emerald-500/30"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-xl bg-pink-600 hover:bg-pink-500 px-5 py-2.5 text-xs font-semibold text-white shadow-md shadow-pink-500/20 transition-all hover:scale-[1.02] active:scale-[0.98] ring-2 ring-pink-500/30"
                 >
                   <Power className="size-4" />
                   {isLoading ? 'Reativando...' : 'Reativar Autenticação (Ficar Online)'}
@@ -3789,7 +3784,7 @@ function SettingsTab({
                 <p className="text-xs font-medium">Bloqueio Estrito de HWID (1 Computador por Licença)</p>
                 <p className="text-[11px] text-muted-foreground">Vinculação automática do hash SHA-256 no primeiro login.</p>
               </div>
-              <span className="rounded-full bg-emerald-400/20 px-2 py-0.5 text-[10px] font-semibold text-emerald-300">
+              <span className="rounded-full border border-pink-500/40 bg-pink-950/60 px-2.5 py-0.5 text-[10px] font-semibold text-pink-300">
                 Ativo (1 PC)
               </span>
             </div>
@@ -3799,7 +3794,7 @@ function SettingsTab({
                 <p className="text-xs font-medium">Validação de Conta do Discord (Discord ID)</p>
                 <p className="text-[11px] text-muted-foreground">Chaves vinculadas exclusivamente ao ID oficial do usuário.</p>
               </div>
-              <span className="rounded-full bg-emerald-400/20 px-2 py-0.5 text-[10px] font-semibold text-emerald-300">
+              <span className="rounded-full border border-pink-500/40 bg-pink-950/60 px-2.5 py-0.5 text-[10px] font-semibold text-pink-300">
                 Ativo
               </span>
             </div>
@@ -3809,7 +3804,7 @@ function SettingsTab({
                 <p className="text-xs font-medium">Anti-Bypass & Detecção de Spoofing</p>
                 <p className="text-[11px] text-muted-foreground">Assinatura digital e timestamp criptográfico em cada requisição.</p>
               </div>
-              <span className="rounded-full bg-emerald-400/20 px-2 py-0.5 text-[10px] font-semibold text-emerald-300">
+              <span className="rounded-full border border-pink-500/40 bg-pink-950/60 px-2.5 py-0.5 text-[10px] font-semibold text-pink-300">
                 Ativo
               </span>
             </div>
@@ -3888,7 +3883,7 @@ function Landing({ onOpenLogin }: { onOpenLogin: () => void }) {
           </button>
           <button
             onClick={onOpenLogin}
-            className="rounded-lg bg-pink-950/400 px-4 py-2 text-xs font-semibold text-white btn-interactive hover-lift shadow-md shadow-pink-500/25 hover:bg-pink-600 transition-colors"
+            className="rounded-lg bg-pink-600 hover:bg-pink-500 px-4 py-2 text-xs font-semibold text-white btn-interactive hover-lift shadow-md shadow-pink-500/25 transition-colors"
           >
             Dashboard
           </button>
