@@ -158,18 +158,33 @@
     @apply border-border outline-ring/50;
     scrollbar-width: thin;
     scrollbar-color: #ec4899 #09090b;
+    -webkit-tap-highlight-color: transparent;
   }
   html {
     scroll-behavior: smooth;
     scrollbar-color: #ec4899 #09090b;
+    -webkit-text-size-adjust: 100%;
   }
   body {
     @apply bg-background text-foreground;
+    overflow-x: hidden;
   }
   ::selection {
     background-color: #831843;
     color: #fbcfe8;
   }
+}
+
+/* Evita zoom automático incômodo no iPhone/iOS Safari ao clicar em inputs */
+@media (max-width: 640px) {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
+
+/* Suporte a scroll com inércia / toque suave no celular */
+.overflow-x-auto, .overflow-y-auto {
+  -webkit-overflow-scrolling: touch;
 }
 
 /* Scrollbar Rosa Personalizado (Chrome, Edge, Safari, Opera) */

@@ -599,11 +599,11 @@ export function Platform() {
     <div className="min-h-screen bg-background text-foreground">
       {/* Sidebar */}
       <aside
-        className={`fixed inset-y-0 left-0 z-40 flex w-[250px] flex-col border-r border-border/60 bg-sidebar p-4 transition-transform lg:translate-x-0 ${
-          mobileNav ? 'translate-x-0' : '-translate-x-full'
+        className={`fixed inset-y-0 left-0 z-40 flex w-[280px] max-w-[85vw] flex-col border-r border-border/60 bg-sidebar p-4 transition-transform duration-300 lg:translate-x-0 ${
+          mobileNav ? 'translate-x-0 shadow-2xl shadow-black/80' : '-translate-x-full'
         }`}
       >
-        <div className="flex items-center justify-between px-2 pb-7 pt-2">
+        <div className="flex items-center justify-between px-2 pb-6 pt-2">
           <button
             onClick={() => {
               handleTabChange('Licenses')
@@ -618,7 +618,7 @@ export function Platform() {
           </button>
           <button
             onClick={() => setMobileNav(false)}
-            className="rounded-md p-1 text-muted-foreground lg:hidden"
+            className="size-8 grid place-items-center rounded-lg text-muted-foreground hover:bg-accent hover:text-foreground lg:hidden transition-colors"
             aria-label="Close navigation"
           >
             <X className="size-4" />
@@ -628,7 +628,7 @@ export function Platform() {
         <p className="px-2 pb-2.5 text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-500">
           {currentUser.role === 'operator' ? 'Painel Operador' : 'Workspace Admin'}
         </p>
-        <nav className="flex flex-1 flex-col gap-1">
+        <nav className="flex flex-1 flex-col gap-1 overflow-y-auto pr-1">
           {userNavItems.map(([label, Icon]) => {
             const isActive = active === label
             return (
@@ -670,7 +670,7 @@ export function Platform() {
         </nav>
 
         {/* Informações da conta logada & Botão de Sair */}
-        <div className="mt-5 border-t border-border/60 pt-4">
+        <div className="mt-5 border-t border-border/60 pt-4 shrink-0">
           <div className="flex items-center gap-2 rounded-lg bg-muted/50 p-2.5 transition-colors hover:bg-muted border border-border/40">
             <div className="grid size-8 place-items-center rounded-full bg-pink-950/60 text-xs font-bold text-pink-400 shadow-sm border border-pink-500/30">
               {currentUser.displayName.slice(0, 2).toUpperCase()}
@@ -702,47 +702,58 @@ export function Platform() {
         <button
           aria-label="Close menu"
           onClick={() => setMobileNav(false)}
-          className="fixed inset-0 z-30 bg-black/60 lg:hidden animate-fade-in"
+          className="fixed inset-0 z-30 bg-black/75 backdrop-blur-sm lg:hidden animate-fade-in"
         />
       )}
 
       {/* Main Content Area */}
-      <main className="lg:pl-[250px]">
+      <main className="lg:pl-[280px]">
         {/* Header */}
-        <header className="sticky top-0 z-20 flex h-[68px] items-center justify-between border-b border-border/60 bg-background/85 px-5 backdrop-blur-xl lg:px-8">
-          <div className="flex items-center gap-3">
+        <header className="sticky top-0 z-20 flex h-[64px] sm:h-[68px] items-center justify-between border-b border-border/60 bg-background/85 px-4 sm:px-5 backdrop-blur-xl lg:px-8">
+          <div className="flex items-center gap-2.5 sm:gap-3">
             <button
               onClick={() => setMobileNav(true)}
-              className="rounded-md p-2 text-muted-foreground hover:bg-accent lg:hidden btn-interactive"
+              className="size-9 grid place-items-center rounded-lg border border-border/70 bg-card text-muted-foreground hover:text-pink-400 lg:hidden btn-interactive"
               aria-label="Open menu"
             >
               <Menu className="size-5" />
             </button>
             <div>
-              <p className="text-xs text-muted-foreground">Workspace /</p>
-              <h1 className="text-sm font-semibold">{active}</h1>
+              <p className="text-[10px] sm:text-xs text-muted-foreground">Workspace /</p>
+              <h1 className="text-xs sm:text-sm font-semibold">{active}</h1>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => handleTabChange('Licenses')}
-              className="rounded-lg bg-primary px-3 py-2 text-xs font-medium text-primary-foreground btn-interactive hover-lift shadow-sm hover:opacity-90"
+              className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 sm:py-2 text-xs font-semibold text-primary-foreground btn-interactive hover-lift shadow-sm hover:opacity-90"
             >
-              <Plus className="mr-1 inline size-3.5" />
-              Create
+              <Plus className="size-3.5" />
+              <span>Create</span>
             </button>
           </div>
         </header>
 
         {/* Banner de Alerta quando a Autenticação estiver Pausada */}
         {!systemAuthEnabled && (
-          <div className="border-b border-red-500/40 bg-red-500/15 px-4 py-2 text-center text-xs font-semibold text-red-200 flex items-center justify-center gap-2">
-            <AlertTriangle className="size-4 text-red-400 shrink-0" />
-            <span>
-              <strong>ATENÇÃO:</strong> A autenticação do sistema está <u>PAUSADA</u> nas Configurações. Nenhum cliente conseguirá logar em arquivos .exe até ser reativada.
-            </span>
+          <div className="border-b border-red-500/40 bg-red-500/15 px-3 py-2 text-center text-xs font-semibold text-red-200 flex flex-col sm:flex-row items-center justify-center gap-1.5 sm:gap-2">
+            <div className="flex items-center gap-1.5">
+              <AlertTriangle className="size-4 text-red-400 shrink-0" />
+              <span>
+                <strong>ATENÇÃO:</strong> A autenticação do sistema está <u>PAUSADA</u>.
+              </span>
+            </div>
             <button
               onClick={() => handleTabChange('Settings')}
+              className="rounded bg-red-500/30 hover:bg-red-500/50 px-2 py-0.5 text-[11px] text-white underline underline-offset-2 transition-colors"
+            >
+              Ir para Configurações
+            </button>
+          </div>
+        )}
+
+        {/* Dynamic Tab Body with Smooth Transition */}
+        <div key={active} className="mx-auto max-w-[1440px] p-3 sm:p-5 lg:p-8 animate-fade-in-up">
               className="ml-2 rounded bg-red-500/30 hover:bg-red-500/50 px-2 py-0.5 text-[11px] text-white underline underline-offset-2 transition-colors"
             >
               Configurações
@@ -1350,12 +1361,12 @@ function LicensesTab({
             Emita, vincule por Discord ID, defina jogos e controle a validade de cada chave gerada.
           </p>
         </div>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
           {/* Botão Exportar Backup */}
           <button
             type="button"
             onClick={handleExportBackup}
-            className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-foreground hover:bg-accent transition-colors"
+            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-foreground hover:bg-accent transition-colors"
             title="Baixar cópia de segurança de todas as chaves em formato JSON"
           >
             <Download className="size-3.5 text-pink-500" />
@@ -1363,7 +1374,7 @@ function LicensesTab({
           </button>
 
           {/* Botão Importar Backup */}
-          <label className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-foreground hover:bg-accent transition-colors cursor-pointer">
+          <label className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-foreground hover:bg-accent transition-colors cursor-pointer">
             <UploadCloud className="size-3.5 text-pink-400" />
             <span>Restaurar (.json)</span>
             <input
@@ -1377,21 +1388,21 @@ function LicensesTab({
           <button
             type="button"
             onClick={openCreateModal}
-            className="flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2 text-xs font-medium text-primary-foreground shadow-sm btn-interactive hover-lift hover:opacity-95"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 rounded-lg bg-primary px-4 py-2.5 sm:py-2 text-xs font-semibold text-primary-foreground shadow-sm btn-interactive hover-lift hover:opacity-95"
           >
             <Plus className="size-4" /> Issue New License
           </button>
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-4 xl:grid-cols-4">
         {[
           { label: 'Active Licenses', value: activeCount.toLocaleString() },
           { label: 'Total Issued', value: userLicenses.length.toLocaleString() },
           { label: 'Expired Licenses', value: expiredCount.toLocaleString() },
           { label: 'Suspended / Revoked', value: suspendedCount.toLocaleString() },
         ].map(({ label, value }) => (
-          <div key={label} className="rounded-xl border border-border/70 bg-card p-3.5 sm:p-4 card-hover">
+          <div key={label} className="rounded-xl border border-border/70 bg-card p-3 sm:p-4 card-hover">
             <p className="text-[11px] sm:text-xs text-muted-foreground truncate">{label}</p>
             <p className="mt-1 sm:mt-2 text-xl sm:text-2xl font-semibold tracking-tight">{value}</p>
           </div>
@@ -1423,7 +1434,7 @@ function LicensesTab({
             <RefreshCw className={`size-3.5 text-pink-500 ${isRefreshing ? 'animate-spin' : ''}`} />
             <span className="hidden sm:inline">Atualizar</span>
           </button>
-          <div className="relative w-full sm:w-72">
+          <div className="relative flex-1 sm:w-72">
             <Search className="absolute left-3 top-2.5 size-3.5 text-muted-foreground" />
             <input
               type="text"
@@ -1436,7 +1447,14 @@ function LicensesTab({
         </div>
       </div>
 
-      <div className="mt-4 rounded-xl border border-border/70 bg-card">
+      <div className="mt-4 rounded-xl border border-border/70 bg-card overflow-hidden">
+        {/* Dica de rolagem horizontal para celular */}
+        <div className="flex sm:hidden items-center justify-between px-3 py-2 border-b border-border/40 text-[10px] text-muted-foreground bg-muted/20">
+          <span className="flex items-center gap-1 font-medium">
+            <span className="text-pink-400">←</span> Deslize para ver todas as colunas <span className="text-pink-400">→</span>
+          </span>
+          <span className="font-mono text-pink-400 font-semibold">{filtered.length} keys</span>
+        </div>
         <div className="overflow-x-auto min-h-[360px] pb-24">
           <table className="w-full min-w-[760px] text-left text-xs">
             <thead>
@@ -2132,11 +2150,11 @@ function LicensesTab({
               </div>
 
               {/* Card 4: Ações Rápidas (Banir, Copiar, Deletar) */}
-              <div className="pt-2 border-t border-border/60 flex flex-wrap items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
+              <div className="pt-3 border-t border-border/60 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-2">
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
                   <button
                     onClick={() => handleBanKey(selectedDetailsLicense.key)}
-                    className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-medium transition-all btn-interactive ${
+                    className={`flex items-center justify-center gap-1.5 rounded-lg border px-3.5 py-2.5 sm:py-2 text-xs font-semibold transition-all btn-interactive ${
                       selectedDetailsLicense.status === 'Suspended'
                         ? 'border-pink-500/40 bg-pink-950/40 text-pink-300 hover:bg-pink-950/60'
                         : 'border-rose-500/40 bg-rose-950/40 text-rose-300 hover:bg-rose-950/60'
@@ -2151,7 +2169,7 @@ function LicensesTab({
                       onCopy(selectedDetailsLicense.key, 'modal-key-bottom')
                       showToast('Chave copiada para a área de transferência!')
                     }}
-                    className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-foreground hover:bg-accent transition-all btn-interactive"
+                    className="flex items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-3.5 py-2.5 sm:py-2 text-xs font-medium text-foreground hover:bg-accent transition-all btn-interactive"
                   >
                     <Copy className="size-3.5 text-muted-foreground" />
                     Copiar Key
@@ -2160,9 +2178,9 @@ function LicensesTab({
 
                 <button
                   onClick={() => handleDeleteKey(selectedDetailsLicense.key)}
-                  className="flex items-center gap-1.5 rounded-lg border border-red-500/40 bg-red-500/10 px-3 py-2 text-xs font-medium text-red-400 hover:bg-red-500/20 transition-all btn-interactive"
+                  className="flex items-center justify-center gap-1.5 rounded-lg border border-rose-500/40 bg-rose-950/40 px-3.5 py-2.5 sm:py-2 text-xs font-semibold text-rose-300 hover:bg-rose-950/60 transition-all btn-interactive"
                 >
-                  <Trash2 className="size-3.5 text-red-400" />
+                  <Trash2 className="size-3.5 text-rose-400" />
                   Deletar Key
                 </button>
               </div>
@@ -2619,10 +2637,10 @@ function ScreenTab({
                     <span
                       className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${
                         selectedPrint.game === 'Free Fire'
-                          ? 'bg-amber-50 text-amber-700 border border-amber-200'
+                          ? 'border border-amber-500/30 bg-amber-950/40 text-amber-300'
                           : selectedPrint.game === 'Valorant'
-                          ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                          : 'bg-pink-950/40 text-pink-400 border border-pink-500/30'
+                          ? 'border border-rose-500/30 bg-rose-950/40 text-rose-300'
+                          : 'border border-pink-500/30 bg-pink-950/40 text-pink-300'
                       }`}
                     >
                       {selectedPrint.game}
@@ -3594,11 +3612,11 @@ function SettingsTab({
                 "{maintenanceMessage}"
               </div>
 
-              <div className="mt-5 flex gap-2 justify-end">
+              <div className="mt-5 flex flex-col-reverse sm:flex-row gap-2 justify-end">
                 <button
                   type="button"
                   onClick={() => setConfirmModalOpen(false)}
-                  className="rounded-lg border border-border px-4 py-2 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground"
+                  className="w-full sm:w-auto text-center rounded-lg border border-border px-4 py-2.5 sm:py-2 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground"
                 >
                   Cancelar
                 </button>
@@ -3606,7 +3624,7 @@ function SettingsTab({
                   type="button"
                   onClick={() => handleToggleAuth(false)}
                   disabled={isLoading}
-                  className="rounded-lg bg-red-600 hover:bg-red-500 px-4 py-2 text-xs font-semibold text-white shadow-sm flex items-center gap-1.5 transition-all"
+                  className="w-full sm:w-auto justify-center rounded-lg bg-red-600 hover:bg-red-500 px-4 py-2.5 sm:py-2 text-xs font-semibold text-white shadow-sm flex items-center gap-1.5 transition-all"
                 >
                   <PowerOff className="size-3.5" />
                   {isLoading ? 'Pausando...' : 'Sim, Pausar Autenticação'}
