@@ -1,5 +1,5 @@
 @echo off
-chcp 65001 >nul
+set "PATH=%LOCALAPPDATA%\Programs\Git\cmd;%ProgramFiles%\Git\cmd;%PATH%"
 cd /d "%~dp0"
 title Subir para o GitHub - Hooked Auth
 
@@ -8,7 +8,7 @@ echo          HOOKED AUTH - SUBIR PARA O GITHUB
 echo =======================================================
 echo.
 
-:: 1. Verificar se o Git está instalado
+:: 1. Verificar se o Git esta instalado
 where git >nul 2>nul
 if %errorlevel% neq 0 (
     echo [ERRO] O Git nao foi encontrado no seu computador!
@@ -16,6 +16,9 @@ if %errorlevel% neq 0 (
     pause
     exit /b 1
 )
+
+echo [*] Git detectado com sucesso.
+echo.
 
 :: 2. Inicializar o repositorio se nao existir
 if not exist ".git" (
@@ -49,7 +52,7 @@ git add .
 
 :: 6. Commit
 echo [*] Criando commit...
-git commit -m "Deploy Hooked Auth SaaS"
+git commit -m "Fix duration countdown and validation for all plans" 2>nul
 
 :: 7. Enviar para o GitHub
 echo.
@@ -65,7 +68,7 @@ if %errorlevel% equ 0 (
     echo  URL: https://github.com/fofuxofof-debug/mrcrlq-auth2
     echo =======================================================
     echo.
-    echo Agora na Vercel basta importar o repositorio 'mrcrlq-auth2'!
+    echo Agora na Vercel o deploy sera atualizado automaticamente!
 ) else (
     echo.
     echo =======================================================
