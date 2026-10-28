@@ -505,12 +505,12 @@ export function Platform() {
               onClick={() => setLoginModalOpen(false)}
             >
               <div
-                className="relative w-full max-w-sm my-auto max-h-[92vh] overflow-y-auto rounded-2xl border border-orange-100 bg-card p-5 sm:p-6 shadow-2xl shadow-orange-950/10 animate-scale-in"
+                className="relative w-full max-w-sm my-auto max-h-[92vh] overflow-y-auto rounded-2xl border border-pink-500/20 bg-card p-5 sm:p-6 shadow-2xl shadow-pink-950/20 animate-scale-in"
                 onClick={(e) => e.stopPropagation()}
               >
                 <div className="flex items-center justify-between pb-4 border-b border-border/60">
                   <div className="flex items-center gap-2.5">
-                    <span className="grid size-8 place-items-center rounded-lg bg-orange-50 text-orange-600 border border-orange-200">
+                    <span className="grid size-8 place-items-center rounded-lg bg-pink-950/40 text-pink-400 border border-pink-500/30">
                       <LockKeyhole className="size-4" />
                     </span>
                     <div>
@@ -536,7 +536,7 @@ export function Platform() {
 
                   <div>
                     <label className="flex items-center gap-1.5 text-xs font-medium text-foreground">
-                      <User className="size-3.5 text-orange-500" />
+                      <User className="size-3.5 text-pink-500" />
                       Usuário
                     </label>
                     <input
@@ -552,7 +552,7 @@ export function Platform() {
 
                   <div>
                     <label className="flex items-center gap-1.5 text-xs font-medium text-foreground">
-                      <KeyRound className="size-3.5 text-orange-500" />
+                      <KeyRound className="size-3.5 text-pink-500" />
                       Senha
                     </label>
                     <input
@@ -575,7 +575,7 @@ export function Platform() {
                     </button>
                     <button
                       type="submit"
-                      className="w-full sm:w-auto flex items-center justify-center gap-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 px-4 py-2 text-xs font-semibold text-white btn-interactive hover-lift shadow-md shadow-orange-500/25"
+                      className="w-full sm:w-auto flex items-center justify-center gap-1.5 rounded-lg bg-pink-950/400 hover:bg-pink-600 px-4 py-2 text-xs font-semibold text-white btn-interactive hover-lift shadow-md shadow-pink-500/25"
                     >
                       Entrar no Dashboard <ArrowRight className="size-3.5" />
                     </button>
@@ -611,10 +611,10 @@ export function Platform() {
             className="flex items-center gap-2.5 text-left"
             aria-label="Ir para Licenses"
           >
-            <span className="grid size-8 place-items-center rounded-lg bg-gradient-to-br from-orange-500 to-amber-500 text-white shadow-sm shadow-orange-500/30">
+            <span className="grid size-8 place-items-center rounded-lg bg-gradient-to-br from-pink-500 to-rose-500 text-white shadow-sm shadow-pink-500/30">
               <LockKeyhole className="size-4" />
             </span>
-            <span className="text-[15px] font-bold tracking-[-0.02em]">Hooked <span className="text-orange-500">Auth</span></span>
+            <span className="text-[15px] font-bold tracking-[-0.02em]">Hooked <span className="text-pink-500">Auth</span></span>
           </button>
           <button
             onClick={() => setMobileNav(false)}
@@ -638,14 +638,14 @@ export function Platform() {
               }}
               className={`flex items-center gap-3 rounded-lg px-3 py-2 text-left text-xs transition-all duration-200 btn-interactive ${
                 active === label
-                  ? 'bg-orange-500 text-white shadow-md shadow-orange-500/25 font-semibold translate-x-1'
-                  : 'text-muted-foreground hover:bg-orange-50/70 hover:text-orange-900 hover:translate-x-1'
+                  ? 'bg-pink-950/400 text-white shadow-md shadow-pink-500/25 font-semibold translate-x-1'
+                  : 'text-muted-foreground hover:bg-pink-950/40 hover:text-pink-200 hover:translate-x-1'
               }`}
             >
               <Icon className="size-4" />
               {label}
               {label === 'Logs' && (
-                <span className="ml-auto rounded-full bg-orange-100 px-1.5 py-0.5 text-[9px] font-bold text-orange-700">
+                <span className="ml-auto rounded-full bg-pink-950/60 px-1.5 py-0.5 text-[9px] font-bold text-pink-400">
                   3
                 </span>
               )}
@@ -656,7 +656,7 @@ export function Platform() {
         {/* Informações da conta logada & Botão de Sair */}
         <div className="mt-5 border-t border-border/60 pt-4">
           <div className="flex items-center gap-2 rounded-lg bg-muted/50 p-2.5 transition-colors hover:bg-muted border border-border/40">
-            <div className="grid size-8 place-items-center rounded-full bg-orange-100 text-xs font-bold text-orange-700 shadow-sm border border-orange-200">
+            <div className="grid size-8 place-items-center rounded-full bg-pink-950/60 text-xs font-bold text-pink-400 shadow-sm border border-pink-500/30">
               {currentUser.displayName.slice(0, 2).toUpperCase()}
             </div>
             <div className="min-w-0 flex-1">
@@ -789,9 +789,9 @@ function OverviewTab({
     <>
       <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-orange-500">Tuesday, October 11, 2026</p>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-pink-500">Tuesday, October 11, 2026</p>
           <h2 className="text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">
-            Good morning, {currentUser.displayName}<span className="text-orange-500">.</span>
+            Good morning, {currentUser.displayName}<span className="text-pink-500">.</span>
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">Here&apos;s what&apos;s happening across your applications.</p>
         </div>
@@ -811,11 +811,11 @@ function OverviewTab({
               <span
                 className={`grid size-8 sm:size-9 place-items-center rounded-lg transition-transform duration-300 group-hover:scale-110 ${
                   tone === 'blue'
-                    ? 'bg-orange-50 text-orange-600 border border-orange-200/60'
+                    ? 'bg-pink-950/40 text-pink-400 border border-pink-500/25'
                     : tone === 'violet'
                     ? 'bg-amber-50 text-amber-600 border border-amber-200/60'
                     : tone === 'cyan'
-                    ? 'bg-orange-100/60 text-orange-700 border border-orange-200/60'
+                    ? 'bg-pink-950/60 text-pink-400 border border-pink-500/25'
                     : 'bg-emerald-50 text-emerald-700 border border-emerald-200/60'
                 }`}
               >
@@ -845,8 +845,8 @@ function OverviewTab({
               (height, i) => (
                 <div key={i} className="group relative flex flex-1 items-end h-full">
                   <div
-                    className={`w-full rounded-t-sm transition-all duration-300 group-hover:bg-orange-600 group-hover:brightness-110 ${
-                      i > 20 ? 'bg-orange-500' : 'bg-orange-400/40'
+                    className={`w-full rounded-t-sm transition-all duration-300 group-hover:bg-pink-600 group-hover:brightness-110 ${
+                      i > 20 ? 'bg-pink-950/400' : 'bg-pink-500/40'
                     }`}
                     style={{ height: `${height}%` }}
                   />
@@ -870,15 +870,15 @@ function OverviewTab({
               <h3 className="text-sm font-semibold">Application health</h3>
               <p className="mt-1 text-xs text-muted-foreground">Current status by application</p>
             </div>
-            <button className="text-xs text-orange-600 hover:text-orange-700 font-semibold">
+            <button className="text-xs text-pink-400 hover:text-pink-400 font-semibold">
               View all <ArrowRight className="ml-1 inline size-3" />
             </button>
           </div>
           <div className="mt-6 flex flex-col gap-4">
             {[
-              ['Desktop Client', 'v2.4.0', '99.98%', 'bg-orange-500'],
+              ['Desktop Client', 'v2.4.0', '99.98%', 'bg-pink-950/400'],
               ['Web Dashboard', 'v1.8.2', '99.99%', 'bg-amber-500'],
-              ['Mobile SDK', 'v3.1.0', '98.74%', 'bg-orange-400'],
+              ['Mobile SDK', 'v3.1.0', '98.74%', 'bg-pink-400'],
             ].map(([name, version, uptime, color]) => (
               <div key={name} className="flex items-center gap-3">
                 <span className={`size-2 rounded-full ${color}`} />
@@ -890,9 +890,9 @@ function OverviewTab({
               </div>
             ))}
           </div>
-          <div className="mt-7 rounded-lg border border-orange-200 bg-orange-50/70 p-3">
-            <div className="flex items-center gap-2 text-xs text-orange-800 font-semibold">
-              <Zap className="size-3.5 text-orange-600" />
+          <div className="mt-7 rounded-lg border border-pink-500/30 bg-pink-950/40 p-3">
+            <div className="flex items-center gap-2 text-xs text-pink-300 font-semibold">
+              <Zap className="size-3.5 text-pink-400" />
               All systems are running smoothly
             </div>
             <p className="mt-1 text-[10px] text-muted-foreground">No incidents detected in the last 30 days.</p>
@@ -906,7 +906,7 @@ function OverviewTab({
             <h3 className="text-sm font-medium">Recent activity</h3>
             <p className="mt-1 text-xs text-muted-foreground">The latest events from your workspace</p>
           </div>
-          <button className="w-fit text-xs text-orange-600 hover:text-orange-700 font-semibold">
+          <button className="w-fit text-xs text-pink-400 hover:text-pink-400 font-semibold">
             View audit log <ArrowRight className="ml-1 inline size-3" />
           </button>
         </div>
@@ -922,7 +922,7 @@ function OverviewTab({
             </thead>
             <tbody>
               {userActivity.map(([event, detail, time, status]) => (
-                <tr key={event} className="border-b border-border/40 last:border-0 hover:bg-orange-50/40">
+                <tr key={event} className="border-b border-border/40 last:border-0 hover:bg-pink-950/30">
                   <td className="px-5 py-4 font-semibold">{event}</td>
                   <td className="px-5 py-4 text-muted-foreground">{detail}</td>
                   <td className="px-5 py-4 text-muted-foreground">{time}</td>
@@ -934,7 +934,7 @@ function OverviewTab({
                           : status === 'warning'
                           ? 'bg-amber-50 text-amber-700 border border-amber-200'
                           : status === 'info'
-                          ? 'bg-orange-50 text-orange-700 border border-orange-200'
+                          ? 'bg-pink-950/40 text-pink-400 border border-pink-500/30'
                           : 'bg-muted text-muted-foreground'
                       }`}
                     >
@@ -957,7 +957,7 @@ function OverviewTab({
       <div className="mt-5 grid gap-5 md:grid-cols-2">
         <div className="rounded-xl border border-border/70 bg-card p-5 card-hover shadow-sm">
           <div className="flex items-center gap-2">
-            <Server className="size-4 text-orange-500" />
+            <Server className="size-4 text-pink-500" />
             <h3 className="text-sm font-semibold">Production API</h3>
             <span className="ml-auto rounded-full bg-emerald-50 px-2.5 py-0.5 text-[10px] font-bold text-emerald-700 border border-emerald-200">
               Operational
@@ -981,7 +981,7 @@ function OverviewTab({
 
         <div className="rounded-xl border border-border/70 bg-card p-5 card-hover shadow-sm">
           <div className="flex items-center gap-2">
-            <Terminal className="size-4 text-orange-500" />
+            <Terminal className="size-4 text-pink-500" />
             <h3 className="text-sm font-semibold">Quick start</h3>
           </div>
           <p className="mt-3 text-xs leading-5 text-muted-foreground">
@@ -1336,7 +1336,7 @@ function LicensesTab({
     <div>
       <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="mb-2 text-xs font-medium uppercase tracking-[0.16em] text-orange-600 font-semibold">Gerenciador de Acessos</p>
+          <p className="mb-2 text-xs font-medium uppercase tracking-[0.16em] text-pink-400 font-semibold">Gerenciador de Acessos</p>
           <h2 className="text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">Licenses</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Emita, vincule por Discord ID, defina jogos e controle a validade de cada chave gerada.
@@ -1350,7 +1350,7 @@ function LicensesTab({
             className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-foreground hover:bg-accent transition-colors"
             title="Baixar cópia de segurança de todas as chaves em formato JSON"
           >
-            <Download className="size-3.5 text-orange-500" />
+            <Download className="size-3.5 text-pink-500" />
             <span>Exportar Backup</span>
           </button>
 
@@ -1407,10 +1407,10 @@ function LicensesTab({
         <div className="flex items-center gap-2 w-full sm:w-auto">
           <button
             onClick={() => onRefresh?.()}
-            className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-muted-foreground hover:bg-orange-50 hover:text-orange-600 transition-all btn-interactive shadow-sm shrink-0"
+            className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-muted-foreground hover:bg-pink-950/40 hover:text-pink-400 transition-all btn-interactive shadow-sm shrink-0"
             title="Atualizar status dos clientes e HWIDs agora"
           >
-            <RefreshCw className={`size-3.5 text-orange-500 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <RefreshCw className={`size-3.5 text-pink-500 ${isRefreshing ? 'animate-spin' : ''}`} />
             <span className="hidden sm:inline">Atualizar</span>
           </button>
           <div className="relative w-full sm:w-72">
@@ -1453,7 +1453,7 @@ function LicensesTab({
                     <td className="px-5 py-4">
                       <div className="flex items-center gap-2">
                         <span className="flex items-center gap-1.5 font-mono font-semibold text-foreground text-xs">
-                          <Hash className="size-3.5 text-orange-500" />
+                          <Hash className="size-3.5 text-pink-500" />
                           {lic.discordId}
                         </span>
                         <button
@@ -1480,10 +1480,10 @@ function LicensesTab({
                           <img
                             src={lic.discordAvatar}
                             alt={lic.name}
-                            className="size-7 rounded-full border border-orange-200 object-cover shrink-0"
+                            className="size-7 rounded-full border border-pink-500/30 object-cover shrink-0"
                           />
                         ) : (
-                          <span className="grid size-7 shrink-0 place-items-center rounded-full bg-orange-100 text-[10px] font-bold text-orange-700 border border-orange-200">
+                          <span className="grid size-7 shrink-0 place-items-center rounded-full bg-pink-950/60 text-[10px] font-bold text-pink-400 border border-pink-500/30">
                             {lic.name.slice(0, 2).toUpperCase()}
                           </span>
                         )}
@@ -1491,13 +1491,13 @@ function LicensesTab({
                           <p className="font-semibold text-foreground flex items-center gap-1.5">
                             {lic.name}
                             {lic.discordUsername && (
-                              <span className="text-[10px] text-orange-600 font-mono font-medium">
+                              <span className="text-[10px] text-pink-400 font-mono font-medium">
                                 @{lic.discordUsername}
                               </span>
                             )}
                           </p>
                           <p className="flex items-center gap-1 text-[10px] text-muted-foreground mt-0.5">
-                            <Gamepad2 className="size-3 text-orange-500" /> {lic.game}
+                            <Gamepad2 className="size-3 text-pink-500" /> {lic.game}
                           </p>
                         </div>
                       </div>
@@ -1511,7 +1511,7 @@ function LicensesTab({
                             ? 'border-red-200/80 bg-red-50/70 text-red-800'
                             : isLifetime(lic.expiry) || isLifetime(lic.tempo)
                             ? 'border-purple-200/80 bg-purple-50/70 text-purple-800'
-                            : 'border-orange-200/80 bg-orange-50/70 text-orange-800'
+                            : 'border-pink-500/30 bg-pink-950/40 text-pink-300'
                         }`}
                         title={
                           lic.expiry && !isLifetime(lic.expiry)
@@ -1525,7 +1525,7 @@ function LicensesTab({
                               ? 'text-red-500'
                               : isLifetime(lic.expiry) || isLifetime(lic.tempo)
                               ? 'text-purple-500'
-                              : 'text-orange-500'
+                              : 'text-pink-500'
                           }`}
                         />
                         {formatRemainingTime(lic.expiry, lic.tempo)}
@@ -1583,7 +1583,7 @@ function LicensesTab({
                           setEditingTempo(lic.plano || lic.tempo)
                           setEditingCustomTempo('')
                         }}
-                        className="rounded-lg p-2 text-muted-foreground hover:bg-orange-50 hover:text-orange-600 transition-all hover:scale-110"
+                        className="rounded-lg p-2 text-muted-foreground hover:bg-pink-950/40 hover:text-pink-400 transition-all hover:scale-110"
                         aria-label="Abrir detalhes e gerenciar licença"
                         title="Ver detalhes da licença e alterar tempo"
                       >
@@ -1600,7 +1600,7 @@ function LicensesTab({
 
       {/* Toast Notification */}
       {toastMessage && (
-        <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-6 z-50 flex items-center gap-2 rounded-xl border border-orange-200 bg-card px-4 py-3 text-xs shadow-xl shadow-zinc-900/10 backdrop-blur-md animate-fade-in-up">
+        <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-6 z-50 flex items-center gap-2 rounded-xl border border-pink-500/30 bg-card px-4 py-3 text-xs shadow-xl shadow-zinc-900/10 backdrop-blur-md animate-fade-in-up">
           <Check className="size-4 text-emerald-600 shrink-0" />
           <span className="font-semibold text-foreground">{toastMessage}</span>
         </div>
@@ -1615,12 +1615,12 @@ function LicensesTab({
             onClick={() => setIsModalOpen(false)}
           >
             <div
-              className="relative w-full max-w-md my-auto max-h-[92vh] overflow-y-auto rounded-2xl border border-orange-100 bg-card p-5 sm:p-6 shadow-2xl shadow-orange-950/10 animate-scale-in"
+              className="relative w-full max-w-md my-auto max-h-[92vh] overflow-y-auto rounded-2xl border border-pink-500/20 bg-card p-5 sm:p-6 shadow-2xl shadow-pink-950/20 animate-scale-in"
               onClick={(e) => e.stopPropagation()}
             >
               <div className="flex items-center justify-between pb-4 border-b border-border/60">
               <div className="flex items-center gap-2.5">
-                <span className="grid size-8 place-items-center rounded-lg bg-orange-50 text-orange-600 border border-orange-200">
+                <span className="grid size-8 place-items-center rounded-lg bg-pink-950/40 text-pink-400 border border-pink-500/30">
                   <KeyRound className="size-4" />
                 </span>
                 <div>
@@ -1649,12 +1649,12 @@ function LicensesTab({
 
                   <div className="mt-4 flex items-center justify-between rounded-lg border border-border bg-card p-3 shadow-sm">
                     <span className="flex items-center gap-1.5 font-mono text-xs font-bold text-foreground">
-                      <Hash className="size-3.5 text-orange-500" />
+                      <Hash className="size-3.5 text-pink-500" />
                       {generatedKey.discordId}
                     </span>
                     <button
                       onClick={() => onCopy(generatedKey.discordId, 'modal-key')}
-                      className="flex items-center gap-1 rounded bg-orange-500 hover:bg-orange-600 px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm"
+                      className="flex items-center gap-1 rounded bg-pink-950/400 hover:bg-pink-600 px-2.5 py-1 text-[11px] font-semibold text-white shadow-sm"
                     >
                       {copiedKey === 'modal-key' ? (
                         <>
@@ -1680,7 +1680,7 @@ function LicensesTab({
                   </div>
                   <div className="flex justify-between">
                     <span className="text-muted-foreground">Duração / Validade:</span>
-                    <span className="font-bold text-orange-700">
+                    <span className="font-bold text-pink-400">
                       {formatRemainingTime(generatedKey.expiry, generatedKey.tempo)}
                       {generatedKey.expiry && !isLifetime(generatedKey.expiry) && (
                         <span className="text-[11px] text-muted-foreground ml-1">
@@ -1708,7 +1708,7 @@ function LicensesTab({
                   </button>
                   <button
                     onClick={() => setIsModalOpen(false)}
-                    className="flex-1 rounded-lg bg-orange-500 hover:bg-orange-600 py-2 text-xs font-semibold text-white shadow-sm"
+                    className="flex-1 rounded-lg bg-pink-950/400 hover:bg-pink-600 py-2 text-xs font-semibold text-white shadow-sm"
                   >
                     Concluir
                   </button>
@@ -1727,11 +1727,11 @@ function LicensesTab({
                 <div>
                   <div className="flex items-center justify-between">
                     <label className="flex items-center gap-1.5 text-xs font-medium text-foreground">
-                      <Hash className="size-3.5 text-orange-500" />
+                      <Hash className="size-3.5 text-pink-500" />
                       Discord ID (Key do Cliente)
                     </label>
                     {isFetchingDiscord && (
-                      <span className="text-[10px] text-orange-600 animate-pulse flex items-center gap-1">
+                      <span className="text-[10px] text-pink-400 animate-pulse flex items-center gap-1">
                         <RefreshCw className="size-2.5 animate-spin" /> Buscando Discord...
                       </span>
                     )}
@@ -1749,22 +1749,22 @@ function LicensesTab({
                     className="mt-1.5 w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary font-mono"
                   />
                   {discordProfile ? (
-                    <div className="mt-2 flex items-center justify-between rounded-lg border border-orange-200 bg-orange-50 p-2.5">
+                    <div className="mt-2 flex items-center justify-between rounded-lg border border-pink-500/30 bg-pink-950/40 p-2.5">
                       <div className="flex items-center gap-2.5">
                         <img
                           src={discordProfile.avatarUrl}
                           alt={discordProfile.username}
-                          className="size-8 rounded-full border border-orange-300 object-cover"
+                          className="size-8 rounded-full border border-pink-500/40 object-cover"
                         />
                         <div>
                           <p className="text-xs font-semibold text-foreground flex items-center gap-1.5">
                             {discordProfile.globalName}
-                            <span className="text-[10px] text-orange-600 font-mono font-medium">@{discordProfile.username}</span>
+                            <span className="text-[10px] text-pink-400 font-mono font-medium">@{discordProfile.username}</span>
                           </p>
                           <p className="text-[10px] text-muted-foreground font-mono">ID: {discordProfile.id}</p>
                         </div>
                       </div>
-                      <span className="inline-flex items-center gap-1 rounded bg-orange-100 px-2 py-0.5 text-[10px] font-bold text-orange-700 border border-orange-200">
+                      <span className="inline-flex items-center gap-1 rounded bg-pink-950/60 px-2 py-0.5 text-[10px] font-bold text-pink-400 border border-pink-500/30">
                         <Check className="size-3 text-emerald-600" /> Verificado
                       </span>
                     </div>
@@ -1778,7 +1778,7 @@ function LicensesTab({
                 {/* Name */}
                 <div>
                   <label className="flex items-center gap-1.5 text-xs font-medium text-foreground">
-                    <User className="size-3.5 text-orange-500" />
+                    <User className="size-3.5 text-pink-500" />
                     Name
                   </label>
                   <input
@@ -1794,7 +1794,7 @@ function LicensesTab({
                 {/* Tempo */}
                 <div>
                   <label className="flex items-center gap-1.5 text-xs font-medium text-foreground">
-                    <Clock className="size-3.5 text-orange-500" />
+                    <Clock className="size-3.5 text-pink-500" />
                     Tempo (Duração)
                   </label>
                   <select
@@ -1829,7 +1829,7 @@ function LicensesTab({
                 {/* Game */}
                 <div>
                   <label className="flex items-center gap-1.5 text-xs font-medium text-foreground">
-                    <Gamepad2 className="size-3.5 text-orange-500" />
+                    <Gamepad2 className="size-3.5 text-pink-500" />
                     Game (Jogo / Software)
                   </label>
                   <select
@@ -1853,7 +1853,7 @@ function LicensesTab({
                   </button>
                   <button
                     type="submit"
-                    className="w-full sm:w-auto flex items-center justify-center gap-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 px-4 py-2 text-xs font-semibold text-white shadow-md shadow-orange-500/25"
+                    className="w-full sm:w-auto flex items-center justify-center gap-1.5 rounded-lg bg-pink-950/400 hover:bg-pink-600 px-4 py-2 text-xs font-semibold text-white shadow-md shadow-pink-500/25"
                   >
                     <Plus className="size-3.5" /> Criar Key
                   </button>
@@ -1874,13 +1874,13 @@ function LicensesTab({
             onClick={() => setSelectedDetailsLicense(null)}
           >
             <div
-              className="relative w-full max-w-xl my-auto max-h-[92vh] overflow-y-auto rounded-2xl border border-orange-100 bg-card p-5 sm:p-6 shadow-2xl shadow-orange-950/10 animate-scale-in"
+              className="relative w-full max-w-xl my-auto max-h-[92vh] overflow-y-auto rounded-2xl border border-pink-500/20 bg-card p-5 sm:p-6 shadow-2xl shadow-pink-950/20 animate-scale-in"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
             <div className="flex items-center justify-between pb-4 border-b border-border/60">
               <div className="flex items-center gap-2.5">
-                <span className="grid size-9 place-items-center rounded-xl bg-orange-50 text-orange-600 border border-orange-200">
+                <span className="grid size-9 place-items-center rounded-xl bg-pink-950/40 text-pink-400 border border-pink-500/30">
                   <KeyRound className="size-5" />
                 </span>
                 <div>
@@ -1906,10 +1906,10 @@ function LicensesTab({
                       <img
                         src={selectedDetailsLicense.discordAvatar}
                         alt={selectedDetailsLicense.name}
-                        className="size-11 rounded-full border border-orange-200 object-cover shadow-sm"
+                        className="size-11 rounded-full border border-pink-500/30 object-cover shadow-sm"
                       />
                     ) : (
-                      <span className="grid size-11 place-items-center rounded-full bg-orange-100 text-xs font-bold text-orange-700 border border-orange-200">
+                      <span className="grid size-11 place-items-center rounded-full bg-pink-950/60 text-xs font-bold text-pink-400 border border-pink-500/30">
                         {selectedDetailsLicense.name.slice(0, 2).toUpperCase()}
                       </span>
                     )}
@@ -1917,7 +1917,7 @@ function LicensesTab({
                       <h4 className="text-sm font-semibold text-foreground flex items-center gap-1.5">
                         {selectedDetailsLicense.name}
                         {selectedDetailsLicense.discordUsername && (
-                          <span className="text-[11px] font-mono text-orange-600 font-medium">
+                          <span className="text-[11px] font-mono text-pink-400 font-medium">
                             @{selectedDetailsLicense.discordUsername}
                           </span>
                         )}
@@ -1959,7 +1959,7 @@ function LicensesTab({
                 <div className="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                   <div className="rounded-lg bg-card p-2.5 border border-border/40 shadow-sm">
                     <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                      <Hash className="size-3 text-orange-500" /> Key / Discord ID
+                      <Hash className="size-3 text-pink-500" /> Key / Discord ID
                     </span>
                     <div className="mt-1 flex items-center justify-between gap-1">
                       <span className="font-mono text-xs font-bold text-foreground truncate">
@@ -1980,7 +1980,7 @@ function LicensesTab({
 
                   <div className="rounded-lg bg-card p-2.5 border border-border/40 shadow-sm">
                     <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                      <Gamepad2 className="size-3 text-orange-500" /> Jogo / Software
+                      <Gamepad2 className="size-3 text-pink-500" /> Jogo / Software
                     </span>
                     <p className="mt-1 font-semibold text-foreground truncate">
                       {selectedDetailsLicense.game}
@@ -1993,7 +1993,7 @@ function LicensesTab({
               <div className="rounded-xl border border-border/70 bg-muted/40 p-4">
                 <div className="flex items-center justify-between pb-2">
                   <div className="flex items-center gap-2">
-                    <Monitor className="size-4 text-orange-500" />
+                    <Monitor className="size-4 text-pink-500" />
                     <div>
                       <h4 className="text-xs font-semibold text-foreground">Dispositivo Vinculado (1 PC)</h4>
                       <p className="text-[10px] text-muted-foreground">Trava de segurança de hardware (HWID SHA-256)</p>
@@ -2005,7 +2005,7 @@ function LicensesTab({
                       1 / 1 Vinculado
                     </span>
                   ) : (
-                    <span className="inline-flex items-center rounded-md border border-orange-200 bg-orange-50 px-2.5 py-1 text-[11px] font-bold text-orange-700">
+                    <span className="inline-flex items-center rounded-md border border-pink-500/30 bg-pink-950/40 px-2.5 py-1 text-[11px] font-bold text-pink-400">
                       0 / 1 Livre
                     </span>
                   )}
@@ -2026,24 +2026,24 @@ function LicensesTab({
                   </div>
                   <button
                     onClick={() => handleResetKey(selectedDetailsLicense.key)}
-                    className="shrink-0 flex items-center justify-center gap-1.5 rounded-lg border border-orange-200 bg-orange-50 px-3 py-1.5 text-xs font-semibold text-orange-700 hover:bg-orange-100 transition-all btn-interactive"
+                    className="shrink-0 flex items-center justify-center gap-1.5 rounded-lg border border-pink-500/30 bg-pink-950/40 px-3 py-1.5 text-xs font-semibold text-pink-400 hover:bg-pink-950/60 transition-all btn-interactive"
                     title="Liberar HWID para o cliente logar em outro computador ou após formatar"
                   >
-                    <RotateCcw className="size-3.5 text-orange-600" />
+                    <RotateCcw className="size-3.5 text-pink-400" />
                     Resetar HWID
                   </button>
                 </div>
               </div>
 
               {/* Card 3: CARD PARA MUDAR O TEMPO DA KEY (Em destaque especial) */}
-              <div className="rounded-xl border border-orange-200 bg-gradient-to-b from-orange-50/70 to-card p-4">
+              <div className="rounded-xl border border-pink-500/30 bg-gradient-to-b from-pink-950/40 to-card p-4">
                 <div className="flex items-center gap-2 pb-2">
-                  <Clock className="size-4 text-orange-500" />
+                  <Clock className="size-4 text-pink-500" />
                   <div>
                     <h4 className="text-xs font-semibold text-foreground">Alterar Duração da Key</h4>
                     <p className="text-[10px] text-muted-foreground">
                       Duração / Tempo restante:{' '}
-                      <strong className="text-orange-700 font-bold">
+                      <strong className="text-pink-400 font-bold">
                         {formatRemainingTime(selectedDetailsLicense.expiry, selectedDetailsLicense.tempo)}
                       </strong>
                       {selectedDetailsLicense.expiry && !isLifetime(selectedDetailsLicense.expiry) && (
@@ -2061,7 +2061,7 @@ function LicensesTab({
                     <select
                       value={editingTempo}
                       onChange={(e) => setEditingTempo(e.target.value)}
-                      className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-orange-500"
+                      className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-pink-500"
                     >
                       <option value="1 Dia (24h)">1 Dia (24h - Teste)</option>
                       <option value="3 Dias (Fim de Semana)">3 Dias (Fim de Semana)</option>
@@ -2085,7 +2085,7 @@ function LicensesTab({
                         value={editingCustomTempo}
                         onChange={(e) => setEditingCustomTempo(e.target.value)}
                         placeholder="Ex: 45 Dias, 12 Horas, etc."
-                        className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-orange-500"
+                        className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-pink-500"
                       />
                     </div>
                   )}
@@ -2093,7 +2093,7 @@ function LicensesTab({
                   <button
                     onClick={handleUpdateTempo}
                     disabled={isUpdatingTempo}
-                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-orange-500 hover:bg-orange-600 px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-orange-500/25 transition-all btn-interactive disabled:opacity-50"
+                    className="flex w-full items-center justify-center gap-2 rounded-lg bg-pink-950/400 hover:bg-pink-600 px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-pink-500/25 transition-all btn-interactive disabled:opacity-50"
                   >
                     {isUpdatingTempo ? (
                       <>
@@ -2342,11 +2342,11 @@ function ScreenTab({
       {/* Header */}
       <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-orange-500">
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-pink-500">
             Painel Exclusivo Admin (mrcrlq & Samuca)
           </p>
           <h2 className="text-2xl font-semibold tracking-[-0.04em] sm:text-3xl flex items-center gap-2.5">
-            <Camera className="size-6 text-orange-500" />
+            <Camera className="size-6 text-pink-500" />
             Screen
           </h2>
           <p className="mt-2 text-sm text-muted-foreground">
@@ -2358,7 +2358,7 @@ function ScreenTab({
             setFormError('')
             setIsAddModalOpen(true)
           }}
-          className="flex w-full sm:w-fit items-center justify-center gap-2 rounded-lg bg-orange-500 hover:bg-orange-600 px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-orange-500/25 btn-interactive hover-lift"
+          className="flex w-full sm:w-fit items-center justify-center gap-2 rounded-lg bg-pink-950/400 hover:bg-pink-600 px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-pink-500/25 btn-interactive hover-lift"
         >
           <Plus className="size-4" /> Adicionar Print
         </button>
@@ -2380,12 +2380,12 @@ function ScreenTab({
               <span
                 className={`grid size-8 sm:size-9 place-items-center rounded-lg transition-transform duration-300 group-hover:scale-110 ${
                   tone === 'blue'
-                    ? 'bg-orange-50 text-orange-600 border border-orange-200/60'
+                    ? 'bg-pink-950/40 text-pink-400 border border-pink-500/25'
                     : tone === 'amber'
                     ? 'bg-amber-50 text-amber-700 border border-amber-200/60'
                     : tone === 'rose'
                     ? 'bg-rose-50 text-rose-700 border border-rose-200/60'
-                    : 'bg-orange-100/60 text-orange-700 border border-orange-200/60'
+                    : 'bg-pink-950/60 text-pink-400 border border-pink-500/25'
                 }`}
               >
                 <Icon className="size-3.5 sm:size-4" />
@@ -2409,7 +2409,7 @@ function ScreenTab({
               onClick={() => setFilterGame(tab)}
               className={`flex-1 sm:flex-initial rounded-md px-3 py-1.5 text-xs font-medium btn-interactive transition-all duration-200 whitespace-nowrap ${
                 filterGame === tab
-                  ? 'bg-orange-500 text-white shadow-sm font-semibold'
+                  ? 'bg-pink-950/400 text-white shadow-sm font-semibold'
                   : 'text-muted-foreground hover:text-foreground'
               }`}
             >
@@ -2505,7 +2505,7 @@ function ScreenTab({
                           ? 'bg-amber-500/80 text-white'
                           : print.game === 'Valorant'
                           ? 'bg-rose-500/80 text-white'
-                          : 'bg-orange-500/80 text-white'
+                          : 'bg-pink-950/400/80 text-white'
                       }`}
                     >
                       {print.game}
@@ -2530,7 +2530,7 @@ function ScreenTab({
                 {/* Card Body */}
                 <div className="p-4 flex-1 flex flex-col justify-between">
                   <div>
-                    <h4 className="text-xs font-semibold text-foreground truncate group-hover:text-orange-600 transition-colors">
+                    <h4 className="text-xs font-semibold text-foreground truncate group-hover:text-pink-400 transition-colors">
                       {print.title}
                     </h4>
                     <p className="mt-1 text-[11px] text-muted-foreground flex items-center justify-between">
@@ -2540,7 +2540,7 @@ function ScreenTab({
 
                     <div className="mt-2.5 flex items-center justify-between rounded-lg bg-background/80 px-2.5 py-1.5 border border-border/50">
                       <span className="flex items-center gap-1 font-mono text-[11px] text-foreground truncate">
-                        <Hash className="size-3 text-orange-500 shrink-0" />
+                        <Hash className="size-3 text-pink-500 shrink-0" />
                         {print.discordId}
                       </span>
                       <button
@@ -2563,7 +2563,7 @@ function ScreenTab({
                   <div className="mt-4 pt-3 border-t border-border/50 flex items-center justify-between">
                     <button
                       onClick={() => setSelectedPrint(print)}
-                      className="text-[11px] text-orange-600 hover:text-orange-500 font-medium flex items-center gap-1 transition-colors"
+                      className="text-[11px] text-pink-400 hover:text-pink-500 font-medium flex items-center gap-1 transition-colors"
                     >
                       <Maximize2 className="size-3" /> Ver Detalhes
                     </button>
@@ -2591,13 +2591,13 @@ function ScreenTab({
             onClick={() => setSelectedPrint(null)}
           >
             <div
-              className="relative w-full max-w-4xl my-auto max-h-[92vh] overflow-y-auto rounded-2xl border border-orange-100 bg-card p-5 sm:p-6 shadow-2xl shadow-orange-950/10 animate-scale-in"
+              className="relative w-full max-w-4xl my-auto max-h-[92vh] overflow-y-auto rounded-2xl border border-pink-500/20 bg-card p-5 sm:p-6 shadow-2xl shadow-pink-950/20 animate-scale-in"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Modal Header */}
             <div className="flex items-center justify-between pb-3 border-b border-border/60">
               <div className="flex items-center gap-2.5">
-                <span className="grid size-8 place-items-center rounded-lg bg-orange-50 text-orange-600 border border-orange-200">
+                <span className="grid size-8 place-items-center rounded-lg bg-pink-950/40 text-pink-400 border border-pink-500/30">
                   <Camera className="size-4" />
                 </span>
                 <div>
@@ -2609,7 +2609,7 @@ function ScreenTab({
                           ? 'bg-amber-50 text-amber-700 border border-amber-200'
                           : selectedPrint.game === 'Valorant'
                           ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                          : 'bg-orange-50 text-orange-700 border border-orange-200'
+                          : 'bg-pink-950/40 text-pink-400 border border-pink-500/30'
                       }`}
                     >
                       {selectedPrint.game}
@@ -2678,7 +2678,7 @@ function ScreenTab({
                 </button>
                 <button
                   onClick={() => handleDownload(selectedPrint)}
-                  className="flex items-center justify-center gap-1.5 rounded-lg bg-orange-500 hover:bg-orange-600 px-4 py-2 text-xs font-semibold text-white transition-colors shadow-md shadow-orange-500/25"
+                  className="flex items-center justify-center gap-1.5 rounded-lg bg-pink-950/400 hover:bg-pink-600 px-4 py-2 text-xs font-semibold text-white transition-colors shadow-md shadow-pink-500/25"
                 >
                   <Download className="size-3.5" /> Baixar Imagem
                 </button>
@@ -2698,13 +2698,13 @@ function ScreenTab({
             onClick={() => setIsAddModalOpen(false)}
           >
             <div
-              className="relative w-full max-w-lg my-auto max-h-[92vh] overflow-y-auto rounded-2xl border border-orange-100 bg-card p-5 sm:p-6 shadow-2xl shadow-orange-950/10 animate-scale-in"
+              className="relative w-full max-w-lg my-auto max-h-[92vh] overflow-y-auto rounded-2xl border border-pink-500/20 bg-card p-5 sm:p-6 shadow-2xl shadow-pink-950/20 animate-scale-in"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
             <div className="flex items-center justify-between pb-3 border-b border-border/60">
               <div className="flex items-center gap-2.5">
-                <span className="grid size-8 place-items-center rounded-lg bg-orange-50 text-orange-600 border border-orange-200">
+                <span className="grid size-8 place-items-center rounded-lg bg-pink-950/40 text-pink-400 border border-pink-500/30">
                   <Camera className="size-4" />
                 </span>
                 <div>
@@ -2993,7 +2993,7 @@ function UsersTab({ currentUser }: { currentUser: AuthAccount }) {
     <div>
       <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="mb-2 text-xs font-medium uppercase tracking-[0.16em] text-orange-600 font-semibold">Identity Directory</p>
+          <p className="mb-2 text-xs font-medium uppercase tracking-[0.16em] text-pink-400 font-semibold">Identity Directory</p>
           <h2 className="text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">Users</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Manage authenticated users, team roles, credential health, and MFA enforcement.
@@ -3037,7 +3037,7 @@ function UsersTab({ currentUser }: { currentUser: AuthAccount }) {
                 <tr key={user.email} className="border-b border-border/40 last:border-0 hover:bg-accent/30">
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3">
-                      <div className="grid size-8 place-items-center rounded-full bg-gradient-to-tr from-orange-500/20 to-amber-500/20 text-xs font-semibold text-orange-600">
+                      <div className="grid size-8 place-items-center rounded-full bg-gradient-to-tr from-pink-500/20 to-rose-500/20 text-xs font-semibold text-pink-400">
                         {user.initials}
                       </div>
                       <div>
@@ -3136,7 +3136,7 @@ function SessionsTab() {
     <div>
       <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="mb-2 text-xs font-medium uppercase tracking-[0.16em] text-orange-600 font-semibold">Token Observability</p>
+          <p className="mb-2 text-xs font-medium uppercase tracking-[0.16em] text-pink-400 font-semibold">Token Observability</p>
           <h2 className="text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">Sessions</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Monitor real-time active sessions, authorized devices, and perform instant security revocations.
@@ -3170,7 +3170,7 @@ function SessionsTab() {
               className="flex flex-col justify-between gap-4 rounded-xl border border-border/70 bg-card p-4 sm:flex-row sm:items-center card-hover"
             >
               <div className="flex items-center gap-4">
-                <span className="grid size-10 place-items-center rounded-lg bg-orange-50 text-orange-600 border border-orange-200/50">
+                <span className="grid size-10 place-items-center rounded-lg bg-pink-950/40 text-pink-400 border border-pink-500/25">
                   <Icon className="size-5" />
                 </span>
                 <div>
@@ -3211,7 +3211,7 @@ function AnalyticsTab() {
     <div>
       <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="mb-2 text-xs font-medium uppercase tracking-[0.16em] text-orange-600 font-semibold">Telemetry & Performance</p>
+          <p className="mb-2 text-xs font-medium uppercase tracking-[0.16em] text-pink-400 font-semibold">Telemetry & Performance</p>
           <h2 className="text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">Analytics</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Deep dive into authentication requests, latency percentiles, error rates, and geo-traffic.
@@ -3248,8 +3248,8 @@ function AnalyticsTab() {
           <p className="text-xs text-muted-foreground">Distribution across cryptographic schemes</p>
           <div className="mt-6 flex flex-col gap-3">
             {[
-              { name: 'WebAuthn / Passkeys', share: 42, color: 'bg-orange-500' },
-              { name: 'OAuth2 / OpenID Connect', share: 34, color: 'bg-orange-400' },
+              { name: 'WebAuthn / Passkeys', share: 42, color: 'bg-pink-950/400' },
+              { name: 'OAuth2 / OpenID Connect', share: 34, color: 'bg-pink-400' },
               { name: 'API Secret Keys', share: 18, color: 'bg-amber-500' },
               { name: 'Password + TOTP', share: 6, color: 'bg-emerald-500' },
             ].map((item) => (
@@ -3281,7 +3281,7 @@ function AnalyticsTab() {
               <div key={geo.country} className="flex items-center justify-between border-b border-border/40 pb-2.5 last:border-0 text-xs">
                 <span className="font-medium text-foreground">{geo.country}</span>
                 <span className="text-muted-foreground">{geo.requests}</span>
-                <span className="font-semibold text-orange-600">{geo.share}</span>
+                <span className="font-semibold text-pink-400">{geo.share}</span>
               </div>
             ))}
           </div>
@@ -3365,7 +3365,7 @@ function LogsTab({ currentUser }: { currentUser: AuthAccount }) {
     <div>
       <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="mb-2 text-xs font-medium uppercase tracking-[0.16em] text-orange-600 font-semibold">Audit Trail</p>
+          <p className="mb-2 text-xs font-medium uppercase tracking-[0.16em] text-pink-400 font-semibold">Audit Trail</p>
           <h2 className="text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">Logs</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Immutable stream of security events, authentication attempts, and authorization anomalies.
@@ -3405,7 +3405,7 @@ function LogsTab({ currentUser }: { currentUser: AuthAccount }) {
                         log.level === 'SUCCESS'
                           ? 'bg-emerald-500/15 text-emerald-600'
                           : log.level === 'INFO'
-                          ? 'bg-orange-500/15 text-orange-600'
+                          ? 'bg-pink-950/400/15 text-pink-400'
                           : log.level === 'WARN'
                           ? 'bg-amber-500/15 text-amber-600'
                           : 'bg-red-500/15 text-red-600'
@@ -3610,7 +3610,7 @@ function SettingsTab({
 
       <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="mb-2 text-xs font-medium uppercase tracking-[0.16em] text-orange-600 font-semibold">Preferences & Security</p>
+          <p className="mb-2 text-xs font-medium uppercase tracking-[0.16em] text-pink-400 font-semibold">Preferences & Security</p>
           <h2 className="text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">Settings</h2>
           <p className="mt-2 text-sm text-muted-foreground">
             Configure o status operacional da autenticação, kill switch global e parâmetros de segurança.
@@ -3696,7 +3696,7 @@ function SettingsTab({
           {/* Mensagem exibida no executável C++ quando pausado */}
           <div className="mt-5 pt-4 border-t border-border/40">
             <label className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-              <ShieldAlert className="size-3.5 text-orange-500" />
+              <ShieldAlert className="size-3.5 text-pink-500" />
               Mensagem de Manutenção exibida no Loader / Arquivo:
             </label>
             <p className="text-[11px] text-muted-foreground mt-0.5">
@@ -3859,36 +3859,36 @@ function Landing({ onOpenLogin }: { onOpenLogin: () => void }) {
       {/* Efeito Glow Laranja Ambiental (Sem linhas ou quadrados) */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden">
         {/* Glow Superior Central atrás do Título Hero */}
-        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[800px] max-w-[95vw] h-[520px] rounded-full bg-gradient-to-b from-orange-500/25 via-amber-400/20 to-transparent blur-[120px]" />
+        <div className="absolute -top-32 left-1/2 -translate-x-1/2 w-[800px] max-w-[95vw] h-[520px] rounded-full bg-gradient-to-b from-pink-500/25 via-fuchsia-500/20 to-transparent blur-[120px]" />
 
         {/* Glow Lateral Esquerdo */}
-        <div className="absolute top-72 -left-36 w-[480px] h-[480px] rounded-full bg-gradient-to-tr from-orange-400/20 to-amber-300/10 blur-[130px]" />
+        <div className="absolute top-72 -left-36 w-[480px] h-[480px] rounded-full bg-gradient-to-tr from-pink-400/20 to-fuchsia-400/10 blur-[130px]" />
 
         {/* Glow Lateral Direito */}
-        <div className="absolute top-96 -right-36 w-[480px] h-[480px] rounded-full bg-gradient-to-bl from-orange-500/20 to-amber-400/15 blur-[130px]" />
+        <div className="absolute top-96 -right-36 w-[480px] h-[480px] rounded-full bg-gradient-to-bl from-pink-500/20 to-rose-500/15 blur-[130px]" />
 
         {/* Glow Central Inferior atrás da Frase 'Não vendemos hype' */}
-        <div className="absolute bottom-40 left-1/2 -translate-x-1/2 w-[750px] max-w-[90vw] h-[460px] rounded-full bg-gradient-to-tr from-orange-500/20 via-amber-400/15 to-transparent blur-[130px]" />
+        <div className="absolute bottom-40 left-1/2 -translate-x-1/2 w-[750px] max-w-[90vw] h-[460px] rounded-full bg-gradient-to-tr from-pink-500/20 via-fuchsia-400/15 to-transparent blur-[130px]" />
       </div>
       <header
         className={`sticky top-0 z-50 transition-all duration-300 ${
           scrolled
-            ? 'border-b border-border/80 bg-background/90 backdrop-blur-xl shadow-sm shadow-orange-500/5 py-3.5'
+            ? 'border-b border-border/80 bg-background/90 backdrop-blur-xl shadow-sm shadow-pink-500/10 py-3.5'
             : 'border-b border-border/40 bg-background/60 backdrop-blur-md py-5'
         }`}
       >
         <div className="mx-auto flex max-w-7xl items-center justify-between px-5 lg:px-8">
           <button className="flex items-center gap-2.5">
-            <span className="grid size-8 place-items-center rounded-lg bg-gradient-to-br from-orange-500 to-amber-500 text-white shadow-sm shadow-orange-500/30">
+            <span className="grid size-8 place-items-center rounded-lg bg-gradient-to-br from-pink-500 to-rose-500 text-white shadow-sm shadow-pink-500/30">
               <LockKeyhole className="size-4" />
             </span>
             <span className="text-[15px] font-bold tracking-[-0.02em]">
-              Hooked <span className="text-orange-500">Auth</span>
+              Hooked <span className="text-pink-500">Auth</span>
             </span>
           </button>
           <button
             onClick={onOpenLogin}
-            className="rounded-lg bg-orange-500 px-4 py-2 text-xs font-semibold text-white btn-interactive hover-lift shadow-md shadow-orange-500/25 hover:bg-orange-600 transition-colors"
+            className="rounded-lg bg-pink-950/400 px-4 py-2 text-xs font-semibold text-white btn-interactive hover-lift shadow-md shadow-pink-500/25 hover:bg-pink-600 transition-colors"
           >
             Dashboard
           </button>
@@ -3901,7 +3901,7 @@ function Landing({ onOpenLogin }: { onOpenLogin: () => void }) {
           <div className="mx-auto flex max-w-4xl flex-col items-center text-center">
             <h1 className="text-3xl sm:text-5xl lg:text-7xl font-bold leading-[1.08] tracking-[-0.05em] text-foreground">
               Hooked is not just a store<br />
-              <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent font-extrabold">
+              <span className="bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent font-extrabold">
                 but also a community
               </span>
             </h1>
@@ -3922,7 +3922,7 @@ function Landing({ onOpenLogin }: { onOpenLogin: () => void }) {
         >
           <h2 className="text-3xl sm:text-5xl lg:text-7xl font-bold leading-[1.08] tracking-[-0.05em]">
             <span className="text-foreground">Não vendemos hype,</span><br />
-            <span className="bg-gradient-to-r from-orange-500 to-amber-500 bg-clip-text text-transparent font-extrabold">
+            <span className="bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent font-extrabold">
               vendemos qualidade.
             </span>
           </h2>
