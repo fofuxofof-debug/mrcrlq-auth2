@@ -52,7 +52,7 @@ git add .
 
 :: 6. Commit
 echo [*] Criando commit...
-git commit -m "Fix duration countdown and validation for all plans" 2>nul
+git commit -m "Update black and pink theme colors across badges and tables" 2>nul
 
 :: 7. Enviar para o GitHub
 echo.
