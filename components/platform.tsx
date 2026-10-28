@@ -5,7 +5,7 @@ import { createPortal } from 'react-dom'
 import {
   Activity, AlertTriangle, ArrowRight, Ban, BarChart3, Bell, Camera, Check, CheckCircle2, ChevronDown, Clock, Code2,
   Copy, Download, ExternalLink, Eye, FileText, Filter, Gamepad2, Gauge, Globe, Hash, Image as ImageIcon,
-  KeyRound, Laptop, LayoutDashboard, LifeBuoy, LockKeyhole, LogOut, Maximize2, Menu, Monitor, MoreHorizontal,
+  KeyRound, Laptop, LayoutDashboard, LayoutGrid, LifeBuoy, LockKeyhole, LogOut, Maximize2, Menu, Monitor, MoreHorizontal,
   Plus, Power, PowerOff, RefreshCw, RotateCcw, Save, Search, Server, Settings2, Shield, ShieldAlert, ShieldCheck, Smartphone, Sparkles, Terminal,
   Trash2, UploadCloud, User, Users, X, Zap
 } from 'lucide-react'
@@ -709,24 +709,24 @@ export function Platform() {
       {/* Main Content Area */}
       <main className="lg:pl-[280px]">
         {/* Header */}
-        <header className="sticky top-0 z-20 flex h-[64px] sm:h-[68px] items-center justify-between border-b border-border/60 bg-background/85 px-4 sm:px-5 backdrop-blur-xl lg:px-8">
+        <header className="sticky top-0 z-20 flex h-[64px] sm:h-[68px] items-center justify-between border-b-0 sm:border-b sm:border-border/40 bg-background px-4 sm:px-5 lg:px-8 shadow-sm">
           <div className="flex items-center gap-2.5 sm:gap-3">
             <button
               onClick={() => setMobileNav(true)}
-              className="size-9 grid place-items-center rounded-lg border border-border/70 bg-card text-muted-foreground hover:text-pink-400 lg:hidden btn-interactive"
-              aria-label="Open menu"
+              className="size-9 grid place-items-center rounded-xl bg-card border border-pink-500/30 text-pink-400 hover:text-pink-300 hover:bg-pink-950/40 lg:hidden btn-interactive shadow-sm shadow-pink-500/10 transition-all active:scale-95"
+              aria-label="Abrir menu"
             >
-              <Menu className="size-5" />
+              <LayoutGrid className="size-4 text-pink-400" />
             </button>
             <div>
-              <p className="text-[10px] sm:text-xs text-muted-foreground">Workspace /</p>
-              <h1 className="text-xs sm:text-sm font-semibold">{active}</h1>
+              <p className="text-[10px] sm:text-xs text-pink-400 font-semibold tracking-wider uppercase">Workspace</p>
+              <h1 className="text-xs sm:text-sm font-bold text-foreground">{active}</h1>
             </div>
           </div>
           <div className="flex items-center gap-2">
             <button
               onClick={() => handleTabChange('Licenses')}
-              className="flex items-center gap-1.5 rounded-lg bg-primary px-3 py-1.5 sm:py-2 text-xs font-semibold text-primary-foreground btn-interactive hover-lift shadow-sm hover:opacity-90"
+              className="flex items-center gap-1.5 rounded-lg bg-pink-600 hover:bg-pink-500 px-3 py-1.5 sm:py-2 text-xs font-semibold text-white btn-interactive hover-lift shadow-sm shadow-pink-500/25 hover:opacity-90 transition-colors"
             >
               <Plus className="size-3.5" />
               <span>Create</span>
