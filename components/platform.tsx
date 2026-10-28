@@ -625,32 +625,48 @@ export function Platform() {
           </button>
         </div>
 
-        <p className="px-2 pb-2 text-[10px] font-medium uppercase tracking-[0.15em] text-muted-foreground/60">
+        <p className="px-2 pb-2.5 text-[10px] font-bold uppercase tracking-[0.16em] text-zinc-500">
           {currentUser.role === 'operator' ? 'Painel Operador' : 'Workspace Admin'}
         </p>
-        <nav className="flex flex-1 flex-col gap-0.5">
-          {userNavItems.map(([label, Icon]) => (
-            <button
-              key={label}
-              onClick={() => {
-                handleTabChange(label)
-                setMobileNav(false)
-              }}
-              className={`flex items-center gap-3 rounded-lg px-3 py-2 text-left text-xs transition-all duration-200 btn-interactive ${
-                active === label
-                  ? 'bg-pink-600 text-white shadow-md shadow-pink-500/25 font-semibold translate-x-1'
-                  : 'text-muted-foreground hover:bg-pink-950/40 hover:text-pink-200 hover:translate-x-1'
-              }`}
-            >
-              <Icon className="size-4" />
-              {label}
-              {label === 'Logs' && (
-                <span className="ml-auto rounded-full bg-pink-950/60 px-1.5 py-0.5 text-[9px] font-bold text-pink-400">
-                  3
-                </span>
-              )}
-            </button>
-          ))}
+        <nav className="flex flex-1 flex-col gap-1">
+          {userNavItems.map(([label, Icon]) => {
+            const isActive = active === label
+            return (
+              <button
+                key={label}
+                onClick={() => {
+                  handleTabChange(label)
+                  setMobileNav(false)
+                }}
+                className={`group relative flex items-center gap-3 rounded-xl px-3.5 py-2.5 text-left text-xs transition-all duration-200 btn-interactive ${
+                  isActive
+                    ? 'border border-pink-500/35 bg-gradient-to-r from-pink-950/60 via-pink-900/25 to-pink-950/10 text-white font-semibold shadow-[0_0_16px_rgba(236,72,153,0.14)] translate-x-1'
+                    : 'border border-transparent text-zinc-400 hover:border-pink-500/20 hover:bg-zinc-900/60 hover:text-zinc-100 hover:translate-x-1'
+                }`}
+              >
+                {isActive && (
+                  <span className="absolute left-0 top-2 bottom-2 w-1 rounded-r-full bg-pink-500 shadow-[0_0_10px_#ec4899]" />
+                )}
+                <Icon
+                  className={`size-4 transition-colors ${
+                    isActive ? 'text-pink-400 drop-shadow-[0_0_6px_rgba(236,72,153,0.5)]' : 'text-zinc-500 group-hover:text-pink-400'
+                  }`}
+                />
+                <span className="tracking-wide">{label}</span>
+                {label === 'Logs' && (
+                  <span
+                    className={`ml-auto rounded-full px-2 py-0.5 text-[9px] font-bold transition-colors ${
+                      isActive
+                        ? 'border border-pink-500/40 bg-pink-500/20 text-pink-300'
+                        : 'border border-zinc-800 bg-zinc-900 text-zinc-400 group-hover:border-pink-500/30 group-hover:text-pink-300'
+                    }`}
+                  >
+                    3
+                  </span>
+                )}
+              </button>
+            )
+          })}
         </nav>
 
         {/* Informações da conta logada & Botão de Sair */}
@@ -1383,13 +1399,15 @@ function LicensesTab({
       </div>
 
       <div className="mt-6 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-        <div className="flex items-center gap-1 rounded-lg border border-border bg-card p-1 overflow-x-auto w-full sm:w-auto">
+        <div className="flex items-center gap-1 rounded-xl border border-border/80 bg-zinc-950/70 p-1 overflow-x-auto w-full sm:w-auto shadow-inner">
           {(['All', 'Active', 'Expired', 'Suspended'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setFilter(tab)}
-              className={`flex-1 sm:flex-initial rounded-md px-2.5 sm:px-3 py-1.5 text-xs font-medium btn-interactive transition-all duration-200 whitespace-nowrap ${
-                filter === tab ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground'
+              className={`flex-1 sm:flex-initial rounded-lg px-3 py-1.5 text-xs font-semibold btn-interactive transition-all duration-200 whitespace-nowrap ${
+                filter === tab
+                  ? 'border border-pink-500/40 bg-gradient-to-r from-pink-600 to-pink-500 text-white shadow-md shadow-pink-500/25'
+                  : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50'
               }`}
             >
               {tab}
@@ -2397,15 +2415,15 @@ function ScreenTab({
 
       {/* Filtros por Jogo e Busca */}
       <div className="mt-8 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1 sm:pb-0 w-full sm:w-auto">
+        <div className="flex items-center gap-1 rounded-xl border border-border/80 bg-zinc-950/70 p-1 overflow-x-auto pb-1 sm:pb-0 w-full sm:w-auto shadow-inner">
           {(['All', 'Free Fire', 'Valorant', 'FiveM'] as const).map((tab) => (
             <button
               key={tab}
               onClick={() => setFilterGame(tab)}
-              className={`flex-1 sm:flex-initial rounded-md px-3 py-1.5 text-xs font-medium btn-interactive transition-all duration-200 whitespace-nowrap ${
+              className={`flex-1 sm:flex-initial rounded-lg px-3 py-1.5 text-xs font-semibold btn-interactive transition-all duration-200 whitespace-nowrap ${
                 filterGame === tab
-                  ? 'bg-pink-600 text-white shadow-sm font-semibold'
-                  : 'text-muted-foreground hover:text-foreground'
+                  ? 'border border-pink-500/40 bg-gradient-to-r from-pink-600 to-pink-500 text-white shadow-md shadow-pink-500/25'
+                  : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50'
               }`}
             >
               {tab === 'All' ? 'Todos os Jogos' : tab}
@@ -3212,10 +3230,10 @@ function AnalyticsTab() {
             Deep dive into authentication requests, latency percentiles, error rates, and geo-traffic.
           </p>
         </div>
-        <div className="flex items-center gap-2 rounded-lg border border-border bg-card p-1 text-xs">
-          <button className="rounded px-2.5 py-1 text-muted-foreground hover:text-foreground btn-interactive">24h</button>
-          <button className="rounded bg-primary px-2.5 py-1 font-medium text-primary-foreground btn-interactive">7 Days</button>
-          <button className="rounded px-2.5 py-1 text-muted-foreground hover:text-foreground btn-interactive">30 Days</button>
+        <div className="flex items-center gap-1 rounded-xl border border-border/80 bg-zinc-950/70 p-1 text-xs shadow-inner">
+          <button className="rounded-lg px-3 py-1.5 font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50 transition-colors">24h</button>
+          <button className="rounded-lg border border-pink-500/40 bg-gradient-to-r from-pink-600 to-pink-500 px-3 py-1.5 font-semibold text-white shadow-md shadow-pink-500/25">7 Days</button>
+          <button className="rounded-lg px-3 py-1.5 font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50 transition-colors">30 Days</button>
         </div>
       </div>
 
