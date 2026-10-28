@@ -3378,13 +3378,11 @@ function LogsTab({ currentUser }: { currentUser: AuthAccount }) {
 
       <div className="overflow-hidden rounded-xl border border-border/70 bg-card">
         <div className="overflow-x-auto">
-          <table className="w-full min-w-[700px] text-left text-xs">
+          <table className="w-full min-w-[580px] text-left text-xs">
             <thead>
               <tr className="border-b border-border/60 bg-muted/20 text-[10px] uppercase tracking-wider text-muted-foreground">
                 <th className="px-5 py-3 font-medium">Timestamp</th>
                 <th className="px-5 py-3 font-medium">Level</th>
-                <th className="px-5 py-3 font-medium">Event Code</th>
-                <th className="px-5 py-3 font-medium">Subject / Actor</th>
                 <th className="px-5 py-3 font-medium">IP Address</th>
                 <th className="px-5 py-3 font-medium">Application</th>
                 <th className="px-5 py-3 text-right font-medium">HTTP Status</th>
@@ -3409,8 +3407,6 @@ function LogsTab({ currentUser }: { currentUser: AuthAccount }) {
                       {log.level}
                     </span>
                   </td>
-                  <td className="px-5 py-3.5 font-sans font-semibold text-foreground">{log.event}</td>
-                  <td className="px-5 py-3.5 font-sans text-muted-foreground">{log.actor}</td>
                   <td className="px-5 py-3.5 text-muted-foreground">{log.ip}</td>
                   <td className="px-5 py-3.5 font-sans text-muted-foreground">{log.client}</td>
                   <td className="px-5 py-3.5 text-right font-medium text-foreground">{log.status}</td>
