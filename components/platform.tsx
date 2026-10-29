@@ -51,13 +51,6 @@ export const ACCOUNTS: AuthAccount[] = [
     role: 'admin',
     roleLabel: 'Acesso Total (Admin)',
   },
-  {
-    username: 'mts',
-    password: 'flash171',
-    displayName: 'mts',
-    role: 'operator',
-    roleLabel: 'Operador de Keys',
-  },
 ]
 
 function ModalPortal({ children }: { children: React.ReactNode }) {
