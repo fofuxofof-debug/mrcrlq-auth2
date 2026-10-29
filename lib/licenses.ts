@@ -163,7 +163,7 @@ const BASE_LICENSES: StoredLicense[] = [
     issued: 'Oct 24, 2026',
     expiry: '2026-11-24T00:00:00.000Z',
     status: 'Active',
-    owner: 'sheik',
+    owner: 'mrcrlq',
     hwid: '',
   },
 ]

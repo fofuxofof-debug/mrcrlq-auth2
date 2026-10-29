@@ -38,20 +38,6 @@ export const ACCOUNTS: AuthAccount[] = [
     roleLabel: 'Acesso Total (Admin)',
   },
   {
-    username: 'sheik',
-    password: '4609',
-    displayName: 'sheik',
-    role: 'admin',
-    roleLabel: 'Acesso Total (Admin)',
-  },
-  {
-    username: 'Samuca',
-    password: 'Samuca007',
-    displayName: 'Samuca',
-    role: 'admin',
-    roleLabel: 'Acesso Total (Admin)',
-  },
-  {
     username: 'mts',
     password: 'flash171',
     displayName: 'mts',
@@ -356,7 +342,7 @@ export function Platform() {
       issued: 'Oct 24, 2026',
       expiry: '2026-11-24T00:00:00.000Z',
       status: 'Active',
-      owner: 'sheik',
+      owner: 'mrcrlq',
       hwid: '',
     },
   ])
@@ -2572,7 +2558,7 @@ function ScreenTab({
       <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
           <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-pink-500">
-            Painel Exclusivo Admin (mrcrlq & Samuca)
+            Painel Exclusivo Admin (mrcrlq)
           </p>
           <h2 className="text-2xl font-semibold tracking-[-0.04em] sm:text-3xl flex items-center gap-2.5">
             <Camera className="size-6 text-pink-500" />
