@@ -38,6 +38,20 @@ export const ACCOUNTS: AuthAccount[] = [
     roleLabel: 'Acesso Total (Admin)',
   },
   {
+    username: 'sheik',
+    password: '4609',
+    displayName: 'sheik',
+    role: 'admin',
+    roleLabel: 'Acesso Total (Admin)',
+  },
+  {
+    username: 'Samuca',
+    password: 'Samuca007',
+    displayName: 'Samuca',
+    role: 'admin',
+    roleLabel: 'Acesso Total (Admin)',
+  },
+  {
     username: 'mts',
     password: 'flash171',
     displayName: 'mts',
@@ -1284,10 +1298,11 @@ function LicensesTab({
     )
   }
 
-  // Filtragem estrita pelos clientes do usuário atual logado (mrcrlq, mts, Samuca)
-  const userLicenses = licenses.filter(
-    (l) => l.owner.toLowerCase() === currentUser.username.toLowerCase()
-  )
+  // Admins têm visão completa da plataforma; Operadores gerenciam suas respectivas chaves
+  const userLicenses =
+    currentUser.role === 'admin'
+      ? licenses
+      : licenses.filter((l) => l.owner.toLowerCase() === currentUser.username.toLowerCase())
 
   const activeCount = userLicenses.filter((l) => l.status === 'Active' && !isLicenseExpired(l.expiry)).length
   const expiredCount = userLicenses.filter((l) => l.status === 'Expired' || isLicenseExpired(l.expiry)).length
