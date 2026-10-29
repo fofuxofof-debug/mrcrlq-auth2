@@ -48,7 +48,7 @@ export async function POST(request: Request) {
 
     if (!found) {
       return NextResponse.json(
-        { success: false, error: 'key_not_found', message: 'Licença inexistente no sistema mrcclient Auth.' },
+        { success: false, error: 'key_not_found', message: 'Licença inexistente no sistema Hooked Auth.' },
         { status: 404, headers: corsHeaders() }
       )
     }
@@ -141,11 +141,11 @@ export async function POST(request: Request) {
     const expSeconds = secondsUntil(found.expiry)
     const discordId = found.discordId || (cleanKey.length >= 16 ? cleanKey : '')
 
-    // Sucesso - retorna formato híbrido 100% compatível com mrcrlq-auth2 e mrcclient Auth C++
+    // Sucesso - retorna formato híbrido 100% compatível com mrcrlq-auth2 e HookedAuth C++
     return NextResponse.json(
       {
         success: true,
-        message: 'Autenticado com sucesso no mrcclient Auth.',
+        message: 'Autenticado com sucesso no Hooked Auth.',
         session_token: sessionToken,
         expires_at: found.expiry,
         expires_in_seconds: expSeconds,

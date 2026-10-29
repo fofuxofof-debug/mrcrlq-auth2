@@ -207,7 +207,7 @@ export function Platform() {
   const [notifications, setNotifications] = useState<NotificationItem[]>([
     {
       id: 'n-1',
-      title: 'Sistema mrcclient Auth Online',
+      title: 'Sistema Hooked Auth Online',
       desc: 'Proteção de HWID e autenticação operacional.',
       time: 'Agora',
       type: 'success',
@@ -516,7 +516,7 @@ export function Platform() {
                     </span>
                     <div>
                       <h3 className="text-sm font-semibold text-foreground">Painel de Controle</h3>
-                      <p className="text-[11px] text-muted-foreground">Autenticação mrcclient Auth</p>
+                      <p className="text-[11px] text-muted-foreground">Autenticação Hooked Auth</p>
                     </div>
                   </div>
                   <button
@@ -615,7 +615,7 @@ export function Platform() {
             <span className="grid size-8 place-items-center rounded-lg bg-gradient-to-br from-pink-500 to-rose-500 text-white shadow-sm shadow-pink-500/30">
               <LockKeyhole className="size-4" />
             </span>
-            <span className="text-[15px] font-bold tracking-[-0.02em]">mrcclient <span className="text-pink-500">Auth</span></span>
+            <span className="text-[15px] font-bold tracking-[-0.02em]">Hooked <span className="text-pink-500">Auth</span></span>
           </button>
           <button
             onClick={() => setMobileNav(false)}
@@ -1030,7 +1030,7 @@ function OverviewTab({
             <h3 className="text-sm font-semibold">Quick start</h3>
           </div>
           <p className="mt-3 text-xs leading-5 text-muted-foreground">
-            Integrate mrcclient Auth authentication into your application in minutes.
+            Integrate Hooked Auth authentication into your application in minutes.
           </p>
         </div>
       </div>
@@ -2426,11 +2426,11 @@ function ScreenTab({
   const [formError, setFormError] = useState('')
 
   // SVGs simulados para pré-visualização de alta fidelidade
-  const ffMockSvg = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450"><defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="%231e1b4b"/><stop offset="100%" stop-color="%230f172a"/></linearGradient></defs><rect width="800" height="450" fill="url(%23g1)"/><rect x="25" y="25" width="750" height="400" rx="14" fill="%230b0f19" stroke="%2338bdf8" stroke-width="1.5" stroke-opacity="0.3"/><circle cx="50" cy="55" r="5" fill="%23ef4444"/><circle cx="68" cy="55" r="5" fill="%23eab308"/><circle cx="86" cy="55" r="5" fill="%2322c55e"/><text x="115" y="60" fill="%2394a3b8" font-family="monospace" font-size="12">MRCCLIENT_AUTH_FF_INJECTOR_V4.2.exe</text><rect x="50" y="90" width="700" height="1" fill="%23334155"/><text x="60" y="140" fill="%23f97316" font-family="sans-serif" font-size="24" font-weight="bold">FREE FIRE · HWID VALIDATION</text><text x="60" y="175" fill="%2338bdf8" font-family="monospace" font-size="14">CLIENT: 22cao (mrcrlq)</text><text x="60" y="205" fill="%23cbd5e1" font-family="monospace" font-size="14">DISCORD ID: 1517054236041416800</text><text x="60" y="235" fill="%23cbd5e1" font-family="monospace" font-size="14">HWID: SHA256-6096A426-22B82276</text><text x="60" y="265" fill="%23cbd5e1" font-family="monospace" font-size="14">PLAN: Vitalício (Lifetime)</text><rect x="60" y="300" width="220" height="42" rx="8" fill="%23059669" fill-opacity="0.2" stroke="%2310b981"/><text x="80" y="327" fill="%2334d399" font-family="monospace" font-size="15" font-weight="bold">STATUS: AUTHORIZED</text><text x="60" y="380" fill="%2364748b" font-family="sans-serif" font-size="12">mrcclient Auth Security Engine © 2026 · Anti-Ban Enabled</text></svg>`
+  const ffMockSvg = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450"><defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="%231e1b4b"/><stop offset="100%" stop-color="%230f172a"/></linearGradient></defs><rect width="800" height="450" fill="url(%23g1)"/><rect x="25" y="25" width="750" height="400" rx="14" fill="%230b0f19" stroke="%2338bdf8" stroke-width="1.5" stroke-opacity="0.3"/><circle cx="50" cy="55" r="5" fill="%23ef4444"/><circle cx="68" cy="55" r="5" fill="%23eab308"/><circle cx="86" cy="55" r="5" fill="%2322c55e"/><text x="115" y="60" fill="%2394a3b8" font-family="monospace" font-size="12">HOOKED_AUTH_FF_INJECTOR_V4.2.exe</text><rect x="50" y="90" width="700" height="1" fill="%23334155"/><text x="60" y="140" fill="%23f97316" font-family="sans-serif" font-size="24" font-weight="bold">FREE FIRE · HWID VALIDATION</text><text x="60" y="175" fill="%2338bdf8" font-family="monospace" font-size="14">CLIENT: 22cao (mrcrlq)</text><text x="60" y="205" fill="%23cbd5e1" font-family="monospace" font-size="14">DISCORD ID: 1517054236041416800</text><text x="60" y="235" fill="%23cbd5e1" font-family="monospace" font-size="14">HWID: SHA256-6096A426-22B82276</text><text x="60" y="265" fill="%23cbd5e1" font-family="monospace" font-size="14">PLAN: Vitalício (Lifetime)</text><rect x="60" y="300" width="220" height="42" rx="8" fill="%23059669" fill-opacity="0.2" stroke="%2310b981"/><text x="80" y="327" fill="%2334d399" font-family="monospace" font-size="15" font-weight="bold">STATUS: AUTHORIZED</text><text x="60" y="380" fill="%2364748b" font-family="sans-serif" font-size="12">Hooked Auth Security Engine © 2026 · Anti-Ban Enabled</text></svg>`
 
-  const valMockSvg = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450"><defs><linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="%232e1022"/><stop offset="100%" stop-color="%2309090b"/></linearGradient></defs><rect width="800" height="450" fill="url(%23g2)"/><rect x="25" y="25" width="750" height="400" rx="14" fill="%2309070a" stroke="%23fb7185" stroke-width="1.5" stroke-opacity="0.3"/><circle cx="50" cy="55" r="5" fill="%23ef4444"/><circle cx="68" cy="55" r="5" fill="%23eab308"/><circle cx="86" cy="55" r="5" fill="%2322c55e"/><text x="115" y="60" fill="%2394a3b8" font-family="monospace" font-size="12">VANGUARD_KERNEL_CLIENT_V2.0.exe</text><rect x="50" y="90" width="700" height="1" fill="%23334155"/><text x="60" y="140" fill="%23f43f5e" font-family="sans-serif" font-size="24" font-weight="bold">VALORANT · KERNEL DRIVER ACTIVE</text><text x="60" y="175" fill="%23fb7185" font-family="monospace" font-size="14">CLIENT: Puto Xitadinho</text><text x="60" y="205" fill="%23cbd5e1" font-family="monospace" font-size="14">DISCORD ID: 1506778729425408112</text><text x="60" y="235" fill="%23cbd5e1" font-family="monospace" font-size="14">HWID: SHA256-03B148AB-78B22918</text><text x="60" y="265" fill="%23cbd5e1" font-family="monospace" font-size="14">PLAN: 30 Dias (Mensal)</text><rect x="60" y="300" width="220" height="42" rx="8" fill="%23059669" fill-opacity="0.2" stroke="%2310b981"/><text x="80" y="327" fill="%2334d399" font-family="monospace" font-size="15" font-weight="bold">STATUS: INJECTED (OK)</text><text x="60" y="380" fill="%2364748b" font-family="sans-serif" font-size="12">mrcclient Auth Kernel Subsystem · Zero Detection</text></svg>`
+  const valMockSvg = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450"><defs><linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="%232e1022"/><stop offset="100%" stop-color="%2309090b"/></linearGradient></defs><rect width="800" height="450" fill="url(%23g2)"/><rect x="25" y="25" width="750" height="400" rx="14" fill="%2309070a" stroke="%23fb7185" stroke-width="1.5" stroke-opacity="0.3"/><circle cx="50" cy="55" r="5" fill="%23ef4444"/><circle cx="68" cy="55" r="5" fill="%23eab308"/><circle cx="86" cy="55" r="5" fill="%2322c55e"/><text x="115" y="60" fill="%2394a3b8" font-family="monospace" font-size="12">VANGUARD_KERNEL_CLIENT_V2.0.exe</text><rect x="50" y="90" width="700" height="1" fill="%23334155"/><text x="60" y="140" fill="%23f43f5e" font-family="sans-serif" font-size="24" font-weight="bold">VALORANT · KERNEL DRIVER ACTIVE</text><text x="60" y="175" fill="%23fb7185" font-family="monospace" font-size="14">CLIENT: Puto Xitadinho</text><text x="60" y="205" fill="%23cbd5e1" font-family="monospace" font-size="14">DISCORD ID: 1506778729425408112</text><text x="60" y="235" fill="%23cbd5e1" font-family="monospace" font-size="14">HWID: SHA256-03B148AB-78B22918</text><text x="60" y="265" fill="%23cbd5e1" font-family="monospace" font-size="14">PLAN: 30 Dias (Mensal)</text><rect x="60" y="300" width="220" height="42" rx="8" fill="%23059669" fill-opacity="0.2" stroke="%2310b981"/><text x="80" y="327" fill="%2334d399" font-family="monospace" font-size="15" font-weight="bold">STATUS: INJECTED (OK)</text><text x="60" y="380" fill="%2364748b" font-family="sans-serif" font-size="12">Hooked Auth Kernel Subsystem · Zero Detection</text></svg>`
 
-  const fivemMockSvg = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450"><defs><linearGradient id="g3" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="%23082f49"/><stop offset="100%" stop-color="%23020617"/></linearGradient></defs><rect width="800" height="450" fill="url(%23g3)"/><rect x="25" y="25" width="750" height="400" rx="14" fill="%23030712" stroke="%2306b6d4" stroke-width="1.5" stroke-opacity="0.3"/><circle cx="50" cy="55" r="5" fill="%23ef4444"/><circle cx="68" cy="55" r="5" fill="%23eab308"/><circle cx="86" cy="55" r="5" fill="%2322c55e"/><text x="115" y="60" fill="%2394a3b8" font-family="monospace" font-size="12">CITIZENFX_INTERNAL_LOADER.dll</text><rect x="50" y="90" width="700" height="1" fill="%23334155"/><text x="60" y="140" fill="%2306b6d4" font-family="sans-serif" font-size="24" font-weight="bold">FIVEM · SERVER CONNECTION SCREEN</text><text x="60" y="175" fill="%2338bdf8" font-family="monospace" font-size="14">CLIENT: Lcpkrl</text><text x="60" y="205" fill="%23cbd5e1" font-family="monospace" font-size="14">DISCORD ID: 1118361148417396786</text><text x="60" y="235" fill="%23cbd5e1" font-family="monospace" font-size="14">SERVER: Complexo RJ / Roleplay</text><text x="60" y="265" fill="%23cbd5e1" font-family="monospace" font-size="14">PLAN: 27 Dias</text><rect x="60" y="300" width="220" height="42" rx="8" fill="%23d97706" fill-opacity="0.2" stroke="%23f59e0b"/><text x="80" y="327" fill="%23fbbf24" font-family="monospace" font-size="15" font-weight="bold">STATUS: AUTORIZADO</text><text x="60" y="380" fill="%2364748b" font-family="sans-serif" font-size="12">mrcclient Auth FiveM Hook · Memory Integrity Verified</text></svg>`
+  const fivemMockSvg = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450"><defs><linearGradient id="g3" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="%23082f49"/><stop offset="100%" stop-color="%23020617"/></linearGradient></defs><rect width="800" height="450" fill="url(%23g3)"/><rect x="25" y="25" width="750" height="400" rx="14" fill="%23030712" stroke="%2306b6d4" stroke-width="1.5" stroke-opacity="0.3"/><circle cx="50" cy="55" r="5" fill="%23ef4444"/><circle cx="68" cy="55" r="5" fill="%23eab308"/><circle cx="86" cy="55" r="5" fill="%2322c55e"/><text x="115" y="60" fill="%2394a3b8" font-family="monospace" font-size="12">CITIZENFX_INTERNAL_LOADER.dll</text><rect x="50" y="90" width="700" height="1" fill="%23334155"/><text x="60" y="140" fill="%2306b6d4" font-family="sans-serif" font-size="24" font-weight="bold">FIVEM · SERVER CONNECTION SCREEN</text><text x="60" y="175" fill="%2338bdf8" font-family="monospace" font-size="14">CLIENT: Lcpkrl</text><text x="60" y="205" fill="%23cbd5e1" font-family="monospace" font-size="14">DISCORD ID: 1118361148417396786</text><text x="60" y="235" fill="%23cbd5e1" font-family="monospace" font-size="14">SERVER: Complexo RJ / Roleplay</text><text x="60" y="265" fill="%23cbd5e1" font-family="monospace" font-size="14">PLAN: 27 Dias</text><rect x="60" y="300" width="220" height="42" rx="8" fill="%23d97706" fill-opacity="0.2" stroke="%23f59e0b"/><text x="80" y="327" fill="%23fbbf24" font-family="monospace" font-size="15" font-weight="bold">STATUS: AUTORIZADO</text><text x="60" y="380" fill="%2364748b" font-family="sans-serif" font-size="12">Hooked Auth FiveM Hook · Memory Integrity Verified</text></svg>`
 
   const [prints, setPrints] = useState<ScreenPrintItem[]>([
     {
@@ -2503,7 +2503,7 @@ function ScreenTab({
     const created: ScreenPrintItem = {
       id: 'p-' + Date.now(),
       title: newTitle.trim(),
-      clientName: newClientName.trim() || 'Cliente mrcclient',
+      clientName: newClientName.trim() || 'Cliente Hooked',
       discordId: newDiscordId.trim(),
       game: newGame,
       date: 'Hoje, ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
@@ -3376,7 +3376,7 @@ function SessionsTab() {
     },
     {
       device: 'Windows Desktop Workstation',
-      os: 'mrcclient Auth Desktop Client v2.4.0 · Windows 11',
+      os: 'Hooked Auth Desktop Client v2.4.0 · Windows 11',
       ip: '189.28.41.10',
       location: 'São Paulo, Brazil',
       app: 'Desktop Client',
@@ -3386,7 +3386,7 @@ function SessionsTab() {
     },
     {
       device: 'iPhone 15 Pro',
-      os: 'mrcclient Auth Mobile v3.1 · iOS 18.1',
+      os: 'Hooked Auth Mobile v3.1 · iOS 18.1',
       ip: '177.105.22.9',
       location: 'Rio de Janeiro, Brazil',
       app: 'Mobile SDK',
@@ -3873,7 +3873,7 @@ function SettingsTab({
                 </span>
                 <div>
                   <h4 className="text-sm font-semibold text-foreground">Confirmar Pausa da Autenticação?</h4>
-                  <p className="text-[11px] text-muted-foreground">Kill Switch Global do mrcclient Auth</p>
+                  <p className="text-[11px] text-muted-foreground">Kill Switch Global do Hooked Auth</p>
                 </div>
               </div>
 
@@ -4039,14 +4039,14 @@ function SettingsTab({
         {/* General Profile */}
         <div className="rounded-xl border border-border/70 bg-card p-6">
           <h3 className="text-sm font-semibold">Workspace Profile</h3>
-          <p className="mt-1 text-xs text-muted-foreground">Identificadores do sistema mrcclient Auth e região de conexão.</p>
+          <p className="mt-1 text-xs text-muted-foreground">Identificadores do sistema Hooked Auth e região de conexão.</p>
 
           <div className="mt-5 grid gap-4 sm:grid-cols-2">
             <div>
               <label className="text-xs font-medium text-foreground">Workspace Name</label>
               <input
                 type="text"
-                defaultValue="mrcclient Auth"
+                defaultValue="Hooked Auth"
                 className="mt-1.5 w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
               />
             </div>
@@ -4054,7 +4054,7 @@ function SettingsTab({
               <label className="text-xs font-medium text-foreground">Workspace Slug</label>
               <input
                 type="text"
-                defaultValue="mrcclient-auth"
+                defaultValue="hooked-auth"
                 disabled
                 className="mt-1.5 w-full rounded-lg border border-border bg-muted/30 px-3 py-2 text-xs text-muted-foreground cursor-not-allowed"
               />
@@ -4183,7 +4183,7 @@ function Landing({ onOpenLogin }: { onOpenLogin: () => void }) {
               <LockKeyhole className="size-4" />
             </span>
             <span className="text-[15px] font-bold tracking-[-0.02em]">
-              mrcclient <span className="text-pink-500">Auth</span>
+              Hooked <span className="text-pink-500">Auth</span>
             </span>
           </button>
           <button
@@ -4200,13 +4200,13 @@ function Landing({ onOpenLogin }: { onOpenLogin: () => void }) {
         <div className="flex min-h-[75vh] sm:min-h-[80vh] flex-col items-center justify-center text-center animate-fade-in-up pb-12 pt-16 sm:pt-24">
           <div className="mx-auto flex max-w-4xl flex-col items-center text-center">
             <h1 className="text-3xl sm:text-5xl lg:text-7xl font-bold leading-[1.08] tracking-[-0.05em] text-foreground">
-              mrcclient is not just a store<br />
+              Hooked is not just a store<br />
               <span className="bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent font-extrabold">
                 but also a community
               </span>
             </h1>
             <p className="mt-4 sm:mt-7 max-w-xl text-center text-sm leading-6 text-muted-foreground sm:text-lg sm:leading-7">
-              mrcclient always at the top, creating products that make your gameplay professional
+              Hooked always at the top, creating products that make your gameplay professional
             </p>
           </div>
         </div>
@@ -4231,7 +4231,7 @@ function Landing({ onOpenLogin }: { onOpenLogin: () => void }) {
 
       <footer className="relative border-t border-border/80 px-5 py-6 lg:px-8 bg-card">
         <div className="mx-auto flex max-w-7xl flex-col items-center justify-between gap-3 text-[11px] text-muted-foreground sm:flex-row sm:text-left text-center">
-          <span>© 2026 mrcclient Auth Systems</span>
+          <span>© 2026 Hooked Auth Systems</span>
           <span>Secure identity infrastructure for modern software.</span>
         </div>
       </footer>

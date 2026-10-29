@@ -1,10 +1,10 @@
 @echo off
 set "PATH=%LOCALAPPDATA%\Programs\Git\cmd;%ProgramFiles%\Git\cmd;%PATH%"
 cd /d "%~dp0"
-title Subir para o GitHub - mrcclient Auth
+title Subir para o GitHub - Hooked Auth
 
 echo =======================================================
-echo         MRCCLIENT AUTH - SUBIR PARA O GITHUB
+echo          HOOKED AUTH - SUBIR PARA O GITHUB
 echo =======================================================
 echo.
 

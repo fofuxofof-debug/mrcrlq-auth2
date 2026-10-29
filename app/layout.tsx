@@ -3,7 +3,7 @@ import type { Metadata, Viewport } from 'next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'mrcclient Auth — Secure software authentication',
+  title: 'Hooked Auth — Secure software authentication',
   description: 'Secure authentication, license management, and observability for modern software teams.',
   icons: {
     icon: [
