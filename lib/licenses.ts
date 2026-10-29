@@ -99,7 +99,7 @@ const BASE_LICENSES: StoredLicense[] = [
     issued: 'Oct 28, 2026',
     expiry: new Date(Date.now() + 30 * 86400000).toISOString(),
     status: 'Active',
-    owner: 'mrcrlq',
+    owner: 'sheik',
     hwid: '',
   },
   {
@@ -147,7 +147,7 @@ const BASE_LICENSES: StoredLicense[] = [
     issued: 'Oct 28, 2026',
     expiry: 'Vitalício',
     status: 'Active',
-    owner: 'mrcrlq',
+    owner: 'Samuca',
     hwid: '',
   },
   {
@@ -163,7 +163,7 @@ const BASE_LICENSES: StoredLicense[] = [
     issued: 'Oct 24, 2026',
     expiry: '2026-11-24T00:00:00.000Z',
     status: 'Active',
-    owner: 'mrcrlq',
+    owner: 'sheik',
     hwid: '',
   },
 ]

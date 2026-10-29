@@ -284,7 +284,7 @@ export function Platform() {
       issued: '28/10/2026',
       expiry: '2026-11-27T14:56:57.000Z',
       status: 'Active',
-      owner: 'mrcrlq',
+      owner: 'sheik',
       hwid: '',
     },
     {
@@ -316,7 +316,7 @@ export function Platform() {
       issued: '28/10/2026',
       expiry: 'Vitalício',
       status: 'Active',
-      owner: 'mrcrlq',
+      owner: 'Samuca',
       hwid: '',
     },
     {
@@ -335,7 +335,7 @@ export function Platform() {
       owner: 'mrcrlq',
       hwid: 'HWID-TEST-DEBUG-12345',
     },
-    // Clientes de sheik / mrcrlq
+    // Clientes de sheik
     {
       key: '272360594999607296',
       name: '76j3',
@@ -349,7 +349,7 @@ export function Platform() {
       issued: 'Oct 24, 2026',
       expiry: '2026-11-24T00:00:00.000Z',
       status: 'Active',
-      owner: 'mrcrlq',
+      owner: 'sheik',
       hwid: '',
     },
   ])
@@ -1291,11 +1291,10 @@ function LicensesTab({
     )
   }
 
-  // Admins têm visão completa da plataforma; Operadores gerenciam suas respectivas chaves
-  const userLicenses =
-    currentUser.role === 'admin'
-      ? licenses
-      : licenses.filter((l) => l.owner.toLowerCase() === currentUser.username.toLowerCase())
+  // Cada administrador gerencia estritamente apenas a sua respectiva carteira de clientes
+  const userLicenses = licenses.filter(
+    (l) => (l.owner || 'mrcrlq').toLowerCase() === (currentUser?.username || '').toLowerCase()
+  )
 
   const activeCount = userLicenses.filter((l) => l.status === 'Active' && !isLicenseExpired(l.expiry)).length
   const expiredCount = userLicenses.filter((l) => l.status === 'Expired' || isLicenseExpired(l.expiry)).length
@@ -1324,11 +1323,11 @@ function LicensesTab({
     })
 
   const handleExportBackup = () => {
-    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(licenses, null, 2))
+    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(userLicenses, null, 2))
     const downloadAnchor = document.createElement('a')
     downloadAnchor.setAttribute('href', dataStr)
     const dateStr = new Date().toISOString().split('T')[0]
-    downloadAnchor.setAttribute('download', `hooked_auth_licenses_backup_${dateStr}.json`)
+    downloadAnchor.setAttribute('download', `hooked_auth_${currentUser.username.toLowerCase()}_licenses_${dateStr}.json`)
     document.body.appendChild(downloadAnchor)
     downloadAnchor.click()
     downloadAnchor.remove()
