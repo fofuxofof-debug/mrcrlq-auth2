@@ -268,7 +268,7 @@ export function Platform() {
     setNotifications((prev) => [newNotif, ...prev])
   }
 
-  // Banco de dados em memória compartilhado, isolado por owner (mrcrlq, mts, Samuca)
+  // Banco de dados em memória compartilhado, isolado por owner
   const [licenses, setLicenses] = useState<LicenseItem[]>([
     // Clientes de mrcrlq
     {
@@ -583,7 +583,7 @@ export function Platform() {
     )
   }
 
-  // Permissões: operador (mts) só tem acesso a Licenses
+  // Permissões por cargo: operadores só têm acesso a Licenses
   const userNavItems =
     currentUser.role === 'operator'
       ? navItems.filter(([label]) => label === 'Licenses')
