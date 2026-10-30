@@ -156,7 +156,7 @@ const BASE_LICENSES: StoredLicense[] = [
     discordId: '272360594999607296',
     discordUsername: '76j3',
     discordAvatar: 'https://cdn.discordapp.com/avatars/272360594999607296/2943ab115df3e1c6a55ee8b3a17c3c9d.png?size=128',
-    game: 'Free Fire',
+    game: 'Valorant',
     plano: '30 Dias (Mensal)',
     tempo: '27 Dias',
     devices: '0 / 1 HWID',
@@ -309,17 +309,13 @@ export function findLicense(keyOrDiscordId: string): StoredLicense | undefined {
   return found ? normalizeLicense(found) : undefined
 }
 
-// Busca segura assíncrona: se um container novo acabou de iniciar e não tem a key na memória, busca no KV da nuvem
+// Busca segura assíncrona: sempre sincroniza primeiro com o KV da nuvem para garantir dados em tempo real
 export async function findLicenseAsync(keyOrDiscordId: string): Promise<StoredLicense | undefined> {
-  const local = findLicense(keyOrDiscordId)
-  if (local) return local
-
   const kvLicenses = await loadFromKv()
   if (kvLicenses && kvLicenses.length > 0) {
     syncLicenses(kvLicenses)
-    return findLicense(keyOrDiscordId)
   }
-  return undefined
+  return findLicense(keyOrDiscordId)
 }
 
 export function addLicense(lic: StoredLicense): StoredLicense {
@@ -372,15 +368,11 @@ export function updateLicenseStatus(key: string, updates: Partial<StoredLicense>
 }
 
 export async function updateLicenseStatusAsync(key: string, updates: Partial<StoredLicense>): Promise<StoredLicense | null> {
-  let updated = updateLicenseStatus(key, updates)
-  if (!updated) {
-    const kvLicenses = await loadFromKv()
-    if (kvLicenses && kvLicenses.length > 0) {
-      syncLicenses(kvLicenses)
-      updated = updateLicenseStatus(key, updates)
-    }
+  const kvLicenses = await loadFromKv()
+  if (kvLicenses && kvLicenses.length > 0) {
+    syncLicenses(kvLicenses)
   }
-
+  const updated = updateLicenseStatus(key, updates)
   if (updated && globalThis.__HOOKED_LICENSES__) {
     await persistAllAsync(globalThis.__HOOKED_LICENSES__)
   }

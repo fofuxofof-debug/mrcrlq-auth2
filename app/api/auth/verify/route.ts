@@ -71,19 +71,19 @@ export async function POST(request: Request) {
       )
     }
 
-    // Validação de jogo (se especificado)
-    if (game && typeof game === 'string' && game.trim() !== '' && game.toLowerCase() !== 'all') {
-      const cleanReqGame = game.replace(/["'\r\n\t]/g, '').trim().toLowerCase()
-      const cleanLicenseGame = (found.game || '').replace(/["'\r\n\t]/g, '').trim().toLowerCase()
-      if (cleanLicenseGame && cleanLicenseGame !== 'all' && cleanLicenseGame !== cleanReqGame) {
-        return NextResponse.json(
-          {
-            success: false,
-            error: 'game_mismatch',
-            message: `Esta chave é válida para ${found.game}, não para ${game}.`,
-          },
-          { status: 403, headers: corsHeaders() }
-        )
+    // Compatibilidade Universal de Softwares Hooked (Free Fire, Valorant, FiveM, ColorBot):
+    // Todas as chaves válidas têm acesso garantido. Se o aplicativo cliente informar o jogo em uso (ex: 'Valorant'),
+    // nós sincronizamos para manter o painel atualizado com o software em execução sem nunca barrar o cliente.
+    const reqGame =
+      game && typeof game === 'string' && game.trim() !== '' && game.toLowerCase() !== 'all'
+        ? game.replace(/["'\r\n\t]/g, '').trim()
+        : null
+
+    if (reqGame) {
+      const cleanLicenseGame = (found.game || '').trim().toLowerCase()
+      if (cleanLicenseGame !== 'todos os jogos' && cleanLicenseGame !== 'all' && cleanLicenseGame !== reqGame.toLowerCase()) {
+        found.game = reqGame
+        await updateLicenseStatusAsync(found.key, { game: reqGame })
       }
     }
 

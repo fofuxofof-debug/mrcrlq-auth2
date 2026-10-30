@@ -349,7 +349,7 @@ export function Platform() {
       discordId: '272360594999607296',
       discordUsername: '76j3',
       discordAvatar: 'https://cdn.discordapp.com/avatars/272360594999607296/2943ab115df3e1c6a55ee8b3a17c3c9d.png?size=128',
-      game: 'Free Fire',
+      game: 'Valorant',
       plano: '30 Dias (Mensal)',
       tempo: '27 Dias',
       devices: '0 / 1 HWID',
@@ -1126,13 +1126,31 @@ function LicensesTab({
     )
   }
 
+  const handleUpdateGame = async (key: string, newGame: string) => {
+    setLicenses((prev) => prev.map((l) => (l.key === key ? { ...l, game: newGame } : l)))
+    setSelectedDetailsLicense((prev) => (prev && prev.key === key ? { ...prev, game: newGame } : prev))
+    showToast(`Jogo alterado para ${newGame}!`)
+    try {
+      await fetch('/api/licenses', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key, game: newGame }),
+      })
+    } catch {}
+    onAddNotification?.(
+      'Jogo Alterado',
+      `Key ${key} agora está vinculada a ${newGame}.`,
+      'info'
+    )
+  }
+
   // Modal State
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [discordId, setDiscordId] = useState('')
   const [name, setName] = useState('')
   const [tempo, setTempo] = useState('30 Dias (Mensal)')
   const [customTempo, setCustomTempo] = useState('')
-  const [game, setGame] = useState('Free Fire')
+  const [game, setGame] = useState('Todos os Jogos')
   const [generatedKey, setGeneratedKey] = useState<LicenseItem | null>(null)
   const [formError, setFormError] = useState('')
   const [discordProfile, setDiscordProfile] = useState<{
@@ -1239,7 +1257,7 @@ function LicensesTab({
     setIsFetchingDiscord(false)
     setTempo('30 Dias (Mensal)')
     setCustomTempo('')
-    setGame('Free Fire')
+    setGame('Todos os Jogos')
     setGeneratedKey(null)
     setFormError('')
     setIsModalOpen(true)
@@ -2064,10 +2082,11 @@ function LicensesTab({
                   <select
                     value={game}
                     onChange={(e) => setGame(e.target.value)}
-                    className="mt-1.5 w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
+                    className="mt-1.5 w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary cursor-pointer"
                   >
-                    <option value="Free Fire">Free Fire</option>
+                    <option value="Todos os Jogos">Todos os Jogos (Universal)</option>
                     <option value="Valorant">Valorant</option>
+                    <option value="Free Fire">Free Fire</option>
                     <option value="FiveM">FiveM</option>
                   </select>
                 </div>
@@ -2211,9 +2230,16 @@ function LicensesTab({
                     <span className="text-[10px] text-muted-foreground flex items-center gap-1">
                       <Gamepad2 className="size-3 text-pink-500" /> Jogo / Software
                     </span>
-                    <p className="mt-1 font-semibold text-foreground truncate">
-                      {selectedDetailsLicense.game}
-                    </p>
+                    <select
+                      value={selectedDetailsLicense.game || 'Todos os Jogos'}
+                      onChange={(e) => handleUpdateGame(selectedDetailsLicense.key, e.target.value)}
+                      className="mt-1 w-full rounded-md border border-border/60 bg-background/80 px-2 py-1 text-xs font-semibold text-foreground focus:outline-none focus:ring-1 focus:ring-pink-500 cursor-pointer"
+                    >
+                      <option value="Todos os Jogos">Todos os Jogos (Universal)</option>
+                      <option value="Valorant">Valorant</option>
+                      <option value="Free Fire">Free Fire</option>
+                      <option value="FiveM">FiveM</option>
+                    </select>
                   </div>
                 </div>
               </div>
