@@ -83,9 +83,7 @@ export interface NotificationItem {
 }
 
 const navItems = [
-  ['Overview', LayoutDashboard],
   ['Licenses', KeyRound],
-  ['Users', Users],
   ['Logs', FileText],
   ['Settings', Settings2],
 ] as const
@@ -166,8 +164,10 @@ export function Platform() {
       }
 
       const savedTab = localStorage.getItem('hooked_auth_active_tab')
-      if (savedTab) {
+      if (savedTab && savedTab !== 'Overview') {
         setActive(savedTab as NavItemLabel)
+      } else {
+        setActive('Licenses')
       }
     } catch (e) {
       console.error(e)
@@ -447,8 +447,33 @@ export function Platform() {
 
     if (!found) {
       setLoginError('Usuário ou senha incorretos.')
+      fetch('/api/logs', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          actor: loginUsername.trim() || 'Desconhecido',
+          game: 'Painel Web',
+          client: 'Painel de Controle',
+          status: 'FAILED',
+          statusCode: 401,
+          reason: 'Tentativa de login no painel com credenciais incorretas',
+        }),
+      }).catch(() => {})
       return
     }
+
+    fetch('/api/logs', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        actor: found.displayName,
+        game: 'Painel Web',
+        client: 'Painel de Controle',
+        status: 'SUCCESS',
+        statusCode: 200,
+        reason: 'Login de administrador efetuado com sucesso',
+      }),
+    }).catch(() => {})
 
     setCurrentUser(found)
     const nextTab: NavItemLabel = 'Licenses'
@@ -732,9 +757,6 @@ export function Platform() {
 
         {/* Dynamic Tab Body with Smooth Transition */}
         <div key={active} className="mx-auto max-w-[1440px] p-3 sm:p-5 lg:p-8 animate-fade-in-up">
-          {active === 'Overview' && currentUser.role === 'admin' && (
-            <OverviewTab currentUser={currentUser} copiedKey={copiedKey} onCopy={handleCopy} />
-          )}
           {active === 'Licenses' && (
             <LicensesTab
               currentUser={currentUser}
@@ -747,7 +769,6 @@ export function Platform() {
               isRefreshing={isRefreshingLicenses}
             />
           )}
-          {active === 'Users' && currentUser.role === 'admin' && <UsersTab currentUser={currentUser} />}
           {active === 'Logs' && currentUser.role === 'admin' && <LogsTab currentUser={currentUser} />}
           {active === 'Settings' && currentUser.role === 'admin' && (
             <SettingsTab
@@ -1383,31 +1404,6 @@ function LicensesTab({
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-          {/* Botão Exportar Backup (Disponível para Admin e Operador) */}
-          <button
-            type="button"
-            onClick={handleExportBackup}
-            className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-foreground hover:bg-accent transition-colors"
-            title="Baixar cópia de segurança de todas as chaves em formato JSON"
-          >
-            <Download className="size-3.5 text-pink-500" />
-            <span>Exportar Backup</span>
-          </button>
-
-          {/* Botão Importar Backup apenas para Admin */}
-          {currentUser?.role === 'admin' && (
-            <label className="flex-1 sm:flex-initial flex items-center justify-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-foreground hover:bg-accent transition-colors cursor-pointer">
-              <UploadCloud className="size-3.5 text-pink-400" />
-              <span>Restaurar (.json)</span>
-              <input
-                type="file"
-                accept=".json"
-                onChange={handleImportBackup}
-                className="hidden"
-              />
-            </label>
-          )}
-
           <button
             type="button"
             onClick={openCreateModal}
@@ -3570,164 +3566,404 @@ function AnalyticsTab() {
 }
 
 /* =========================================================================================
- * 7. Logs Tab
+ * 5. Logs Tab - Telemetria em Tempo Real (Site e Aplicativos)
  * ========================================================================================= */
+export interface RealTimeLogItem {
+  id: string
+  timestamp: string
+  time: string
+  date: string
+  actor: string
+  key?: string
+  game: string
+  client: string
+  ip: string
+  location: string
+  countryCode?: string
+  status: 'SUCCESS' | 'FAILED' | 'WARN' | 'BANNED'
+  statusCode: number
+  reason: string
+}
+
 function LogsTab({ currentUser }: { currentUser: AuthAccount }) {
-  const logs = [
-    {
-      time: '20:48:12',
-      event: 'auth.token.issued',
-      actor: `${currentUser.username.toLowerCase()}@hooked.io`,
-      ip: '189.28.41.10',
-      client: 'Web Dashboard',
-      level: 'SUCCESS',
-      status: '200 OK',
-    },
-    {
-      time: '20:45:01',
-      event: 'license.verified',
-      actor: 'Sarah Jenkins',
-      ip: '192.168.1.15',
-      client: 'Desktop Client',
-      level: 'INFO',
-      status: '200 OK',
-    },
-    {
-      time: '20:38:22',
-      event: 'auth.failed_attempt',
-      actor: 'Unknown',
-      ip: '185.24.19.42',
-      client: 'API Gateway',
-      level: 'WARN',
-      status: '401 Unauthorized',
-    },
-    {
-      time: '20:30:10',
-      event: 'webhook.dispatched',
-      actor: 'System Worker',
-      ip: '10.0.4.1',
-      client: 'Webhook Engine',
-      level: 'INFO',
-      status: '200 OK',
-    },
-    {
-      time: '20:15:44',
-      event: 'rate_limit.exceeded',
-      actor: 'client_anon_92',
-      ip: '45.130.82.1',
-      client: 'API Endpoint',
-      level: 'ERROR',
-      status: '429 Too Many Requests',
-    },
-    {
-      time: '20:02:19',
-      event: 'user.mfa_verified',
-      actor: 'Beatriz Mendes',
-      ip: '179.184.20.5',
-      client: 'Web Dashboard',
-      level: 'SUCCESS',
-      status: '200 OK',
-    },
-    {
-      time: '19:55:00',
-      event: 'license.created',
-      actor: `${currentUser.username.toLowerCase()}@hooked.io`,
-      ip: '189.28.41.10',
-      client: 'Dashboard Admin',
-      level: 'INFO',
-      status: '201 Created',
-    },
-  ]
+  const [logs, setLogs] = useState<RealTimeLogItem[]>([])
+  const [isLoading, setIsLoading] = useState(true)
+  const [isRefreshing, setIsRefreshing] = useState(false)
+  const [search, setSearch] = useState('')
+  const [filterStatus, setFilterStatus] = useState<'All' | 'SUCCESS' | 'FAILED' | 'BANNED'>('All')
+  const [toastMsg, setToastMsg] = useState('')
+
+  const showToast = (msg: string) => {
+    setToastMsg(msg)
+    setTimeout(() => setToastMsg(''), 3000)
+  }
+
+  const fetchLogs = useCallback(async (showIndicator = false) => {
+    if (showIndicator) setIsRefreshing(true)
+    try {
+      const res = await fetch('/api/logs', { cache: 'no-store' })
+      if (res.ok) {
+        const data = await res.json()
+        if (Array.isArray(data.logs)) {
+          setLogs(data.logs)
+        }
+      }
+    } catch {
+    } finally {
+      setIsLoading(false)
+      if (showIndicator) setIsRefreshing(false)
+    }
+  }, [])
+
+  // Polling em tempo real a cada 2.5 segundos
+  useEffect(() => {
+    fetchLogs()
+    const timer = setInterval(() => {
+      fetchLogs()
+    }, 2500)
+    return () => clearInterval(timer)
+  }, [fetchLogs])
+
+  const handleClearLogs = async () => {
+    if (!confirm('Deseja realmente limpar todos os logs de autenticação?')) return
+    try {
+      await fetch('/api/logs', { method: 'DELETE' })
+      setLogs([])
+      showToast('Logs limpos com sucesso!')
+    } catch {
+      showToast('Falha ao limpar logs.')
+    }
+  }
+
+  const handleExportJson = () => {
+    const dataStr = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(logs, null, 2))
+    const downloadAnchor = document.createElement('a')
+    downloadAnchor.setAttribute('href', dataStr)
+    const dateStr = new Date().toISOString().split('T')[0]
+    downloadAnchor.setAttribute('download', `hooked_auth_logs_${dateStr}.json`)
+    document.body.appendChild(downloadAnchor)
+    downloadAnchor.click()
+    downloadAnchor.remove()
+    showToast('Logs exportados em JSON!')
+  }
+
+  // Estatísticas calculadas dinamicamente a partir dos eventos reais
+  const totalCount = logs.length
+  const successCount = logs.filter((l) => l.status === 'SUCCESS').length
+  const failedCount = logs.filter((l) => l.status === 'FAILED' || l.status === 'BANNED').length
+  const uniqueIps = new Set(logs.map((l) => l.ip)).size
+  const successRate = totalCount > 0 ? ((successCount / totalCount) * 100).toFixed(1) + '%' : '100%'
+
+  // Filtros de busca e status
+  const filtered = logs
+    .filter((l) => {
+      if (filterStatus === 'All') return true
+      if (filterStatus === 'SUCCESS') return l.status === 'SUCCESS'
+      if (filterStatus === 'FAILED') return l.status === 'FAILED'
+      if (filterStatus === 'BANNED') return l.status === 'BANNED'
+      return true
+    })
+    .filter((l) => {
+      if (!search.trim()) return true
+      const q = search.toLowerCase()
+      return (
+        l.ip.toLowerCase().includes(q) ||
+        l.actor.toLowerCase().includes(q) ||
+        (l.key && l.key.toLowerCase().includes(q)) ||
+        l.game.toLowerCase().includes(q) ||
+        l.client.toLowerCase().includes(q) ||
+        l.location.toLowerCase().includes(q) ||
+        l.reason.toLowerCase().includes(q)
+      )
+    })
 
   return (
     <div>
+      {/* Toast */}
+      {toastMsg && (
+        <div className="fixed bottom-4 right-4 z-50 flex items-center gap-2 rounded-xl border border-pink-500/30 bg-card px-4 py-3 text-xs shadow-xl shadow-zinc-900/10 backdrop-blur-md animate-fade-in-up">
+          <Check className="size-4 text-pink-400 shrink-0" />
+          <span className="font-semibold text-foreground">{toastMsg}</span>
+        </div>
+      )}
+
+      {/* Header */}
       <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
         <div>
-          <p className="mb-2 text-xs font-medium uppercase tracking-[0.16em] text-pink-400 font-semibold">Audit Trail</p>
-          <h2 className="text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">Logs</h2>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-pink-500">
+            Telemetria em Tempo Real
+          </p>
+          <h2 className="text-2xl font-semibold tracking-[-0.04em] sm:text-3xl flex items-center gap-2.5">
+            <FileText className="size-6 text-pink-500" />
+            Logs de Autenticação
+          </h2>
           <p className="mt-2 text-sm text-muted-foreground">
-            Immutable stream of security events, authentication attempts, and authorization anomalies.
+            Acompanhe ao vivo todos os acessos do painel e dos softwares cliente (Free Fire, Valorant, FiveM, loaders C++), com IP, localização e motivo da autorização.
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1.5 text-xs text-pink-400 font-medium">
-            <span className="size-2 animate-pulse rounded-full bg-pink-500" /> Live Stream
-          </span>
-          <button className="rounded-lg border border-border bg-card px-3 py-1.5 text-xs text-muted-foreground hover:bg-accent hover:text-foreground">
-            Export JSON
+
+        <div className="flex flex-wrap items-center gap-2">
+          <button
+            onClick={() => fetchLogs(true)}
+            disabled={isRefreshing}
+            className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-foreground hover:bg-accent transition-colors btn-interactive"
+            title="Atualizar lista agora"
+          >
+            <RefreshCw className={`size-3.5 text-pink-400 ${isRefreshing ? 'animate-spin' : ''}`} />
+            Atualizar
+          </button>
+
+          <button
+            onClick={handleClearLogs}
+            disabled={logs.length === 0}
+            className="flex items-center gap-1.5 rounded-lg border border-rose-500/30 bg-rose-950/30 px-3 py-2 text-xs font-semibold text-rose-300 hover:bg-rose-950/50 transition-colors disabled:opacity-40"
+          >
+            <Trash2 className="size-3.5 text-rose-400" />
+            Limpar Logs
           </button>
         </div>
       </div>
 
-      <div className="overflow-hidden rounded-xl border border-border/70 bg-card">
-        {/* Mobile View: Cards */}
-        <div className="sm:hidden divide-y divide-border/40 font-mono">
-          {logs.map((log, i) => (
-            <div key={i} className="p-3.5 space-y-2 hover:bg-pink-950/20 transition-colors">
-              <div className="flex items-center justify-between gap-2">
-                <span
-                  className={`inline-block rounded px-2 py-0.5 text-[9px] font-bold ${
-                    log.level === 'SUCCESS'
-                      ? 'border border-pink-500/30 bg-pink-950/40 text-pink-300'
-                      : log.level === 'INFO'
-                      ? 'border border-pink-500/20 bg-pink-950/30 text-pink-400'
-                      : log.level === 'WARN'
-                      ? 'border border-amber-500/30 bg-amber-950/40 text-amber-300'
-                      : 'border border-rose-500/30 bg-rose-950/40 text-rose-300'
-                  }`}
-                >
-                  {log.level}
-                </span>
-                <span className="text-xs font-semibold text-foreground font-mono">{log.status}</span>
-              </div>
-              <div className="flex items-center justify-between text-xs font-sans">
-                <span className="text-foreground font-medium truncate">{log.client}</span>
-                <span className="text-[10px] font-mono text-muted-foreground shrink-0">{log.time}</span>
-              </div>
-              <p className="text-[10px] font-mono text-muted-foreground/80">{log.ip}</p>
-            </div>
+      {/* Cards de Métricas em Tempo Real */}
+      <div className="grid grid-cols-2 gap-2.5 sm:gap-4 xl:grid-cols-4 mb-6">
+        <div className="rounded-xl border border-border/70 bg-card p-3 sm:p-4">
+          <p className="text-[11px] sm:text-xs text-muted-foreground">Total de Conexões</p>
+          <p className="mt-1 sm:mt-2 text-xl sm:text-2xl font-semibold tracking-tight text-foreground">
+            {totalCount.toLocaleString()}
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-border/70 bg-card p-3 sm:p-4">
+          <p className="text-[11px] sm:text-xs text-muted-foreground">Logins Autorizados</p>
+          <div className="mt-1 sm:mt-2 flex items-baseline gap-2">
+            <span className="text-xl sm:text-2xl font-semibold tracking-tight text-pink-400">
+              {successCount.toLocaleString()}
+            </span>
+            <span className="text-xs text-muted-foreground font-mono">({successRate})</span>
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-border/70 bg-card p-3 sm:p-4">
+          <p className="text-[11px] sm:text-xs text-muted-foreground">Tentativas Barradas / Falhas</p>
+          <p className="mt-1 sm:mt-2 text-xl sm:text-2xl font-semibold tracking-tight text-rose-400">
+            {failedCount.toLocaleString()}
+          </p>
+        </div>
+
+        <div className="rounded-xl border border-border/70 bg-card p-3 sm:p-4">
+          <p className="text-[11px] sm:text-xs text-muted-foreground">IPs Únicos Conectados</p>
+          <p className="mt-1 sm:mt-2 text-xl sm:text-2xl font-semibold tracking-tight text-foreground">
+            {uniqueIps.toLocaleString()}
+          </p>
+        </div>
+      </div>
+
+      {/* Barra de Filtros e Busca */}
+      <div className="mb-4 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
+        <div className="flex items-center gap-1 rounded-xl border border-border/80 bg-zinc-950/70 p-1 overflow-x-auto w-full sm:w-auto">
+          {(['All', 'SUCCESS', 'FAILED', 'BANNED'] as const).map((tab) => (
+            <button
+              key={tab}
+              onClick={() => setFilterStatus(tab)}
+              className={`rounded-lg px-3 py-1.5 text-xs font-semibold whitespace-nowrap transition-all ${
+                filterStatus === tab
+                  ? 'bg-pink-600 text-white shadow-sm'
+                  : 'text-muted-foreground hover:text-foreground'
+              }`}
+            >
+              {tab === 'All'
+                ? 'Todos os Logs'
+                : tab === 'SUCCESS'
+                ? 'Autorizados (Sucesso)'
+                : tab === 'FAILED'
+                ? 'Falhas / Rejeitados'
+                : 'Banidos / Suspensos'}
+            </button>
           ))}
         </div>
 
-        {/* Desktop View: Table */}
-        <div className="hidden sm:block overflow-x-auto">
-          <table className="w-full min-w-[580px] text-left text-xs">
-            <thead>
-              <tr className="border-b border-border/60 bg-muted/20 text-[10px] uppercase tracking-wider text-muted-foreground">
-                <th className="px-5 py-3 font-medium">Timestamp</th>
-                <th className="px-5 py-3 font-medium">Level</th>
-                <th className="px-5 py-3 font-medium">IP Address</th>
-                <th className="px-5 py-3 font-medium">Application</th>
-                <th className="px-5 py-3 text-right font-medium">HTTP Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {logs.map((log, i) => (
-                <tr key={i} className="border-b border-border/40 font-mono text-[11px] last:border-0 hover:bg-accent/30">
-                  <td className="px-5 py-3.5 text-muted-foreground">{log.time}</td>
-                  <td className="px-5 py-3.5">
+        <div className="relative w-full sm:w-72">
+          <Search className="absolute left-3 top-2.5 size-3.5 text-muted-foreground" />
+          <input
+            type="text"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            placeholder="Buscar por IP, Cliente, Jogo, Local..."
+            className="w-full rounded-lg border border-border bg-background pl-9 pr-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-pink-500"
+          />
+        </div>
+      </div>
+
+      {/* Visualização de Logs */}
+      <div className="overflow-hidden rounded-xl border border-border/70 bg-card">
+        {filtered.length === 0 ? (
+          <div className="p-12 text-center">
+            <FileText className="mx-auto size-9 text-muted-foreground/40 mb-3" />
+            <h4 className="text-sm font-semibold text-foreground">Nenhum evento registrado</h4>
+            <p className="mt-1 text-xs text-muted-foreground max-w-sm mx-auto">
+              Assim que os clientes ou softwares (Free Fire, Valorant, FiveM, C++ loader) realizarem tentativas de autenticação, elas aparecerão aqui em tempo real.
+            </p>
+          </div>
+        ) : (
+          <>
+            {/* Mobile View: Cards */}
+            <div className="sm:hidden divide-y divide-border/40">
+              {filtered.map((log) => (
+                <div key={log.id} className="p-4 space-y-2.5 hover:bg-accent/20 transition-colors">
+                  <div className="flex items-center justify-between gap-2">
                     <span
-                      className={`inline-block rounded px-1.5 py-0.5 text-[9px] font-bold ${
-                        log.level === 'SUCCESS'
-                          ? 'border border-pink-500/30 bg-pink-950/40 text-pink-300'
-                          : log.level === 'INFO'
-                          ? 'border border-pink-500/20 bg-pink-950/30 text-pink-400'
-                          : log.level === 'WARN'
-                          ? 'border border-amber-500/30 bg-amber-950/40 text-amber-300'
-                          : 'border border-rose-500/30 bg-rose-950/40 text-rose-300'
+                      className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-[10px] font-bold ${
+                        log.status === 'SUCCESS'
+                          ? 'border border-pink-500/40 bg-pink-950/60 text-pink-300'
+                          : log.status === 'BANNED'
+                          ? 'border border-rose-500/40 bg-rose-950/60 text-rose-300'
+                          : log.status === 'WARN'
+                          ? 'border border-amber-500/40 bg-amber-950/60 text-amber-300'
+                          : 'border border-rose-500/40 bg-rose-950/60 text-rose-300'
                       }`}
                     >
-                      {log.level}
+                      {log.status === 'SUCCESS' ? 'AUTORIZADO' : log.status === 'BANNED' ? 'BANIDO' : log.status === 'WARN' ? 'PAUSADO' : 'RECUSADO'} ({log.statusCode})
                     </span>
-                  </td>
-                  <td className="px-5 py-3.5 text-muted-foreground">{log.ip}</td>
-                  <td className="px-5 py-3.5 font-sans text-muted-foreground">{log.client}</td>
-                  <td className="px-5 py-3.5 text-right font-medium text-foreground">{log.status}</td>
-                </tr>
+                    <span className="text-[10px] font-mono text-muted-foreground">{log.time} - {log.date}</span>
+                  </div>
+
+                  <div>
+                    <p className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                      {log.actor}
+                      {log.key && (
+                        <span className="font-mono text-[10px] text-pink-400 font-normal">
+                          (Key: {log.key.length > 12 ? `${log.key.slice(0, 6)}···${log.key.slice(-4)}` : log.key})
+                        </span>
+                      )}
+                    </p>
+                    <p className="text-[11px] text-muted-foreground mt-0.5 flex items-center gap-1">
+                      <Gamepad2 className="size-3 text-pink-500" />
+                      {log.game} &bull; <span className="font-medium text-foreground">{log.client}</span>
+                    </p>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-2 text-xs pt-1 border-t border-border/40">
+                    <div>
+                      <p className="text-[9px] uppercase tracking-wider text-muted-foreground">Endereço IP</p>
+                      <p className="font-mono text-[11px] font-medium text-foreground mt-0.5">{log.ip}</p>
+                    </div>
+                    <div>
+                      <p className="text-[9px] uppercase tracking-wider text-muted-foreground">Localização</p>
+                      <p className="text-[11px] font-medium text-foreground flex items-center gap-1 mt-0.5 truncate" title={log.location}>
+                        <Globe className="size-3 text-pink-400 shrink-0" />
+                        <span className="truncate">{log.location}</span>
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="rounded-lg bg-muted/40 p-2 text-[11px] text-muted-foreground border border-border/40">
+                    <span className="font-medium text-foreground">Motivo: </span>
+                    {log.reason}
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
-        </div>
+            </div>
+
+            {/* Desktop View: Tabela Completa */}
+            <div className="hidden sm:block overflow-x-auto">
+              <table className="w-full min-w-[850px] text-left text-xs">
+                <thead>
+                  <tr className="border-b border-border/60 bg-muted/20 text-[10px] uppercase tracking-wider text-muted-foreground">
+                    <th className="px-5 py-3.5 font-medium">Horário / Data</th>
+                    <th className="px-5 py-3.5 font-medium">Status / Resposta</th>
+                    <th className="px-5 py-3.5 font-medium">Cliente / Licença</th>
+                    <th className="px-5 py-3.5 font-medium">Software / Jogo</th>
+                    <th className="px-5 py-3.5 font-medium">Endereço IP</th>
+                    <th className="px-5 py-3.5 font-medium">Localização</th>
+                    <th className="px-5 py-3.5 font-medium">Detalhes do Evento</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.map((log) => (
+                    <tr
+                      key={log.id}
+                      className="border-b border-border/40 text-[11px] last:border-0 hover:bg-accent/30 transition-colors"
+                    >
+                      {/* 1. Timestamp */}
+                      <td className="px-5 py-3.5 font-mono whitespace-nowrap">
+                        <p className="font-semibold text-foreground">{log.time}</p>
+                        <p className="text-[10px] text-muted-foreground">{log.date}</p>
+                      </td>
+
+                      {/* 2. Status Badge */}
+                      <td className="px-5 py-3.5 whitespace-nowrap">
+                        <span
+                          className={`inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-[10px] font-bold ${
+                            log.status === 'SUCCESS'
+                              ? 'border border-pink-500/40 bg-pink-950/60 text-pink-300'
+                              : log.status === 'BANNED'
+                              ? 'border border-rose-500/40 bg-rose-950/60 text-rose-300'
+                              : log.status === 'WARN'
+                              ? 'border border-amber-500/40 bg-amber-950/60 text-amber-300'
+                              : 'border border-rose-500/40 bg-rose-950/60 text-rose-300'
+                          }`}
+                        >
+                          <span
+                            className={`size-1.5 rounded-full ${
+                              log.status === 'SUCCESS'
+                                ? 'bg-pink-500 animate-pulse'
+                                : log.status === 'WARN'
+                                ? 'bg-amber-400'
+                                : 'bg-rose-500'
+                            }`}
+                          />
+                          {log.status === 'SUCCESS' ? 'AUTORIZADO' : log.status === 'BANNED' ? 'BANIDO' : log.status === 'WARN' ? 'PAUSADO' : 'RECUSADO'}
+                          <span className="font-mono text-[9px] opacity-80">({log.statusCode})</span>
+                        </span>
+                      </td>
+
+                      {/* 3. Cliente / Key */}
+                      <td className="px-5 py-3.5">
+                        <p className="font-semibold text-foreground flex items-center gap-1.5">
+                          {log.actor}
+                        </p>
+                        {log.key && (
+                          <p className="font-mono text-[10px] text-pink-400/90 mt-0.5">
+                            Key: {log.key.length > 14 ? `${log.key.slice(0, 8)}···${log.key.slice(-4)}` : log.key}
+                          </p>
+                        )}
+                      </td>
+
+                      {/* 4. Software / Game */}
+                      <td className="px-5 py-3.5 whitespace-nowrap">
+                        <div className="flex items-center gap-1.5 font-medium text-foreground">
+                          <Gamepad2 className="size-3.5 text-pink-500" />
+                          <span>{log.game}</span>
+                        </div>
+                        <p className="text-[10px] text-muted-foreground mt-0.5">{log.client}</p>
+                      </td>
+
+                      {/* 5. IP Address */}
+                      <td className="px-5 py-3.5 font-mono text-muted-foreground whitespace-nowrap">
+                        <span className="rounded bg-muted/40 px-1.5 py-0.5 border border-border/40 text-foreground">
+                          {log.ip}
+                        </span>
+                      </td>
+
+                      {/* 6. Localização */}
+                      <td className="px-5 py-3.5 whitespace-nowrap">
+                        <div className="flex items-center gap-1.5 text-foreground font-medium">
+                          <Globe className="size-3.5 text-pink-400 shrink-0" />
+                          <span>{log.location}</span>
+                        </div>
+                      </td>
+
+                      {/* 7. Detalhes / Motivo */}
+                      <td className="px-5 py-3.5 text-muted-foreground max-w-xs truncate" title={log.reason}>
+                        <span className="truncate block font-sans">{log.reason}</span>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
+        )}
       </div>
     </div>
   )

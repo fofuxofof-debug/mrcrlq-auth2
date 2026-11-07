@@ -6,15 +6,45 @@ import {
   getSystemConfig,
   isMockHwid,
   isLicenseExpired,
-  getRemainingSeconds,
 } from '@/lib/licenses'
 import { issueSessionToken, secondsUntil } from '@/lib/session-token'
+import { addAuthLog, extractClientIp, resolveLocation } from '@/lib/logs'
 
 export async function POST(request: Request) {
+  const clientIp = extractClientIp(request)
+  const location = await resolveLocation(clientIp, request)
+
   try {
+    const body = await request.json().catch(() => ({}))
+    const rawKey = body?.licenseKey || body?.key
+    const hwid = body?.hwid
+    const game = body?.game
+
+    const cleanKey =
+      typeof rawKey === 'string'
+        ? rawKey.replace(/^#\s*/, '').replace(/["'\r\n\t]/g, '').trim()
+        : ''
+
+    const reqGame =
+      game && typeof game === 'string' && game.trim() !== '' && game.toLowerCase() !== 'all'
+        ? game.replace(/["'\r\n\t]/g, '').trim()
+        : null
+
     // 0. Kill Switch / Verificação de Parada do Sistema de Auth
     const system = getSystemConfig()
     if (!system.authEnabled) {
+      await addAuthLog({
+        actor: cleanKey || 'Desconhecido',
+        key: cleanKey || undefined,
+        game: reqGame || 'Geral',
+        client: 'App / Cliente',
+        ip: clientIp,
+        location,
+        status: 'WARN',
+        statusCode: 503,
+        reason: 'Auth rejeitada: Sistema temporariamente pausado pelo admin',
+      })
+
       return NextResponse.json(
         {
           success: false,
@@ -28,32 +58,60 @@ export async function POST(request: Request) {
       )
     }
 
-    const body = await request.json()
-    const rawKey = body.licenseKey || body.key
-    const hwid = body.hwid
-    const game = body.game
+    if (!cleanKey) {
+      await addAuthLog({
+        actor: 'Não informado',
+        game: reqGame || 'Geral',
+        client: 'App / Cliente',
+        ip: clientIp,
+        location,
+        status: 'FAILED',
+        statusCode: 400,
+        reason: 'Falha: Chave de licença não fornecida',
+      })
 
-    if (!rawKey || typeof rawKey !== 'string') {
       return NextResponse.json(
         { success: false, error: 'invalid_key', message: 'Chave de licença não fornecida ou inválida.' },
         { status: 400, headers: corsHeaders() }
       )
     }
 
-    const cleanKey = rawKey
-      .replace(/^#\s*/, '')
-      .replace(/["'\r\n\t]/g, '')
-      .trim()
     const found = await findLicenseAsync(cleanKey)
 
     if (!found) {
+      await addAuthLog({
+        actor: `Key #${cleanKey.slice(0, 8)}···`,
+        key: cleanKey,
+        game: reqGame || 'Geral',
+        client: 'App / Cliente',
+        ip: clientIp,
+        location,
+        status: 'FAILED',
+        statusCode: 404,
+        reason: 'Falha: Chave inexistente no sistema',
+      })
+
       return NextResponse.json(
         { success: false, error: 'key_not_found', message: 'Licença inexistente no sistema Hooked Auth.' },
         { status: 404, headers: corsHeaders() }
       )
     }
 
+    const appLabel = reqGame || found.game || 'App / Cliente'
+
     if (found.status === 'Suspended') {
+      await addAuthLog({
+        actor: found.name,
+        key: found.key,
+        game: found.game,
+        client: appLabel,
+        ip: clientIp,
+        location,
+        status: 'BANNED',
+        statusCode: 403,
+        reason: 'Acesso bloqueado: Licença banida / suspensa',
+      })
+
       return NextResponse.json(
         { success: false, error: 'key_banned', message: 'Licença suspensa ou banida por violação.' },
         { status: 403, headers: corsHeaders() }
@@ -65,34 +123,54 @@ export async function POST(request: Request) {
         found.status = 'Expired'
         await updateLicenseStatusAsync(found.key, { status: 'Expired', tempo: 'Expirada' })
       }
+
+      await addAuthLog({
+        actor: found.name,
+        key: found.key,
+        game: found.game,
+        client: appLabel,
+        ip: clientIp,
+        location,
+        status: 'FAILED',
+        statusCode: 403,
+        reason: 'Acesso recusado: Licença expirada',
+      })
+
       return NextResponse.json(
         { success: false, error: 'key_expired', message: 'Licença expirada. Renove sua assinatura.' },
         { status: 403, headers: corsHeaders() }
       )
     }
 
-    // Compatibilidade Universal de Softwares Hooked (Free Fire, Valorant, FiveM, ColorBot):
-    // Todas as chaves válidas têm acesso garantido. Se o aplicativo cliente informar o jogo em uso (ex: 'Valorant'),
-    // nós sincronizamos para manter o painel atualizado com o software em execução sem nunca barrar o cliente.
-    const reqGame =
-      game && typeof game === 'string' && game.trim() !== '' && game.toLowerCase() !== 'all'
-        ? game.replace(/["'\r\n\t]/g, '').trim()
-        : null
-
+    // Compatibilidade Universal de Jogos
     if (reqGame) {
       const cleanLicenseGame = (found.game || '').trim().toLowerCase()
-      if (cleanLicenseGame !== 'todos os jogos' && cleanLicenseGame !== 'all' && cleanLicenseGame !== reqGame.toLowerCase()) {
+      if (
+        cleanLicenseGame !== 'todos os jogos' &&
+        cleanLicenseGame !== 'all' &&
+        cleanLicenseGame !== reqGame.toLowerCase()
+      ) {
         found.game = reqGame
         await updateLicenseStatusAsync(found.key, { game: reqGame })
       }
     }
 
-    // =========================================================================
-    // Validação Estrita de HWID (Auto-vínculo no 1º login e proteção contra múltiplos PCs)
-    // =========================================================================
+    // Validação Estrita de HWID
     const cleanHwid = typeof hwid === 'string' ? hwid.replace(/["'\r\n\t]/g, '').trim() : ''
 
     if (!cleanHwid) {
+      await addAuthLog({
+        actor: found.name,
+        key: found.key,
+        game: found.game,
+        client: appLabel,
+        ip: clientIp,
+        location,
+        status: 'FAILED',
+        statusCode: 400,
+        reason: 'Falha: HWID não enviado pelo executável',
+      })
+
       return NextResponse.json(
         {
           success: false,
@@ -107,7 +185,6 @@ export async function POST(request: Request) {
     const isUnbound = !storedHwid || isMockHwid(storedHwid)
 
     if (isUnbound) {
-      // Primeiro login ou chave após Reset de HWID: vincula este computador à licença
       await updateLicenseStatusAsync(found.key, {
         hwid: cleanHwid,
         devices: '1 / 1 HWID (Vinculado)',
@@ -115,8 +192,19 @@ export async function POST(request: Request) {
       found.hwid = cleanHwid
       found.devices = '1 / 1 HWID (Vinculado)'
     } else {
-      // Chave já vinculada a um computador: valida se é o MESMO computador
       if (storedHwid.toLowerCase() !== cleanHwid.toLowerCase()) {
+        await addAuthLog({
+          actor: found.name,
+          key: found.key,
+          game: found.game,
+          client: appLabel,
+          ip: clientIp,
+          location,
+          status: 'FAILED',
+          statusCode: 403,
+          reason: 'Bloqueado: HWID incompatível (computador diferente)',
+        })
+
         return NextResponse.json(
           {
             success: false,
@@ -129,7 +217,7 @@ export async function POST(request: Request) {
       }
     }
 
-    // Enriquecer com perfil oficial do Discord caso seja um ID válido
+    // Discord Profile
     let discordUser = null
     const targetDiscordId = found.discordId || (cleanKey.length >= 16 ? cleanKey : null)
     if (targetDiscordId) {
@@ -141,7 +229,21 @@ export async function POST(request: Request) {
     const expSeconds = secondsUntil(found.expiry)
     const discordId = found.discordId || (cleanKey.length >= 16 ? cleanKey : '')
 
-    // Sucesso - retorna formato híbrido 100% compatível com mrcrlq-auth2 e HookedAuth C++
+    // SUCESSO! Log em tempo real
+    await addAuthLog({
+      actor: clientDisplayName,
+      key: found.key,
+      game: found.game,
+      client: appLabel,
+      ip: clientIp,
+      location,
+      status: 'SUCCESS',
+      statusCode: 200,
+      reason: isUnbound
+        ? 'Login autorizado (Primeiro login - HWID vinculado)'
+        : 'Login autorizado (HWID validado)',
+    })
+
     return NextResponse.json(
       {
         success: true,
