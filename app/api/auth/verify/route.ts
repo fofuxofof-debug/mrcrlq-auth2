@@ -6,6 +6,7 @@ import {
   getSystemConfig,
   isMockHwid,
   isLicenseExpired,
+  isTestKey,
 } from '@/lib/licenses'
 import { issueSessionToken, secondsUntil } from '@/lib/session-token'
 import { addAuthLog, extractClientIp, resolveLocation } from '@/lib/logs'
@@ -73,6 +74,29 @@ export async function POST(request: Request) {
       return NextResponse.json(
         { success: false, error: 'invalid_key', message: 'Chave de licença não fornecida ou inválida.' },
         { status: 400, headers: corsHeaders() }
+      )
+    }
+
+    if (isTestKey(cleanKey)) {
+      await addAuthLog({
+        actor: `Key #${cleanKey.slice(0, 8)}···`,
+        key: cleanKey,
+        game: reqGame || 'Geral',
+        client: 'App / Cliente',
+        ip: clientIp,
+        location,
+        status: 'BANNED',
+        statusCode: 403,
+        reason: 'Acesso bloqueado: Licença banida permanentemente na blacklist',
+      })
+
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'key_banned',
+          message: 'Esta licença foi banida permanentemente por violação das diretrizes.',
+        },
+        { status: 403, headers: corsHeaders() }
       )
     }
 

@@ -56,7 +56,7 @@ const DEFAULT_SYSTEM_CONFIG: SystemConfig = {
   updatedBy: 'Hookedadmin',
 }
 
-// Lista de IDs de teste antigos que nunca devem ser recriados ou aceitos
+// Lista de IDs de teste antigos e chaves banidas que nunca devem ser recriados ou aceitos
 export const BLOCKED_TEST_KEYS = new Set([
   '849201948201948201',
   '739102948192019283',
@@ -64,6 +64,8 @@ export const BLOCKED_TEST_KEYS = new Set([
   '629104820194820192',
   '550192837461928475',
   '449102938471928374',
+  '1443975682320502845',
+  '933811331457482752',
 ])
 
 // HWIDs mockados de testes antigos que devem ser descartados se encontrados
