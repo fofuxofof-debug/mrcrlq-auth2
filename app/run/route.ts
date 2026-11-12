@@ -13,10 +13,10 @@ Clear-Host
 Write-Host ""
 Write-Host " ┌────────────────────────────────────────────────────────────────────┐" -ForegroundColor Magenta
 Write-Host " │    __  ______  ____  __ __ __________                              │" -ForegroundColor Magenta
-Write-Host " │   / / / / __ \/ __ \/ //_// ____/ __ \     H O O K E D   A U T H   │" -ForegroundColor White
+Write-Host " │   / / / / __ \\/ __ \\/ //_// ____/ __ \\     H O O K E D   A U T H   │" -ForegroundColor White
 Write-Host " │  / /_/ / / / / / / / ,<  / __/ / / / /     Game Client Loader      │" -ForegroundColor White
 Write-Host " │ / __  / /_/ / /_/ / /| |/ /___/ /_/ /      Build 2026 [PRO VIP]    │" -ForegroundColor White
-Write-Host " │/_/ /_/\____/\____/_/ |_/_____/_____/                               │" -ForegroundColor Magenta
+Write-Host " │/_/ /_/\\____/\\____/_/ |_/_____/_____/                               │" -ForegroundColor Magenta
 Write-Host " └────────────────────────────────────────────────────────────────────┘" -ForegroundColor Magenta
 Write-Host "   [•] Servidor   : " -NoNewline -ForegroundColor DarkGray; Write-Host "ONLINE (mrcrlq-auth2.vercel.app)" -ForegroundColor Green
 Write-Host "   [•] Seguranca  : " -NoNewline -ForegroundColor DarkGray; Write-Host "TLS 1.3 + SHA-256 Cloud Protection" -ForegroundColor Cyan
@@ -114,9 +114,9 @@ Write-Host " [*] Servidor Oficial : Baixando versao mais recente (.exe)..." -For
 
 $downloadUrl = "$serverUrl/api/loader/download?key=" + [uri]::EscapeDataString($key) + "&game=" + [uri]::EscapeDataString($selectedGame)
 $cleanName = $selectedGame.Replace(" ", "")
-$destDir = "$env:USERPROFILE\\Downloads"
+$destDir = [System.IO.Path]::Combine($env:USERPROFILE, "Downloads")
 if (-not (Test-Path $destDir)) { $destDir = (Get-Location).Path }
-$destFile = Join-Path $destDir "$cleanName-Loader.exe"
+$destFile = [System.IO.Path]::Combine($destDir, "$cleanName-Loader.exe")
 
 try {
     $ProgressPreference = 'SilentlyContinue'
@@ -132,7 +132,7 @@ try {
         Write-Host " │                                                                    │" -ForegroundColor Green
         Write-Host " └────────────────────────────────────────────────────────────────────┘" -ForegroundColor Green
         Write-Host ""
-        Write-Host " [★] Iniciando o executavel oficial automaticamente..." -ForegroundColor Cyan
+        Write-Host " [*] Iniciando o executavel oficial automaticamente..." -ForegroundColor Cyan
         Start-Process -FilePath $destFile
         Write-Host " [+] Bom jogo!" -ForegroundColor Green
         Start-Sleep -Seconds 2
