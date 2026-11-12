@@ -71,14 +71,18 @@ const DEFAULT_SYSTEM_CONFIG: SystemConfig = {
   updatedBy: 'Hookedadmin',
 }
 
-// Lista base de chaves de teste ou contas bloqueadas permanentemente
-export const BLOCKED_TEST_KEYS = new Set([
+// Chaves de exemplo/teste antigas que NUNCA devem ser exibidas
+export const OLD_EXAMPLE_IDS = new Set([
   '849201948201948201',
   '739102948192019283',
   '918273645102938475',
   '629104820194820192',
   '550192837461928475',
   '449102938471928374',
+])
+
+// Lista de chaves banidas permanentemente
+export const BLOCKED_TEST_KEYS = new Set([
   '1443975682320502845', // Cliente mts banido
   '933811331457482752',  // Cliente mts banido
 ])
@@ -88,10 +92,7 @@ export const INITIAL_BANNED_ITEMS: BannedItem[] = [
     id: '1443975682320502845',
     key: '1443975682320502845',
     discordId: '1443975682320502845',
-    discordUsername: 'mts_user1',
-    discordGlobalName: 'Cliente mts',
-    discordAvatar: 'https://cdn.discordapp.com/embed/avatars/0.png',
-    reason: 'Cliente mts revogado / banido',
+    reason: 'Key banida permanentemente',
     bannedAt: '07/11/2026',
     bannedBy: 'Hookedadmin',
   },
@@ -99,59 +100,8 @@ export const INITIAL_BANNED_ITEMS: BannedItem[] = [
     id: '933811331457482752',
     key: '933811331457482752',
     discordId: '933811331457482752',
-    discordUsername: 'mts_user2',
-    discordGlobalName: 'Cliente mts #2',
-    discordAvatar: 'https://cdn.discordapp.com/embed/avatars/1.png',
-    reason: 'Cliente mts revogado / banido',
+    reason: 'Key banida permanentemente',
     bannedAt: '07/11/2026',
-    bannedBy: 'Hookedadmin',
-  },
-  {
-    id: '849201948201948201',
-    key: '849201948201948201',
-    discordId: '849201948201948201',
-    reason: 'Chave de teste antiga bloqueada',
-    bannedAt: '30/10/2026',
-    bannedBy: 'Hookedadmin',
-  },
-  {
-    id: '739102948192019283',
-    key: '739102948192019283',
-    discordId: '739102948192019283',
-    reason: 'Chave de teste antiga bloqueada',
-    bannedAt: '30/10/2026',
-    bannedBy: 'Hookedadmin',
-  },
-  {
-    id: '918273645102938475',
-    key: '918273645102938475',
-    discordId: '918273645102938475',
-    reason: 'Chave de teste antiga bloqueada',
-    bannedAt: '30/10/2026',
-    bannedBy: 'Hookedadmin',
-  },
-  {
-    id: '629104820194820192',
-    key: '629104820194820192',
-    discordId: '629104820194820192',
-    reason: 'Chave de teste antiga bloqueada',
-    bannedAt: '30/10/2026',
-    bannedBy: 'Hookedadmin',
-  },
-  {
-    id: '550192837461928475',
-    key: '550192837461928475',
-    discordId: '550192837461928475',
-    reason: 'Chave de teste antiga bloqueada',
-    bannedAt: '30/10/2026',
-    bannedBy: 'Hookedadmin',
-  },
-  {
-    id: '449102938471928374',
-    key: '449102938471928374',
-    discordId: '449102938471928374',
-    reason: 'Chave de teste antiga bloqueada',
-    bannedAt: '30/10/2026',
     bannedBy: 'Hookedadmin',
   },
 ]
@@ -344,7 +294,7 @@ function loadInitialBanned(): BannedItem[] {
     try {
       const parsed = JSON.parse(raw)
       if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed
+        return parsed.filter((b) => !OLD_EXAMPLE_IDS.has(b.id))
       }
     } catch {}
   }
@@ -355,7 +305,7 @@ export function getBannedKeys(): BannedItem[] {
   if (!globalThis.__HOOKED_BANNED__) {
     globalThis.__HOOKED_BANNED__ = loadInitialBanned()
   }
-  return globalThis.__HOOKED_BANNED__
+  return globalThis.__HOOKED_BANNED__.filter((b) => !OLD_EXAMPLE_IDS.has(b.id))
 }
 
 export async function loadBannedFromKv(): Promise<BannedItem[] | null> {
@@ -374,7 +324,7 @@ export async function loadBannedFromKv(): Promise<BannedItem[] | null> {
         raw = JSON.parse(raw)
       } catch {}
     }
-    if (Array.isArray(raw)) return raw
+    if (Array.isArray(raw)) return raw.filter((b: BannedItem) => !OLD_EXAMPLE_IDS.has(b.id))
   } catch {}
   return null
 }

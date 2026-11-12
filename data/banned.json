@@ -3,10 +3,7 @@
     "id": "1443975682320502845",
     "key": "1443975682320502845",
     "discordId": "1443975682320502845",
-    "discordUsername": "mts_user1",
-    "discordGlobalName": "Cliente mts",
-    "discordAvatar": "https://cdn.discordapp.com/embed/avatars/0.png",
-    "reason": "Cliente mts revogado / banido",
+    "reason": "Key banida permanentemente",
     "bannedAt": "07/11/2026",
     "bannedBy": "Hookedadmin"
   },
@@ -14,59 +11,8 @@
     "id": "933811331457482752",
     "key": "933811331457482752",
     "discordId": "933811331457482752",
-    "discordUsername": "mts_user2",
-    "discordGlobalName": "Cliente mts #2",
-    "discordAvatar": "https://cdn.discordapp.com/embed/avatars/1.png",
-    "reason": "Cliente mts revogado / banido",
+    "reason": "Key banida permanentemente",
     "bannedAt": "07/11/2026",
-    "bannedBy": "Hookedadmin"
-  },
-  {
-    "id": "849201948201948201",
-    "key": "849201948201948201",
-    "discordId": "849201948201948201",
-    "reason": "Chave de teste antiga bloqueada",
-    "bannedAt": "30/10/2026",
-    "bannedBy": "Hookedadmin"
-  },
-  {
-    "id": "739102948192019283",
-    "key": "739102948192019283",
-    "discordId": "739102948192019283",
-    "reason": "Chave de teste antiga bloqueada",
-    "bannedAt": "30/10/2026",
-    "bannedBy": "Hookedadmin"
-  },
-  {
-    "id": "918273645102938475",
-    "key": "918273645102938475",
-    "discordId": "918273645102938475",
-    "reason": "Chave de teste antiga bloqueada",
-    "bannedAt": "30/10/2026",
-    "bannedBy": "Hookedadmin"
-  },
-  {
-    "id": "629104820194820192",
-    "key": "629104820194820192",
-    "discordId": "629104820194820192",
-    "reason": "Chave de teste antiga bloqueada",
-    "bannedAt": "30/10/2026",
-    "bannedBy": "Hookedadmin"
-  },
-  {
-    "id": "550192837461928475",
-    "key": "550192837461928475",
-    "discordId": "550192837461928475",
-    "reason": "Chave de teste antiga bloqueada",
-    "bannedAt": "30/10/2026",
-    "bannedBy": "Hookedadmin"
-  },
-  {
-    "id": "449102938471928374",
-    "key": "449102938471928374",
-    "discordId": "449102938471928374",
-    "reason": "Chave de teste antiga bloqueada",
-    "bannedAt": "30/10/2026",
     "bannedBy": "Hookedadmin"
   }
 ]

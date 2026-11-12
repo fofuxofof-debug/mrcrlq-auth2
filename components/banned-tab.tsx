@@ -48,6 +48,15 @@ export function BannedTab({ currentUser, onAddNotification, onUnbanLicense }: Ba
     setTimeout(() => setToastMessage(null), 3000)
   }
 
+  const OLD_EXAMPLE_IDS = new Set([
+    '849201948201948201',
+    '739102948192019283',
+    '918273645102938475',
+    '629104820194820192',
+    '550192837461928475',
+    '449102938471928374',
+  ])
+
   // Carrega lista de banidos do servidor
   const loadBannedList = async () => {
     try {
@@ -55,7 +64,7 @@ export function BannedTab({ currentUser, onAddNotification, onUnbanLicense }: Ba
       const res = await fetch('/api/blacklist', { cache: 'no-store' })
       const data = await res.json()
       if (data.success && Array.isArray(data.banned)) {
-        setBannedList(data.banned)
+        setBannedList(data.banned.filter((b: BannedItem) => !OLD_EXAMPLE_IDS.has(b.id)))
       }
     } catch {
     } finally {
@@ -430,15 +439,18 @@ export function BannedTab({ currentUser, onAddNotification, onUnbanLicense }: Ba
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
                           <span className="text-xs font-bold text-foreground truncate">
-                            {item.discordGlobalName || (isDiscord ? `Usuário @${item.discordUsername}` : `Chave #${item.id.slice(0, 10)}`)}
+                            {item.discordGlobalName ||
+                              (item.discordUsername && item.discordUsername !== 'undefined'
+                                ? `@${item.discordUsername}`
+                                : `Chave / ID: ${item.id}`)}
                           </span>
-                          {isDiscord && (
+                          {item.discordUsername && item.discordUsername !== 'undefined' && item.discordGlobalName && (
                             <span className="text-[10px] text-muted-foreground font-mono">
                               @{item.discordUsername}
                             </span>
                           )}
                           <span className="text-[10px] px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-semibold border border-rose-500/30">
-                            Banido
+                            Banida
                           </span>
                         </div>
 
