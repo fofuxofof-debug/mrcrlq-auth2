@@ -40,6 +40,7 @@ function findLoaderFile(gameKey: string): { filePath: string; size: number } | n
   const candidates = [
     path.join(process.cwd(), 'public', 'loaders', `${gameKey}.exe`),
     path.join(process.cwd(), 'data', 'loaders', `${gameKey}.exe`),
+    path.join(process.cwd(), 'mrcrlq-auth2-main', 'public', 'loaders', `${gameKey}.exe`),
     path.join(os.tmpdir(), 'hooked-auth-loaders', `${gameKey}.exe`),
   ]
 

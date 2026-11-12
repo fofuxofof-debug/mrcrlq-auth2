@@ -13,10 +13,12 @@ import {
   Gamepad2,
   Shield,
   Flame,
-  Terminal,
   ExternalLink,
   PackageCheck,
   HardDriveDownload,
+  KeyRound,
+  Globe,
+  Sparkles,
 } from 'lucide-react'
 
 interface LoaderMeta {
@@ -95,7 +97,7 @@ export function LoaderTab({ currentUser, onAddNotification }: LoaderTabProps) {
   const handleCopy = (text: string, id: string) => {
     navigator.clipboard?.writeText(text)
     setCopiedKey(id)
-    showToast('Comando copiado!')
+    showToast('Link copiado para a área de transferência!')
     setTimeout(() => setCopiedKey(null), 2000)
   }
 
@@ -118,7 +120,7 @@ export function LoaderTab({ currentUser, onAddNotification }: LoaderTabProps) {
     fetchLoaders()
   }, [])
 
-  // Processa upload de arquivo
+  // Processa upload de arquivo executável
   const handleUploadFile = async (gameKey: string, gameName: string, file: File) => {
     if (!file.name.toLowerCase().endsWith('.exe')) {
       showToast('Apenas arquivos executáveis (.exe) são permitidos!')
@@ -139,10 +141,10 @@ export function LoaderTab({ currentUser, onAddNotification }: LoaderTabProps) {
 
       const data = await res.json()
       if (data.success) {
-        showToast(`Novo Loader de ${gameName} enviado com sucesso!`)
+        showToast(`Novo Loader de ${gameName} enviado e salvo com sucesso!`)
         onAddNotification?.(
           'Loader Atualizado',
-          `Novo executável (.exe) de ${gameName} foi publicado pelo admin.`,
+          `Novo executável (.exe) de ${gameName} foi atualizado no site.`,
           'success'
         )
         fetchLoaders()
@@ -176,85 +178,25 @@ export function LoaderTab({ currentUser, onAddNotification }: LoaderTabProps) {
     }
   }
 
-  const handleDownloadBatchScript = () => {
-    const batContent = `@echo off
-chcp 65001 >nul
-title Hooked Auth - Game Loader
-cls
-echo ========================================================
-echo             HOOKED AUTH - GAME LOADER
-echo ========================================================
-echo.
-
-set "SERVER_URL=https://mrcbypassauth.vercel.app"
-set "GAME=%~1"
-
-if "%GAME%"=="" (
-    echo [?] Selecione o jogo para iniciar o Loader:
-    echo.
-    echo   [1] FiveM
-    echo   [2] Valorant
-    echo   [3] Free Fire
-    echo.
-    set /p "CHOICE=Digite o numero [1-3]: "
-    if "%CHOICE%"=="1" set "GAME=FiveM"
-    if "%CHOICE%"=="2" set "GAME=Valorant"
-    if "%CHOICE%"=="3" set "GAME=Free Fire"
-)
-
-if "%GAME%"=="" (
-    echo [ERRO] Escolha invalida.
-    pause
-    exit /b 1
-)
-
-echo.
-echo [*] Jogo Selecionado: %GAME%
-echo.
-set /p "KEY=[>] Digite a sua Chave de Licenca (Key): "
-
-if "%KEY%"=="" (
-    echo [ERRO] A chave nao pode estar em branco.
-    pause
-    exit /b 1
-)
-
-echo.
-echo [*] Verificando licenca e autenticando...
-
-powershell -NoProfile -ExecutionPolicy Bypass -Command ^
-  "$ProgressPreference = 'SilentlyContinue'; " ^
-  "$key = '%KEY%'.Trim(); " ^
-  "$game = '%GAME%'.Trim(); " ^
-  "$url = '%SERVER_URL%/api/loader/download?key=' + [uri]::EscapeDataString($key) + '&game=' + [uri]::EscapeDataString($game); " ^
-  "$outFile = '%GAME%-Loader.exe'; " ^
-  "try { " ^
-  "  $resp = Invoke-WebRequest -Uri $url -OutFile $outFile -UseBasicParsing -TimeoutSec 30; " ^
-  "  Write-Host '[+] Licenca autenticada com sucesso!' -ForegroundColor Green; " ^
-  "  Write-Host '[+] Loader baixado: ' $outFile -ForegroundColor Green; " ^
-  "  Write-Host '[*] Iniciando o executavel...' -ForegroundColor Cyan; " ^
-  "  Start-Process -FilePath $outFile; " ^
-  "} catch { " ^
-  "  Write-Host '[ERRO] Falha ao autenticar ou baixar o loader.' -ForegroundColor Red; " ^
-  "  Write-Host 'Verifique se sua chave esta ativa, correta e se o loader foi enviado no painel.' -ForegroundColor Yellow; " ^
-  "  if (Test-Path $outFile) { Remove-Item $outFile -Force -ErrorAction SilentlyContinue } " ^
-  "  exit 1; " ^
-  "}"
-
-echo.
-pause`
-
-    const blob = new Blob([batContent], { type: 'application/bat' })
-    const url = URL.createObjectURL(blob)
+  // Baixar diretamente o executável salvo (modo admin para verificação)
+  const handleAdminDirectDownload = (gameKey: string, gameName: string) => {
+    const meta = loaders[gameKey]
+    if (!meta?.exists) {
+      showToast(`O loader de ${gameName} ainda não foi enviado.`)
+      return
+    }
+    // Acessa o binário salvo em /loaders/${gameKey}.exe diretamente
+    const downloadUrl = `/loaders/${gameKey}.exe`
     const a = document.createElement('a')
-    a.href = url
-    a.download = 'loader.bat'
+    a.href = downloadUrl
+    a.download = `${gameName}-Loader.exe`
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-    showToast('Script loader.bat gerado e baixado com sucesso!')
+    showToast(`Baixando executável do ${gameName}...`)
   }
+
+  const clientDownloadUrl = typeof window !== 'undefined' ? `${window.location.origin}/download` : 'https://mrcbypassauth.vercel.app/download'
 
   return (
     <div className="space-y-6">
@@ -277,11 +219,11 @@ pause`
               <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
                 Gerenciador de Loaders
                 <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-pink-500/15 text-pink-400 border border-pink-500/30">
-                  Proteção por Chave
+                  100% Web / Sem .bat
                 </span>
               </h2>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Faça o upload do .exe de cada jogo. O cliente só consegue fazer o download após validar a key ativa.
+                Suba o .exe compilado de cada jogo. O cliente entra no site, digita a Key e baixa direto no navegador.
               </p>
             </div>
           </div>
@@ -289,13 +231,32 @@ pause`
 
         <div className="flex items-center gap-2">
           <button
-            onClick={handleDownloadBatchScript}
+            onClick={() => handleCopy(clientDownloadUrl, 'portal-url')}
             className="flex items-center gap-1.5 rounded-lg border border-pink-500/40 bg-pink-950/30 px-3 py-2 text-xs font-semibold text-pink-300 hover:bg-pink-950/60 transition-all btn-interactive"
-            title="Baixar arquivo loader.bat pronto para os clientes"
+            title="Copiar link para enviar aos clientes"
           >
-            <Terminal className="size-3.5 text-pink-400" />
-            <span>Baixar script cliente (loader.bat)</span>
+            {copiedKey === 'portal-url' ? (
+              <>
+                <Check className="size-3.5 text-emerald-400" />
+                <span>Link Copiado!</span>
+              </>
+            ) : (
+              <>
+                <Copy className="size-3.5 text-pink-400" />
+                <span>Copiar Link do Cliente (/download)</span>
+              </>
+            )}
           </button>
+
+          <a
+            href="/download"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-foreground hover:bg-accent transition-all btn-interactive"
+          >
+            <ExternalLink className="size-3.5 text-muted-foreground" />
+            <span>Abrir Portal</span>
+          </a>
 
           <button
             onClick={fetchLoaders}
@@ -315,8 +276,6 @@ pause`
           const meta = loaders[config.key]
           const isUploading = uploadingGame === config.key
           const isDragOver = dragOverGame === config.key
-
-          const curlExample = `curl -X POST https://mrcbypassauth.vercel.app/api/loader/download -H "Content-Type: application/json" -d "{\\"key\\":\\"SUA_KEY\\",\\"game\\":\\"${config.name}\\"}" -o ${config.name}-Loader.exe`
 
           return (
             <div
@@ -344,7 +303,7 @@ pause`
                 {/* Status do Arquivo Atual */}
                 <div className="mt-4 p-3.5 rounded-xl border border-border/80 bg-zinc-950/60 space-y-2">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground">Arquivo atual:</span>
+                    <span className="text-muted-foreground">Arquivo no site:</span>
                     <span className="font-semibold text-foreground font-mono truncate max-w-[150px]">
                       {meta?.exists ? meta.filename : 'Nenhum .exe'}
                     </span>
@@ -393,7 +352,7 @@ pause`
                     <div className="flex flex-col items-center gap-2 py-2">
                       <RefreshCw className="size-6 animate-spin text-pink-400" />
                       <p className="text-xs font-semibold text-pink-300">Enviando executável...</p>
-                      <p className="text-[10px] text-muted-foreground">Salvando e atualizando versão</p>
+                      <p className="text-[10px] text-muted-foreground">Salvando no servidor web</p>
                     </div>
                   ) : (
                     <div className="flex flex-col items-center gap-1.5 py-1">
@@ -408,37 +367,36 @@ pause`
                   )}
                 </div>
 
-                {/* Exemplo de Comando CLI para os Clientes */}
-                <div className="mt-4 space-y-1.5">
-                  <div className="flex items-center justify-between">
-                    <label className="text-[10px] font-semibold text-muted-foreground flex items-center gap-1">
-                      <Terminal className="size-3 text-pink-400" />
-                      Comando de Download via CMD/CLI:
-                    </label>
+                {/* Link de Download do Cliente */}
+                <div className="mt-4 p-3 rounded-xl border border-border/70 bg-zinc-900/40 space-y-2">
+                  <div className="flex items-center justify-between text-xs">
+                    <span className="text-muted-foreground font-semibold flex items-center gap-1.5">
+                      <Globe className="size-3.5 text-pink-400" />
+                      Link para os Clientes:
+                    </span>
                     <button
-                      onClick={() => handleCopy(curlExample, `curl-${config.key}`)}
-                      className="text-[10px] text-pink-400 hover:text-pink-300 flex items-center gap-0.5 transition-colors"
+                      onClick={() => handleCopy(`${clientDownloadUrl}`, `link-${config.key}`)}
+                      className="text-[11px] text-pink-400 hover:text-pink-300 flex items-center gap-1"
                     >
-                      {copiedKey === `curl-${config.key}` ? (
+                      {copiedKey === `link-${config.key}` ? (
                         <>
                           <Check className="size-3 text-emerald-400" /> Copiado!
                         </>
                       ) : (
                         <>
-                          <Copy className="size-3" /> Copiar
+                          <Copy className="size-3" /> Copiar Link
                         </>
                       )}
                     </button>
                   </div>
-
-                  <div className="rounded-lg border border-border/80 bg-zinc-950 p-2 text-[10px] font-mono text-zinc-300 break-all select-all">
-                    curl -X POST https://mrcbypassauth.vercel.app/api/loader/download -d &quot;key=...&quot;
+                  <div className="text-[11px] font-mono text-zinc-300 break-all select-all bg-zinc-950 p-2 rounded-lg border border-border/60">
+                    {clientDownloadUrl}
                   </div>
                 </div>
               </div>
 
-              {/* Botão de Enviar Manual */}
-              <div className="mt-5 pt-3 border-t border-border/60">
+              {/* Botões de Ação */}
+              <div className="mt-5 pt-3 border-t border-border/60 space-y-2">
                 <button
                   onClick={() => fileInputRefs.current[config.key]?.click()}
                   disabled={isUploading}
@@ -447,17 +405,27 @@ pause`
                   <UploadCloud className="size-4" />
                   <span>Subir Novo Executável (.exe)</span>
                 </button>
+
+                {meta?.exists && (
+                  <button
+                    onClick={() => handleAdminDirectDownload(config.key, config.name)}
+                    className="w-full flex items-center justify-center gap-1.5 rounded-xl border border-border/80 bg-zinc-900/70 hover:bg-zinc-800 py-2 px-3 text-xs font-medium text-foreground transition-all btn-interactive"
+                  >
+                    <HardDriveDownload className="size-3.5 text-emerald-400" />
+                    <span>Baixar Arquivo Atual (.exe)</span>
+                  </button>
+                )}
               </div>
             </div>
           )
         })}
       </div>
 
-      {/* Card Informativo com Explicação do Fluxo */}
+      {/* Card Informativo com Explicação do Fluxo 100% Web */}
       <div className="rounded-2xl border border-border bg-card p-5 space-y-3">
         <div className="flex items-center gap-2 text-foreground font-semibold text-sm">
-          <Terminal className="size-4 text-pink-400" />
-          <span>Como funciona a validação e o download pelo CMD ou Loader do Cliente:</span>
+          <Sparkles className="size-4 text-pink-400" />
+          <span>Como funciona o fluxo 100% Web (Sem .bat e Sem CMD):</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-muted-foreground">
@@ -467,27 +435,27 @@ pause`
               Upload do Executável
             </p>
             <p className="text-[11px]">
-              O administrador arrasta o <strong>.exe</strong> compilado do jogo desejado para o card correspondente no painel.
+              Você arrasta o <strong>.exe</strong> compilado do jogo (Free Fire, FiveM ou Valorant) diretamente para o card acima.
             </p>
           </div>
 
           <div className="rounded-xl border border-border/60 bg-zinc-900/40 p-3.5 space-y-1">
             <p className="font-bold text-foreground flex items-center gap-1.5">
               <span className="size-5 rounded-full bg-pink-500/20 text-pink-400 grid place-items-center text-[10px]">2</span>
-              Cliente solicita no CMD
+              Cliente Acessa o Site
             </p>
             <p className="text-[11px]">
-              O cliente executa <code className="text-pink-300 font-mono">loader.bat FiveM</code> (ou Valorant/Free Fire) e digita a sua Key.
+              O cliente entra em <code className="text-pink-300 font-mono">/download</code> ou clica em <strong>Área do Cliente</strong> na página inicial do site.
             </p>
           </div>
 
           <div className="rounded-xl border border-border/60 bg-zinc-900/40 p-3.5 space-y-1">
             <p className="font-bold text-foreground flex items-center gap-1.5">
               <span className="size-5 rounded-full bg-pink-500/20 text-pink-400 grid place-items-center text-[10px]">3</span>
-              Validação & Download
+              Validação & Download Direto
             </p>
             <p className="text-[11px]">
-              A API verifica se a chave está ativa, não banida e autorizada para o jogo. Se válido, o download inicia imediatamente e executa o loader.
+              O cliente digita a sua Key. Se a licença estiver ativa, o botão de download do <strong>.exe</strong> é liberado e o navegador baixa o arquivo nativamente!
             </p>
           </div>
         </div>

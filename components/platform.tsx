@@ -3092,12 +3092,21 @@ function Landing({ onOpenLogin }: { onOpenLogin: () => void }) {
               Hooked <span className="text-pink-500">Auth</span>
             </span>
           </button>
-          <button
-            onClick={onOpenLogin}
-            className="rounded-lg bg-pink-600 hover:bg-pink-500 px-4 py-2 text-xs font-semibold text-white btn-interactive hover-lift shadow-md shadow-pink-500/25 transition-colors"
-          >
-            Dashboard
-          </button>
+          <div className="flex items-center gap-3">
+            <a
+              href="/download"
+              className="flex items-center gap-1.5 rounded-lg border border-pink-500/40 bg-pink-950/30 hover:bg-pink-950/60 px-3.5 py-2 text-xs font-semibold text-pink-300 btn-interactive hover-lift transition-all"
+            >
+              <Download className="size-3.5 text-pink-400" />
+              <span>Área do Cliente (Download)</span>
+            </a>
+            <button
+              onClick={onOpenLogin}
+              className="rounded-lg bg-pink-600 hover:bg-pink-500 px-4 py-2 text-xs font-semibold text-white btn-interactive hover-lift shadow-md shadow-pink-500/25 transition-colors"
+            >
+              Dashboard
+            </button>
+          </div>
         </div>
       </header>
 
@@ -3114,6 +3123,17 @@ function Landing({ onOpenLogin }: { onOpenLogin: () => void }) {
             <p className="mt-4 sm:mt-7 max-w-xl text-center text-sm leading-6 text-muted-foreground sm:text-lg sm:leading-7">
               Hooked always at the top, creating products that make your gameplay professional
             </p>
+
+            {/* Call To Action - Download Loader */}
+            <div className="mt-8 flex flex-col sm:flex-row items-center gap-3">
+              <a
+                href="/download"
+                className="flex items-center gap-2.5 rounded-xl bg-gradient-to-r from-pink-600 to-rose-600 hover:from-pink-500 hover:to-rose-500 px-6 py-3.5 text-sm font-bold text-white shadow-xl shadow-pink-500/30 btn-interactive hover-lift transition-all"
+              >
+                <Download className="size-4" />
+                <span>Baixar Loader com sua Key</span>
+              </a>
+            </div>
           </div>
         </div>
 

@@ -1,1 +1,26 @@
-{}
+﻿{
+  "freefire": {
+    "game": "Free Fire",
+    "filename": "mrcrlqFreeFire-Basic.exe",
+    "size": 1224192,
+    "sizeFormatted": "1.17 MB",
+    "uploadedAt": "12/11/2026 18:30",
+    "uploadedBy": "Hookedadmin"
+  },
+  "fivem": {
+    "game": "FiveM",
+    "filename": "Wizard External.exe",
+    "size": 5352960,
+    "sizeFormatted": "5.10 MB",
+    "uploadedAt": "12/11/2026 18:30",
+    "uploadedBy": "Hookedadmin"
+  },
+  "valorant": {
+    "game": "Valorant",
+    "filename": "Hooked Val.exe",
+    "size": 1787904,
+    "sizeFormatted": "1.71 MB",
+    "uploadedAt": "12/11/2026 18:30",
+    "uploadedBy": "Hookedadmin"
+  }
+}
