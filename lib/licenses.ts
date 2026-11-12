@@ -1,5 +1,6 @@
 import fs from 'fs'
 import path from 'path'
+import os from 'os'
 import {
   normalizeLicense,
   isLicenseExpired,
@@ -36,6 +37,18 @@ export interface StoredLicense {
   owner: string
 }
 
+export interface BannedItem {
+  id: string // Discord ID ou Key
+  key?: string
+  discordId?: string
+  discordUsername?: string
+  discordGlobalName?: string
+  discordAvatar?: string
+  reason: string
+  bannedAt: string
+  bannedBy: string
+}
+
 export interface SystemConfig {
   authEnabled: boolean
   maintenanceMessage: string
@@ -47,6 +60,8 @@ declare global {
   var __HOOKED_LICENSES__: StoredLicense[] | undefined
   var __HOOKED_SYSTEM_CONFIG__: SystemConfig | undefined
   var __HOOKED_KV_LOADED__: boolean | undefined
+  var __HOOKED_BANNED__: BannedItem[] | undefined
+  var __HOOKED_DELETED_KEYS__: Set<string> | undefined
 }
 
 const DEFAULT_SYSTEM_CONFIG: SystemConfig = {
@@ -56,7 +71,7 @@ const DEFAULT_SYSTEM_CONFIG: SystemConfig = {
   updatedBy: 'Hookedadmin',
 }
 
-// Lista de IDs de teste antigos e chaves banidas que nunca devem ser recriados ou aceitos
+// Lista base de chaves de teste ou contas bloqueadas permanentemente
 export const BLOCKED_TEST_KEYS = new Set([
   '849201948201948201',
   '739102948192019283',
@@ -64,9 +79,82 @@ export const BLOCKED_TEST_KEYS = new Set([
   '629104820194820192',
   '550192837461928475',
   '449102938471928374',
-  '1443975682320502845',
-  '933811331457482752',
+  '1443975682320502845', // Cliente mts banido
+  '933811331457482752',  // Cliente mts banido
 ])
+
+export const INITIAL_BANNED_ITEMS: BannedItem[] = [
+  {
+    id: '1443975682320502845',
+    key: '1443975682320502845',
+    discordId: '1443975682320502845',
+    discordUsername: 'mts_user1',
+    discordGlobalName: 'Cliente mts',
+    discordAvatar: 'https://cdn.discordapp.com/embed/avatars/0.png',
+    reason: 'Cliente mts revogado / banido',
+    bannedAt: '07/11/2026',
+    bannedBy: 'Hookedadmin',
+  },
+  {
+    id: '933811331457482752',
+    key: '933811331457482752',
+    discordId: '933811331457482752',
+    discordUsername: 'mts_user2',
+    discordGlobalName: 'Cliente mts #2',
+    discordAvatar: 'https://cdn.discordapp.com/embed/avatars/1.png',
+    reason: 'Cliente mts revogado / banido',
+    bannedAt: '07/11/2026',
+    bannedBy: 'Hookedadmin',
+  },
+  {
+    id: '849201948201948201',
+    key: '849201948201948201',
+    discordId: '849201948201948201',
+    reason: 'Chave de teste antiga bloqueada',
+    bannedAt: '30/10/2026',
+    bannedBy: 'Hookedadmin',
+  },
+  {
+    id: '739102948192019283',
+    key: '739102948192019283',
+    discordId: '739102948192019283',
+    reason: 'Chave de teste antiga bloqueada',
+    bannedAt: '30/10/2026',
+    bannedBy: 'Hookedadmin',
+  },
+  {
+    id: '918273645102938475',
+    key: '918273645102938475',
+    discordId: '918273645102938475',
+    reason: 'Chave de teste antiga bloqueada',
+    bannedAt: '30/10/2026',
+    bannedBy: 'Hookedadmin',
+  },
+  {
+    id: '629104820194820192',
+    key: '629104820194820192',
+    discordId: '629104820194820192',
+    reason: 'Chave de teste antiga bloqueada',
+    bannedAt: '30/10/2026',
+    bannedBy: 'Hookedadmin',
+  },
+  {
+    id: '550192837461928475',
+    key: '550192837461928475',
+    discordId: '550192837461928475',
+    reason: 'Chave de teste antiga bloqueada',
+    bannedAt: '30/10/2026',
+    bannedBy: 'Hookedadmin',
+  },
+  {
+    id: '449102938471928374',
+    key: '449102938471928374',
+    discordId: '449102938471928374',
+    reason: 'Chave de teste antiga bloqueada',
+    bannedAt: '30/10/2026',
+    bannedBy: 'Hookedadmin',
+  },
+]
 
 // HWIDs mockados de testes antigos que devem ser descartados se encontrados
 export const MOCK_HWIDS = new Set([
@@ -74,19 +162,13 @@ export const MOCK_HWIDS = new Set([
   'HWID-6534CAD7-AADC5B26',
 ])
 
-export function isTestKey(keyOrId?: string): boolean {
-  if (!keyOrId) return false
-  const clean = keyOrId.replace(/^#\s*/, '').replace(/["'\r\n\t]/g, '').trim()
-  return BLOCKED_TEST_KEYS.has(clean)
-}
-
 export function isMockHwid(hwid?: string): boolean {
   if (!hwid) return false
   const clean = hwid.replace(/["'\r\n\t]/g, '').trim()
   return MOCK_HWIDS.has(clean)
 }
 
-// Licenças base permanentes (apenas clientes reais, livres de HWIDs falsos para auto-vínculo no primeiro login)
+// Licenças base permanentes (apenas clientes reais, sem contas de teste)
 const BASE_LICENSES: StoredLicense[] = [
   {
     key: '1506778729425408112',
@@ -129,12 +211,12 @@ const BASE_LICENSES: StoredLicense[] = [
     game: 'Free Fire',
     plano: 'Vitalício (Lifetime)',
     tempo: 'Vitalício',
-    devices: '1 / 1 HWID (Vinculado)',
+    devices: '0 / 1 HWID',
     issued: 'Oct 28, 2026',
     expiry: 'Vitalício',
     status: 'Active',
     owner: 'Hookedadmin',
-    hwid: 'HWID-TEST-DEBUG-12345',
+    hwid: '',
   },
   {
     key: '1312495175376834647',
@@ -170,16 +252,266 @@ const BASE_LICENSES: StoredLicense[] = [
   },
 ]
 
-// Carregador inicial a partir do arquivo data/licenses.json
-function loadInitialLicenses(): StoredLicense[] {
+// =========================================================================
+// Gerenciamento de Persistência Híbrida (Disco Local, /tmp e Vercel KV)
+// =========================================================================
+function safeWriteFile(filename: string, content: string) {
   try {
-    const filePath = path.join(process.cwd(), 'data', 'licenses.json')
-    if (fs.existsSync(filePath)) {
-      const content = fs.readFileSync(filePath, 'utf-8')
-      const parsed = JSON.parse(content)
+    const dir = path.join(process.cwd(), 'data')
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true })
+    fs.writeFileSync(path.join(dir, filename), content, 'utf-8')
+  } catch {}
+
+  // Fallback em /tmp para ambientes serverless da Vercel
+  try {
+    const tmpDir = path.join(os.tmpdir(), 'hooked-auth-data')
+    if (!fs.existsSync(tmpDir)) fs.mkdirSync(tmpDir, { recursive: true })
+    fs.writeFileSync(path.join(tmpDir, filename), content, 'utf-8')
+  } catch {}
+}
+
+function safeReadFile(filename: string): string | null {
+  try {
+    const p = path.join(process.cwd(), 'data', filename)
+    if (fs.existsSync(p)) return fs.readFileSync(p, 'utf-8')
+  } catch {}
+
+  try {
+    const tmpP = path.join(os.tmpdir(), 'hooked-auth-data', filename)
+    if (fs.existsSync(tmpP)) return fs.readFileSync(tmpP, 'utf-8')
+  } catch {}
+
+  return null
+}
+
+// Configuração do KV Upstash / Vercel KV
+export function getKvConfig() {
+  const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL
+  const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN
+  return { url, token, isConfigured: Boolean(url && token) }
+}
+
+// =========================================================================
+// Chaves Deletadas Permanentemente (Impede ressuscitação)
+// =========================================================================
+function loadDeletedKeys(): Set<string> {
+  if (globalThis.__HOOKED_DELETED_KEYS__) {
+    return globalThis.__HOOKED_DELETED_KEYS__
+  }
+  const set = new Set<string>()
+  const raw = safeReadFile('deleted_keys.json')
+  if (raw) {
+    try {
+      const arr = JSON.parse(raw)
+      if (Array.isArray(arr)) {
+        arr.forEach((k) => set.add(String(k).trim().toLowerCase()))
+      }
+    } catch {}
+  }
+  globalThis.__HOOKED_DELETED_KEYS__ = set
+  return set
+}
+
+function markKeyAsDeleted(key: string) {
+  const clean = key.replace(/^#\s*/, '').replace(/["'\r\n\t]/g, '').trim().toLowerCase()
+  if (!clean) return
+  const set = loadDeletedKeys()
+  set.add(clean)
+  safeWriteFile('deleted_keys.json', JSON.stringify(Array.from(set), null, 2))
+
+  const { url, token, isConfigured } = getKvConfig()
+  if (isConfigured) {
+    fetch(`${url}/set/hooked_deleted_keys_v1`, {
+      method: 'POST',
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify(Array.from(set)),
+    }).catch(() => {})
+  }
+}
+
+export function isDeletedKey(keyOrId?: string): boolean {
+  if (!keyOrId) return false
+  const clean = keyOrId.replace(/^#\s*/, '').replace(/["'\r\n\t]/g, '').trim().toLowerCase()
+  return loadDeletedKeys().has(clean)
+}
+
+// =========================================================================
+// Gerenciamento de Blacklist & Keys Banidas
+// =========================================================================
+function loadInitialBanned(): BannedItem[] {
+  const raw = safeReadFile('banned.json')
+  if (raw) {
+    try {
+      const parsed = JSON.parse(raw)
       if (Array.isArray(parsed) && parsed.length > 0) {
         return parsed
-          .filter((l) => !isTestKey(l.key) && !isTestKey(l.discordId))
+      }
+    } catch {}
+  }
+  return [...INITIAL_BANNED_ITEMS]
+}
+
+export function getBannedKeys(): BannedItem[] {
+  if (!globalThis.__HOOKED_BANNED__) {
+    globalThis.__HOOKED_BANNED__ = loadInitialBanned()
+  }
+  return globalThis.__HOOKED_BANNED__
+}
+
+export async function loadBannedFromKv(): Promise<BannedItem[] | null> {
+  const { url, token, isConfigured } = getKvConfig()
+  if (!isConfigured) return null
+  try {
+    const res = await fetch(`${url}/get/hooked_banned_v2`, {
+      headers: { Authorization: `Bearer ${token}` },
+      cache: 'no-store',
+    })
+    if (!res.ok) return null
+    const data = await res.json()
+    let raw = data?.result
+    if (typeof raw === 'string') {
+      try {
+        raw = JSON.parse(raw)
+      } catch {}
+    }
+    if (Array.isArray(raw)) return raw
+  } catch {}
+  return null
+}
+
+export async function persistBannedAsync(banned: BannedItem[]) {
+  globalThis.__HOOKED_BANNED__ = banned
+  safeWriteFile('banned.json', JSON.stringify(banned, null, 2))
+
+  // Sincroniza conjunto BLOCKED_TEST_KEYS
+  banned.forEach((b) => {
+    if (b.id) BLOCKED_TEST_KEYS.add(b.id.trim())
+    if (b.key) BLOCKED_TEST_KEYS.add(b.key.trim())
+    if (b.discordId) BLOCKED_TEST_KEYS.add(b.discordId.trim())
+  })
+
+  const { url, token, isConfigured } = getKvConfig()
+  if (isConfigured) {
+    try {
+      await fetch(`${url}/set/hooked_banned_v2`, {
+        method: 'POST',
+        headers: { Authorization: `Bearer ${token}` },
+        body: JSON.stringify(banned),
+      })
+    } catch {}
+  }
+}
+
+export async function banKeyAsync(
+  id: string,
+  reason: string = 'Banido pelo Administrador',
+  actor: string = 'Hookedadmin',
+  discordData?: { username?: string; globalName?: string; avatarUrl?: string }
+): Promise<BannedItem> {
+  const cleanId = id.replace(/^#\s*/, '').replace(/["'\r\n\t]/g, '').trim()
+  const list = getBannedKeys()
+  const existingIdx = list.findIndex(
+    (b) => b.id.toLowerCase() === cleanId.toLowerCase() || b.key?.toLowerCase() === cleanId.toLowerCase()
+  )
+
+  const item: BannedItem = {
+    id: cleanId,
+    key: cleanId,
+    discordId: /^\d{16,21}$/.test(cleanId) ? cleanId : undefined,
+    discordUsername: discordData?.username,
+    discordGlobalName: discordData?.globalName,
+    discordAvatar: discordData?.avatarUrl || 'https://cdn.discordapp.com/embed/avatars/0.png',
+    reason,
+    bannedAt: new Date().toLocaleDateString('pt-BR'),
+    bannedBy: actor,
+  }
+
+  let updatedList: BannedItem[]
+  if (existingIdx !== -1) {
+    updatedList = [...list]
+    updatedList[existingIdx] = { ...updatedList[existingIdx], ...item }
+  } else {
+    updatedList = [item, ...list]
+  }
+
+  BLOCKED_TEST_KEYS.add(cleanId)
+  await persistBannedAsync(updatedList)
+
+  // Atualiza também na lista de licenças marcando como Suspended se existir
+  if (globalThis.__HOOKED_LICENSES__) {
+    const lIdx = globalThis.__HOOKED_LICENSES__.findIndex((l) => {
+      const lKey = (l.key || '').toLowerCase().trim()
+      const lDisc = (l.discordId || '').toLowerCase().trim()
+      const c = cleanId.toLowerCase()
+      return lKey === c || lDisc === c
+    })
+    if (lIdx !== -1) {
+      globalThis.__HOOKED_LICENSES__[lIdx].status = 'Suspended'
+      await persistAllAsync(globalThis.__HOOKED_LICENSES__)
+    }
+  }
+
+  return item
+}
+
+export async function unbanKeyAsync(id: string): Promise<boolean> {
+  const cleanId = id.replace(/^#\s*/, '').replace(/["'\r\n\t]/g, '').trim().toLowerCase()
+  const list = getBannedKeys()
+  const filtered = list.filter(
+    (b) =>
+      b.id.toLowerCase() !== cleanId &&
+      (b.key?.toLowerCase() || '') !== cleanId &&
+      (b.discordId?.toLowerCase() || '') !== cleanId
+  )
+
+  BLOCKED_TEST_KEYS.delete(cleanId)
+  await persistBannedAsync(filtered)
+
+  // Reativa na lista de licenças se existir
+  if (globalThis.__HOOKED_LICENSES__) {
+    const lIdx = globalThis.__HOOKED_LICENSES__.findIndex((l) => {
+      const lKey = (l.key || '').toLowerCase().trim()
+      const lDisc = (l.discordId || '').toLowerCase().trim()
+      return lKey === cleanId || lDisc === cleanId
+    })
+    if (lIdx !== -1) {
+      globalThis.__HOOKED_LICENSES__[lIdx].status = 'Active'
+      await persistAllAsync(globalThis.__HOOKED_LICENSES__)
+    }
+  }
+
+  return true
+}
+
+export function isTestKey(keyOrId?: string): boolean {
+  if (!keyOrId) return false
+  const clean = keyOrId.replace(/^#\s*/, '').replace(/["'\r\n\t]/g, '').trim().toLowerCase()
+  if (BLOCKED_TEST_KEYS.has(clean)) return true
+  const banned = getBannedKeys()
+  return banned.some(
+    (b) =>
+      b.id.toLowerCase() === clean ||
+      (b.key && b.key.toLowerCase() === clean) ||
+      (b.discordId && b.discordId.toLowerCase() === clean)
+  )
+}
+
+// =========================================================================
+// Inicializador de Licenças
+// =========================================================================
+function loadInitialLicenses(): StoredLicense[] {
+  const deleted = loadDeletedKeys()
+  const raw = safeReadFile('licenses.json')
+  if (raw) {
+    try {
+      const parsed = JSON.parse(raw)
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed
+          .filter((l) => {
+            const cleanKey = (l.key || '').trim().toLowerCase()
+            const cleanDiscord = (l.discordId || '').trim().toLowerCase()
+            return !isTestKey(cleanKey) && !isTestKey(cleanDiscord) && !deleted.has(cleanKey) && !deleted.has(cleanDiscord)
+          })
           .map((l) => {
             const normalized = normalizeLicense(l)
             if (isMockHwid(normalized.hwid)) {
@@ -188,18 +520,14 @@ function loadInitialLicenses(): StoredLicense[] {
             return normalized
           })
       }
-    }
-  } catch {}
-  return BASE_LICENSES.map(normalizeLicense)
-}
+    } catch {}
+  }
 
-// =========================================================================
-// Suporte a Nuvem (Upstash Redis / Vercel KV) para persistência 100% permanente
-// =========================================================================
-export function getKvConfig() {
-  const url = process.env.KV_REST_API_URL || process.env.UPSTASH_REDIS_REST_URL
-  const token = process.env.KV_REST_API_TOKEN || process.env.UPSTASH_REDIS_REST_TOKEN
-  return { url, token, isConfigured: Boolean(url && token) }
+  return BASE_LICENSES.filter((l) => {
+    const cleanKey = (l.key || '').trim().toLowerCase()
+    const cleanDiscord = (l.discordId || '').trim().toLowerCase()
+    return !isTestKey(cleanKey) && !isTestKey(cleanDiscord) && !deleted.has(cleanKey) && !deleted.has(cleanDiscord)
+  }).map(normalizeLicense)
 }
 
 export async function loadFromKv(): Promise<StoredLicense[] | null> {
@@ -220,8 +548,13 @@ export async function loadFromKv(): Promise<StoredLicense[] | null> {
       } catch {}
     }
     if (Array.isArray(raw)) {
+      const deleted = loadDeletedKeys()
       return raw
-        .filter((l) => !isTestKey(l.key) && !isTestKey(l.discordId))
+        .filter((l) => {
+          const cleanKey = (l.key || '').trim().toLowerCase()
+          const cleanDiscord = (l.discordId || '').trim().toLowerCase()
+          return !isTestKey(cleanKey) && !isTestKey(cleanDiscord) && !deleted.has(cleanKey) && !deleted.has(cleanDiscord)
+        })
         .map((l) => {
           const normalized = normalizeLicense(l)
           if (isMockHwid(normalized.hwid)) {
@@ -251,46 +584,30 @@ export async function persistToKv(licenses: StoredLicense[]) {
   }
 }
 
-// Salva em disco local se o sistema de arquivos permitir (ignora erro se read-only na Vercel)
-function persistToLocalDisk(licenses: StoredLicense[]) {
-  try {
-    const dirPath = path.join(process.cwd(), 'data')
-    if (!fs.existsSync(dirPath)) {
-      fs.mkdirSync(dirPath, { recursive: true })
-    }
-    const filePath = path.join(dirPath, 'licenses.json')
-    fs.writeFileSync(filePath, JSON.stringify(licenses, null, 2), 'utf-8')
-  } catch {}
-}
-
 export async function persistAllAsync(licenses: StoredLicense[]) {
-  persistToLocalDisk(licenses)
+  safeWriteFile('licenses.json', JSON.stringify(licenses, null, 2))
   await persistToKv(licenses)
 }
 
 export function persistAll(licenses: StoredLicense[]) {
-  persistToLocalDisk(licenses)
+  safeWriteFile('licenses.json', JSON.stringify(licenses, null, 2))
   persistToKv(licenses).catch(() => {})
 }
 
-// Inicialização da lista na memória global (limpa qualquer chave teste ou HWID falso)
+// Inicialização da lista na memória global
 if (!globalThis.__HOOKED_LICENSES__) {
   globalThis.__HOOKED_LICENSES__ = loadInitialLicenses()
-} else {
-  globalThis.__HOOKED_LICENSES__ = globalThis.__HOOKED_LICENSES__
-    .filter((l) => !isTestKey(l.key) && !isTestKey(l.discordId))
-    .map((l) => {
-      if (isMockHwid(l.hwid)) {
-        return { ...l, hwid: '', devices: '0 / 1 HWID' }
-      }
-      return l
-    })
 }
 
 export function getAllLicenses(): StoredLicense[] {
+  const deleted = loadDeletedKeys()
   const list = globalThis.__HOOKED_LICENSES__ || BASE_LICENSES
   return list
-    .filter((l) => !isTestKey(l.key) && !isTestKey(l.discordId))
+    .filter((l) => {
+      const cleanKey = (l.key || '').trim().toLowerCase()
+      const cleanDiscord = (l.discordId || '').trim().toLowerCase()
+      return !isTestKey(cleanKey) && !isTestKey(cleanDiscord) && !deleted.has(cleanKey) && !deleted.has(cleanDiscord)
+    })
     .map((l) => {
       const normalized = normalizeLicense(l)
       if (isMockHwid(normalized.hwid)) {
@@ -301,7 +618,7 @@ export function getAllLicenses(): StoredLicense[] {
 }
 
 export function findLicense(keyOrDiscordId: string): StoredLicense | undefined {
-  if (!keyOrDiscordId || isTestKey(keyOrDiscordId)) return undefined
+  if (!keyOrDiscordId || isTestKey(keyOrDiscordId) || isDeletedKey(keyOrDiscordId)) return undefined
   const clean = keyOrDiscordId.replace(/^#\s*/, '').replace(/["'\r\n\t]/g, '').trim().toLowerCase()
   const found = getAllLicenses().find((l) => {
     const lKey = (l.key || '').replace(/^#\s*/, '').replace(/["'\r\n\t]/g, '').trim().toLowerCase()
@@ -311,7 +628,6 @@ export function findLicense(keyOrDiscordId: string): StoredLicense | undefined {
   return found ? normalizeLicense(found) : undefined
 }
 
-// Busca segura assíncrona: sempre sincroniza primeiro com o KV da nuvem para garantir dados em tempo real
 export async function findLicenseAsync(keyOrDiscordId: string): Promise<StoredLicense | undefined> {
   const kvLicenses = await loadFromKv()
   if (kvLicenses && kvLicenses.length > 0) {
@@ -327,14 +643,22 @@ export function addLicense(lic: StoredLicense): StoredLicense {
   if (!globalThis.__HOOKED_LICENSES__) {
     globalThis.__HOOKED_LICENSES__ = loadInitialLicenses()
   }
+
+  // Remove dos deletados se estiver sendo recriada propositalmente
+  const cleanKey = (lic.key || '').replace(/^#\s*/, '').replace(/["'\r\n\t]/g, '').trim().toLowerCase()
+  const cleanDiscord = (lic.discordId || '').replace(/^#\s*/, '').replace(/["'\r\n\t]/g, '').trim().toLowerCase()
+  const deleted = loadDeletedKeys()
+  deleted.delete(cleanKey)
+  deleted.delete(cleanDiscord)
+  safeWriteFile('deleted_keys.json', JSON.stringify(Array.from(deleted), null, 2))
+
   const normalized = normalizeLicense(lic)
-  const cleanKey = (normalized.key || '').replace(/^#\s*/, '').replace(/["'\r\n\t]/g, '').trim().toLowerCase()
-  const cleanDiscord = (normalized.discordId || '').replace(/^#\s*/, '').replace(/["'\r\n\t]/g, '').trim().toLowerCase()
   const idx = globalThis.__HOOKED_LICENSES__.findIndex((l) => {
     const lKey = (l.key || '').replace(/^#\s*/, '').replace(/["'\r\n\t]/g, '').trim().toLowerCase()
     const lDiscord = (l.discordId || '').replace(/^#\s*/, '').replace(/["'\r\n\t]/g, '').trim().toLowerCase()
     return lKey === cleanKey || lDiscord === cleanDiscord || lKey === cleanDiscord || lDiscord === cleanKey
   })
+
   if (idx !== -1) {
     globalThis.__HOOKED_LICENSES__[idx] = normalizeLicense({ ...globalThis.__HOOKED_LICENSES__[idx], ...normalized })
   } else {
@@ -363,17 +687,26 @@ export function updateLicenseStatus(key: string, updates: Partial<StoredLicense>
     return lKey === clean || lDiscord === clean
   })
   if (idx === -1) return null
-  const merged = normalizeLicense({ ...globalThis.__HOOKED_LICENSES__[idx], ...updates })
+
+  // Processa explicitamente reset de HWID se informado
+  const isHwidReset =
+    updates.hwid === '' ||
+    updates.devices?.includes('Resetado') ||
+    (updates as unknown as { hwidReset?: boolean }).hwidReset === true
+
+  const merged = normalizeLicense({
+    ...globalThis.__HOOKED_LICENSES__[idx],
+    ...updates,
+    hwid: isHwidReset ? '' : (updates.hwid !== undefined ? updates.hwid : globalThis.__HOOKED_LICENSES__[idx].hwid),
+    devices: isHwidReset ? '0 / 1 HWID (Resetado)' : (updates.devices || globalThis.__HOOKED_LICENSES__[idx].devices),
+  })
+
   globalThis.__HOOKED_LICENSES__[idx] = merged
   persistAll(globalThis.__HOOKED_LICENSES__)
   return globalThis.__HOOKED_LICENSES__[idx]
 }
 
 export async function updateLicenseStatusAsync(key: string, updates: Partial<StoredLicense>): Promise<StoredLicense | null> {
-  const kvLicenses = await loadFromKv()
-  if (kvLicenses && kvLicenses.length > 0) {
-    syncLicenses(kvLicenses)
-  }
   const updated = updateLicenseStatus(key, updates)
   if (updated && globalThis.__HOOKED_LICENSES__) {
     await persistAllAsync(globalThis.__HOOKED_LICENSES__)
@@ -382,36 +715,54 @@ export async function updateLicenseStatusAsync(key: string, updates: Partial<Sto
 }
 
 export function deleteLicense(key: string): boolean {
-  if (!globalThis.__HOOKED_LICENSES__) return false
-  const initialLen = globalThis.__HOOKED_LICENSES__.length
-  globalThis.__HOOKED_LICENSES__ = globalThis.__HOOKED_LICENSES__.filter(
-    (l) => l.key.toLowerCase() !== key.toLowerCase()
-  )
-  const changed = globalThis.__HOOKED_LICENSES__.length < initialLen
-  if (changed) {
-    persistAll(globalThis.__HOOKED_LICENSES__)
+  if (!key) return false
+  if (!globalThis.__HOOKED_LICENSES__) {
+    globalThis.__HOOKED_LICENSES__ = loadInitialLicenses()
   }
-  return changed
+
+  const clean = key.replace(/^#\s*/, '').replace(/["'\r\n\t]/g, '').trim().toLowerCase()
+  markKeyAsDeleted(clean)
+
+  const initialLen = globalThis.__HOOKED_LICENSES__.length
+  globalThis.__HOOKED_LICENSES__ = globalThis.__HOOKED_LICENSES__.filter((l) => {
+    const lKey = (l.key || '').replace(/^#\s*/, '').replace(/["'\r\n\t]/g, '').trim().toLowerCase()
+    const lDiscord = (l.discordId || '').replace(/^#\s*/, '').replace(/["'\r\n\t]/g, '').trim().toLowerCase()
+    if (lKey === clean || lDiscord === clean) {
+      if (lKey) markKeyAsDeleted(lKey)
+      if (lDiscord) markKeyAsDeleted(lDiscord)
+      return false
+    }
+    return true
+  })
+
+  const changed = globalThis.__HOOKED_LICENSES__.length < initialLen
+  persistAll(globalThis.__HOOKED_LICENSES__)
+  return changed || true
 }
 
 export async function deleteLicenseAsync(key: string): Promise<boolean> {
   const ok = deleteLicense(key)
-  if (ok && globalThis.__HOOKED_LICENSES__) {
+  if (globalThis.__HOOKED_LICENSES__) {
     await persistAllAsync(globalThis.__HOOKED_LICENSES__)
   }
   return ok
 }
 
-// Sincronização inteligente (Auto-Healing):
-// Mescla licenças vindas do cliente ou backup respeitando pedidos de Reset de HWID
+// Sincronização inteligente (Auto-Healing)
 export function syncLicenses(incoming: StoredLicense[]): StoredLicense[] {
   if (!globalThis.__HOOKED_LICENSES__) {
     globalThis.__HOOKED_LICENSES__ = loadInitialLicenses()
   }
 
-  // Purga chaves testes de qualquer sincronização
+  const deleted = loadDeletedKeys()
+
+  // Purga chaves testes e chaves deletadas
   const sanitizedIncoming = incoming
-    .filter((item) => !isTestKey(item.key) && !isTestKey(item.discordId))
+    .filter((item) => {
+      const k = (item.key || '').trim().toLowerCase()
+      const d = (item.discordId || '').trim().toLowerCase()
+      return !isTestKey(k) && !isTestKey(d) && !deleted.has(k) && !deleted.has(d)
+    })
     .map((item) => {
       const normalized = normalizeLicense(item)
       if (isMockHwid(normalized.hwid)) {
@@ -421,7 +772,11 @@ export function syncLicenses(incoming: StoredLicense[]): StoredLicense[] {
     })
 
   const current = [...globalThis.__HOOKED_LICENSES__]
-    .filter((item) => !isTestKey(item.key) && !isTestKey(item.discordId))
+    .filter((item) => {
+      const k = (item.key || '').trim().toLowerCase()
+      const d = (item.discordId || '').trim().toLowerCase()
+      return !isTestKey(k) && !isTestKey(d) && !deleted.has(k) && !deleted.has(d)
+    })
     .map((item) => {
       const normalized = normalizeLicense(item)
       if (isMockHwid(normalized.hwid)) {
@@ -436,6 +791,7 @@ export function syncLicenses(incoming: StoredLicense[]): StoredLicense[] {
     const idx = current.findIndex((c) => c.key.toLowerCase() === targetKey || c.discordId.toLowerCase() === targetKey)
 
     const isExplicitReset =
+      item.hwid === '' ||
       item.devices?.includes('Resetado') ||
       (item as unknown as { hwidReset?: boolean }).hwidReset === true
 
@@ -444,11 +800,9 @@ export function syncLicenses(incoming: StoredLicense[]): StoredLicense[] {
       let targetDevices = current[idx].devices || '0 / 1 HWID'
 
       if (isExplicitReset) {
-        // Reset manual solicitado explicitamente pelo admin
         targetHwid = ''
         targetDevices = '0 / 1 HWID (Resetado)'
       } else {
-        // Se já está vinculado na memória/KV, NUNCA perde o HWID!
         if (item.hwid && item.hwid.trim() !== '' && !isMockHwid(item.hwid)) {
           targetHwid = item.hwid
           targetDevices = '1 / 1 HWID (Vinculado)'
@@ -468,7 +822,6 @@ export function syncLicenses(incoming: StoredLicense[]): StoredLicense[] {
         devices: targetDevices,
       })
     } else {
-      // Nova licença
       const isBound = item.hwid && item.hwid.trim() !== '' && !isMockHwid(item.hwid)
       current.unshift(
         normalizeLicense({

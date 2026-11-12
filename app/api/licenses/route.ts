@@ -53,15 +53,18 @@ export async function POST(request: Request) {
 export async function PUT(request: Request) {
   try {
     const body = await request.json()
+    const rawKey = body?.key || body?.id || body?.discordId
     const { key, ...updates } = body
-    if (!key) {
+    const targetKey = (rawKey || key || '').replace(/^#\s*/, '').replace(/["'\r\n\t]/g, '').trim()
+
+    if (!targetKey) {
       return NextResponse.json(
         { success: false, message: 'Chave não informada.' },
         { status: 400, headers: corsHeaders() }
       )
     }
 
-    const updated = await updateLicenseStatusAsync(key, updates)
+    const updated = await updateLicenseStatusAsync(targetKey, updates)
     if (!updated) {
       return NextResponse.json(
         { success: false, message: 'Licença não encontrada.' },
@@ -81,16 +84,24 @@ export async function PUT(request: Request) {
 export async function DELETE(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
-    const key = searchParams.get('key')
+    let key = searchParams.get('key') || searchParams.get('id')
+    if (!key) {
+      try {
+        const body = await request.json()
+        key = body?.key || body?.id || body?.discordId
+      } catch {}
+    }
+
     if (!key) {
       return NextResponse.json(
-        { success: false, message: 'Chave não informada.' },
+        { success: false, message: 'Chave não informada para deleção.' },
         { status: 400, headers: corsHeaders() }
       )
     }
 
-    const ok = await deleteLicenseAsync(key)
-    return NextResponse.json({ success: ok }, { headers: corsHeaders() })
+    const clean = key.replace(/^#\s*/, '').replace(/["'\r\n\t]/g, '').trim()
+    const ok = await deleteLicenseAsync(clean)
+    return NextResponse.json({ success: ok, key: clean }, { headers: corsHeaders() })
   } catch {
     return NextResponse.json(
       { success: false, message: 'Erro ao deletar licença.' },

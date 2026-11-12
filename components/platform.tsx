@@ -20,6 +20,7 @@ import {
   calculateExpiryDate,
   isLifetime,
 } from '@/lib/duration'
+import { BannedTab } from '@/components/banned-tab'
 
 export interface AuthAccount {
   username: string
@@ -84,6 +85,7 @@ export interface NotificationItem {
 
 const navItems = [
   ['Licenses', KeyRound],
+  ['Banidas & Discord', ShieldAlert],
   ['Logs', FileText],
   ['Settings', Settings2],
 ] as const
@@ -349,8 +351,23 @@ export function Platform() {
       const res = await fetch('/api/licenses', { cache: 'no-store' })
       const data = await res.json()
       if (data.success && Array.isArray(data.licenses)) {
+        let deletedKeysSet = new Set<string>()
+        try {
+          const savedDeleted = localStorage.getItem('hooked_auth_deleted_keys')
+          if (savedDeleted) {
+            const arr = JSON.parse(savedDeleted)
+            if (Array.isArray(arr)) {
+              arr.forEach((k: string) => deletedKeysSet.add(String(k).trim().toLowerCase()))
+            }
+          }
+        } catch {}
+
         const cleanServer: LicenseItem[] = data.licenses
-          .filter((s: LicenseItem) => !isTestKey(s.key) && !isTestKey(s.discordId))
+          .filter((s: LicenseItem) => {
+            const k = (s.key || '').trim().toLowerCase()
+            const d = (s.discordId || '').trim().toLowerCase()
+            return !isTestKey(k) && !isTestKey(d) && !deletedKeysSet.has(k) && !deletedKeysSet.has(d)
+          })
           .map((s: LicenseItem) => {
             const norm = normalizeLicense(s)
             if (norm.hwid && MOCK_HWID_PREFIXES.includes(norm.hwid.trim())) {
@@ -360,16 +377,21 @@ export function Platform() {
           })
 
         setLicenses((prev) => {
-          // Atualiza as licenças vindas do servidor preservando chaves locais recentes
-          const serverKeys = new Set(cleanServer.map((s) => s.key.toLowerCase()))
-          const localOnly = prev
-            .filter((p) => !serverKeys.has(p.key.toLowerCase()))
-            .map((p) => normalizeLicense(p))
-          const updated = [...cleanServer, ...localOnly]
+          const merged = cleanServer.map((serverLic) => {
+            const serverK = (serverLic.key || '').trim().toLowerCase()
+            const local = prev.find((p) => (p.key || '').trim().toLowerCase() === serverK)
+            if (local) {
+              if (local.hwid === '' && local.devices?.includes('Resetado')) {
+                return { ...serverLic, hwid: '', devices: '0 / 1 HWID (Resetado)' }
+              }
+            }
+            return serverLic
+          })
+
           try {
-            localStorage.setItem('hooked_auth_licenses_backup', JSON.stringify(updated))
+            localStorage.setItem('hooked_auth_licenses_backup', JSON.stringify(merged))
           } catch {}
-          return updated
+          return merged
         })
       }
     } catch {
@@ -383,12 +405,25 @@ export function Platform() {
   useEffect(() => {
     let localBackup: LicenseItem[] = []
     try {
+      let deletedKeysSet = new Set<string>()
+      const savedDeleted = localStorage.getItem('hooked_auth_deleted_keys')
+      if (savedDeleted) {
+        const arr = JSON.parse(savedDeleted)
+        if (Array.isArray(arr)) {
+          arr.forEach((k: string) => deletedKeysSet.add(String(k).trim().toLowerCase()))
+        }
+      }
+
       const saved = localStorage.getItem('hooked_auth_licenses_backup')
       if (saved) {
         const parsed = JSON.parse(saved)
         if (Array.isArray(parsed) && parsed.length > 0) {
           localBackup = parsed
-            .filter((b) => !isTestKey(b.key) && !isTestKey(b.discordId))
+            .filter((b) => {
+              const k = (b.key || '').trim().toLowerCase()
+              const d = (b.discordId || '').trim().toLowerCase()
+              return !isTestKey(k) && !isTestKey(d) && !deletedKeysSet.has(k) && !deletedKeysSet.has(d)
+            })
             .map((b) => {
               const norm = normalizeLicense(b)
               const hasMockHwid = norm.hwid && MOCK_HWID_PREFIXES.includes(norm.hwid.trim())
@@ -402,15 +437,12 @@ export function Platform() {
       }
     } catch {}
 
-    // Sincronização inicial imediata com o servidor
     syncWithServer()
 
-    // Atualização em tempo real a cada 3.5 segundos: assim que o cliente loga no .exe, o site detecta e atualiza sozinho!
     const pollInterval = setInterval(() => {
       syncWithServer()
     }, 3500)
 
-    // Atualização instantânea ao focar na janela do navegador (Alt+Tab do .exe para o site)
     const onWindowFocus = () => {
       syncWithServer()
     }
@@ -771,6 +803,28 @@ export function Platform() {
               isRefreshing={isRefreshingLicenses}
             />
           )}
+          {active === 'Banidas & Discord' && (
+            <BannedTab
+              currentUser={currentUser}
+              onAddNotification={addNotification}
+              onUnbanLicense={(unbannedId) => {
+                const clean = unbannedId.trim().toLowerCase()
+                setLicenses((prev) =>
+                  prev.map((l) => {
+                    if (l.key.trim().toLowerCase() === clean || l.discordId?.trim().toLowerCase() === clean) {
+                      return { ...l, status: 'Active' }
+                    }
+                    return l
+                  })
+                )
+                fetch('/api/licenses', {
+                  method: 'PUT',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ key: unbannedId, status: 'Active' }),
+                }).catch(() => {})
+              }}
+            />
+          )}
           {active === 'Logs' && currentUser.role === 'admin' && <LogsTab currentUser={currentUser} />}
           {active === 'Settings' && currentUser.role === 'admin' && (
             <SettingsTab
@@ -782,259 +836,6 @@ export function Platform() {
         </div>
       </main>
     </div>
-  )
-}
-
-/* =========================================================================================
- * 1. Overview Tab
- * ========================================================================================= */
-function OverviewTab({
-  currentUser,
-  copiedKey,
-  onCopy,
-}: {
-  currentUser: AuthAccount
-  copiedKey: string | null
-  onCopy: (k: string, id: string) => void
-}) {
-  const userActivity = [
-    ['License activated', 'Key ending in ···9A2F', '2 min ago', 'success'],
-    ['New user registered', `${currentUser.username.toLowerCase()}@hooked.io`, '14 min ago', 'info'],
-    ['Application updated', 'Desktop Client v2.4.0', '38 min ago', 'neutral'],
-    ['Authentication failed', 'IP 185.24.19.42', '1 hr ago', 'warning'],
-  ]
-
-  return (
-    <>
-      <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-pink-500">Tuesday, October 11, 2026</p>
-          <h2 className="text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">
-            Good morning, {currentUser.displayName}<span className="text-pink-500">.</span>
-          </h2>
-          <p className="mt-2 text-sm text-muted-foreground">Here&apos;s what&apos;s happening across your applications.</p>
-        </div>
-        <button className="flex w-fit items-center gap-2 rounded-lg border border-border bg-card px-3 py-2 text-xs text-muted-foreground hover:text-foreground">
-          <span className="size-1.5 rounded-full bg-pink-500 animate-pulse" />
-          All systems operational <ChevronDown className="size-3" />
-        </button>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
-        {stats.map(({ label, value, change, icon: Icon, tone }) => (
-          <div
-            key={label}
-            className="group rounded-xl border border-border/70 bg-card p-4 sm:p-5 card-hover shadow-sm cursor-default"
-          >
-            <div className="flex items-start justify-between">
-              <span
-                className="grid size-8 sm:size-9 place-items-center rounded-lg bg-pink-950/40 text-pink-400 border border-pink-500/25 transition-transform duration-300 group-hover:scale-110"
-              >
-                <Icon className="size-3.5 sm:size-4" />
-              </span>
-              <span className="text-[10px] sm:text-[11px] font-semibold text-pink-400">{change}</span>
-            </div>
-            <p className="mt-3 sm:mt-5 text-xl sm:text-2xl font-bold tracking-[-0.04em] transition-colors group-hover:text-primary">{value}</p>
-            <p className="mt-1 text-[11px] sm:text-xs text-muted-foreground">{label}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-5 grid gap-5 xl:grid-cols-[1.5fr_1fr]">
-        <div className="rounded-xl border border-border/70 bg-card p-5 card-hover shadow-sm">
-          <div className="flex items-start justify-between">
-            <div>
-              <h3 className="text-sm font-semibold">Authentication activity</h3>
-              <p className="mt-1 text-xs text-muted-foreground">Requests processed in the last 24 hours</p>
-            </div>
-            <button className="rounded-md border border-border px-2.5 py-1.5 text-[10px] text-muted-foreground btn-interactive hover:bg-accent hover:text-foreground">
-              Last 24 hours <ChevronDown className="ml-1 inline size-3" />
-            </button>
-          </div>
-          <div className="mt-6 flex h-[210px] items-end gap-1.5 border-b border-border/50 bg-[linear-gradient(to_bottom,transparent_49%,hsl(var(--border)/0.38)_50%,transparent_51%)] px-1 sm:gap-3">
-            {[28, 42, 35, 52, 47, 64, 55, 68, 60, 76, 64, 78, 72, 87, 70, 82, 91, 77, 94, 83, 88, 74, 96, 90].map(
-              (height, i) => (
-                <div key={i} className="group relative flex flex-1 items-end h-full">
-                  <div
-                    className={`w-full rounded-t-sm transition-all duration-300 group-hover:bg-pink-600 group-hover:brightness-110 ${
-                      i > 20 ? 'bg-pink-600' : 'bg-pink-500/40'
-                    }`}
-                    style={{ height: `${height}%` }}
-                  />
-                </div>
-              )
-            )}
-          </div>
-          <div className="mt-3 flex justify-between text-[10px] text-muted-foreground font-mono">
-            <span>00:00</span>
-            <span>04:00</span>
-            <span>08:00</span>
-            <span>12:00</span>
-            <span>16:00</span>
-            <span>Now</span>
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-border/70 bg-card p-5 shadow-sm">
-          <div className="flex items-start justify-between">
-            <div>
-              <h3 className="text-sm font-semibold">Application health</h3>
-              <p className="mt-1 text-xs text-muted-foreground">Current status by application</p>
-            </div>
-            <button className="text-xs text-pink-400 hover:text-pink-400 font-semibold">
-              View all <ArrowRight className="ml-1 inline size-3" />
-            </button>
-          </div>
-          <div className="mt-6 flex flex-col gap-4">
-            {[
-              ['Desktop Client', 'v2.4.0', '99.98%', 'bg-pink-500'],
-              ['Web Dashboard', 'v1.8.2', '99.99%', 'bg-pink-400'],
-              ['Mobile SDK', 'v3.1.0', '98.74%', 'bg-pink-500/80'],
-            ].map(([name, version, uptime, color]) => (
-              <div key={name} className="flex items-center gap-3">
-                <span className={`size-2 rounded-full ${color}`} />
-                <div className="min-w-0 flex-1">
-                  <p className="text-xs font-semibold">{name}</p>
-                  <p className="text-[10px] text-muted-foreground">{version}</p>
-                </div>
-                <p className="text-xs font-semibold text-pink-400">{uptime}</p>
-              </div>
-            ))}
-          </div>
-          <div className="mt-7 rounded-lg border border-pink-500/30 bg-pink-950/40 p-3">
-            <div className="flex items-center gap-2 text-xs text-pink-300 font-semibold">
-              <Zap className="size-3.5 text-pink-400" />
-              All systems are running smoothly
-            </div>
-            <p className="mt-1 text-[10px] text-muted-foreground">No incidents detected in the last 30 days.</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="mt-5 rounded-xl border border-border/70 bg-card overflow-hidden">
-        <div className="flex flex-col justify-between gap-3 border-b border-border/60 p-4 sm:p-5 sm:flex-row sm:items-center">
-          <div>
-            <h3 className="text-sm font-semibold">Recent activity</h3>
-            <p className="mt-0.5 text-xs text-muted-foreground">The latest events from your workspace</p>
-          </div>
-          <button className="w-fit text-xs text-pink-400 hover:text-pink-300 font-semibold flex items-center">
-            View audit log <ArrowRight className="ml-1 size-3" />
-          </button>
-        </div>
-
-        {/* Mobile View: Cards */}
-        <div className="sm:hidden divide-y divide-border/40">
-          {userActivity.map(([event, detail, time, status]) => (
-            <div key={event} className="p-3.5 space-y-1.5 hover:bg-pink-950/20 transition-colors">
-              <div className="flex items-center justify-between gap-2">
-                <p className="font-semibold text-xs text-foreground truncate">{event}</p>
-                <span
-                  className={`inline-flex shrink-0 rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                    status === 'success'
-                      ? 'bg-pink-950/40 text-pink-300 border border-pink-500/30'
-                      : status === 'warning'
-                      ? 'bg-amber-950/40 text-amber-300 border border-amber-500/30'
-                      : status === 'info'
-                      ? 'bg-pink-950/40 text-pink-400 border border-pink-500/30'
-                      : 'bg-muted text-muted-foreground'
-                  }`}
-                >
-                  {status === 'success'
-                    ? 'Completed'
-                    : status === 'warning'
-                    ? 'Review'
-                    : status === 'info'
-                    ? 'New'
-                    : 'Updated'}
-                </span>
-              </div>
-              <p className="text-[11px] text-muted-foreground leading-snug">{detail}</p>
-              <p className="text-[10px] font-mono text-muted-foreground/80">{time}</p>
-            </div>
-          ))}
-        </div>
-
-        {/* Desktop View: Table */}
-        <div className="hidden sm:block overflow-x-auto">
-          <table className="w-full min-w-[620px] text-left text-xs">
-            <thead>
-              <tr className="border-b border-border/50 text-[10px] uppercase tracking-wider text-muted-foreground">
-                <th className="px-5 py-3 font-medium">Event</th>
-                <th className="px-5 py-3 font-medium">Details</th>
-                <th className="px-5 py-3 font-medium">Time</th>
-                <th className="px-5 py-3 font-medium">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {userActivity.map(([event, detail, time, status]) => (
-                <tr key={event} className="border-b border-border/40 last:border-0 hover:bg-pink-950/30">
-                  <td className="px-5 py-4 font-semibold">{event}</td>
-                  <td className="px-5 py-4 text-muted-foreground">{detail}</td>
-                  <td className="px-5 py-4 text-muted-foreground">{time}</td>
-                  <td className="px-5 py-4">
-                    <span
-                      className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                        status === 'success'
-                          ? 'bg-pink-950/40 text-pink-300 border border-pink-500/30'
-                          : status === 'warning'
-                          ? 'bg-amber-950/40 text-amber-300 border border-amber-500/30'
-                          : status === 'info'
-                          ? 'bg-pink-950/40 text-pink-400 border border-pink-500/30'
-                          : 'bg-muted text-muted-foreground'
-                      }`}
-                    >
-                      {status === 'success'
-                        ? 'Completed'
-                        : status === 'warning'
-                        ? 'Review'
-                        : status === 'info'
-                        ? 'New'
-                        : 'Updated'}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-
-      <div className="mt-5 grid gap-5 md:grid-cols-2">
-        <div className="rounded-xl border border-border/70 bg-card p-5 card-hover shadow-sm">
-          <div className="flex items-center gap-2">
-            <Server className="size-4 text-pink-500" />
-            <h3 className="text-sm font-semibold">Production API</h3>
-            <span className="ml-auto rounded-full bg-pink-950/40 px-2.5 py-0.5 text-[10px] font-bold text-pink-300 border border-pink-500/30">
-              Operational
-            </span>
-          </div>
-          <div className="mt-4 flex items-center justify-between rounded-lg bg-muted/60 p-3 border border-border/50">
-            <code className="text-[11px] text-muted-foreground font-mono">vl_live_••••••••••••••9A2F</code>
-            <button
-              onClick={() => onCopy('vl_live_9a2f_secret_production_key', 'prod-api')}
-              className="text-muted-foreground hover:text-foreground btn-interactive"
-              aria-label="Copy API key"
-            >
-              {copiedKey === 'prod-api' ? (
-                <Check className="size-4 text-pink-400" />
-              ) : (
-                <Copy className="size-4" />
-              )}
-            </button>
-          </div>
-        </div>
-
-        <div className="rounded-xl border border-border/70 bg-card p-5 card-hover shadow-sm">
-          <div className="flex items-center gap-2">
-            <Terminal className="size-4 text-pink-500" />
-            <h3 className="text-sm font-semibold">Quick start</h3>
-          </div>
-          <p className="mt-3 text-xs leading-5 text-muted-foreground">
-            Integrate Hooked Auth authentication into your application in minutes.
-          </p>
-        </div>
-      </div>
-    </>
   )
 }
 
@@ -1099,7 +900,9 @@ function LicensesTab({
       issued: new Date().toLocaleDateString('pt-BR'),
     }
 
-    setLicenses((prev) => prev.map((l) => (l.key === updatedLic.key ? updatedLic : l)))
+    setLicenses((prev) =>
+      prev.map((l) => (l.key.toLowerCase().trim() === updatedLic.key.toLowerCase().trim() ? updatedLic : l))
+    )
     setSelectedDetailsLicense(updatedLic)
 
     try {
@@ -1127,19 +930,24 @@ function LicensesTab({
   }
 
   const handleUpdateGame = async (key: string, newGame: string) => {
-    setLicenses((prev) => prev.map((l) => (l.key === key ? { ...l, game: newGame } : l)))
-    setSelectedDetailsLicense((prev) => (prev && prev.key === key ? { ...prev, game: newGame } : prev))
+    const cleanKey = key.replace(/^#\s*/, '').replace(/["'\r\n\t]/g, '').trim()
+    setLicenses((prev) =>
+      prev.map((l) => (l.key.toLowerCase().trim() === cleanKey.toLowerCase() ? { ...l, game: newGame } : l))
+    )
+    setSelectedDetailsLicense((prev) =>
+      prev && prev.key.toLowerCase().trim() === cleanKey.toLowerCase() ? { ...prev, game: newGame } : prev
+    )
     showToast(`Jogo alterado para ${newGame}!`)
     try {
       await fetch('/api/licenses', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key, game: newGame }),
+        body: JSON.stringify({ key: cleanKey, game: newGame }),
       })
     } catch {}
     onAddNotification?.(
       'Jogo Alterado',
-      `Key ${key} agora está vinculada a ${newGame}.`,
+      `Key ${cleanKey} agora está vinculada a ${newGame}.`,
       'info'
     )
   }
@@ -1186,34 +994,33 @@ function LicensesTab({
 
   // Ações da Licença (Resetar HWID, Banir, Deletar)
   const handleResetKey = (key: string) => {
+    const cleanKey = key.replace(/^#\s*/, '').replace(/["'\r\n\t]/g, '').trim()
     setLicenses((prev) =>
-      prev.map((lic) => (lic.key === key ? { ...lic, hwid: '', devices: '0 / 1 HWID (Resetado)' } : lic))
+      prev.map((lic) => (lic.key.toLowerCase().trim() === cleanKey.toLowerCase() ? { ...lic, hwid: '', devices: '0 / 1 HWID (Resetado)' } : lic))
     )
     setSelectedDetailsLicense((prev) =>
-      prev && prev.key === key ? { ...prev, hwid: '', devices: '0 / 1 HWID (Resetado)' } : prev
+      prev && prev.key.toLowerCase().trim() === cleanKey.toLowerCase() ? { ...prev, hwid: '', devices: '0 / 1 HWID (Resetado)' } : prev
     )
-    showToast(`HWID da key ${key} resetado com sucesso!`)
+    showToast(`HWID da key ${cleanKey} resetado com sucesso!`)
     fetch('/api/licenses', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ key, hwid: '', devices: '0 / 1 HWID (Resetado)' }),
-    })
-      .then(() => {
-        onRefresh?.()
-      })
-      .catch(() => {})
+      body: JSON.stringify({ key: cleanKey, hwid: '', devices: '0 / 1 HWID (Resetado)', hwidReset: true }),
+    }).catch(() => {})
+
     onAddNotification?.(
       'HWID Resetado',
-      `Key ${key} teve o dispositivo HWID liberado com sucesso.`,
+      `Key ${cleanKey} teve o dispositivo HWID liberado com sucesso.`,
       'info'
     )
   }
 
   const handleBanKey = (key: string) => {
+    const cleanKey = key.replace(/^#\s*/, '').replace(/["'\r\n\t]/g, '').trim()
     let isNowBanned = false
     setLicenses((prev) =>
       prev.map((lic) => {
-        if (lic.key === key) {
+        if (lic.key.toLowerCase().trim() === cleanKey.toLowerCase()) {
           isNowBanned = lic.status !== 'Suspended'
           return { ...lic, status: isNowBanned ? 'Suspended' : 'Active' }
         }
@@ -1221,31 +1028,67 @@ function LicensesTab({
       })
     )
     setSelectedDetailsLicense((prev) =>
-      prev && prev.key === key ? { ...prev, status: prev.status === 'Suspended' ? 'Active' : 'Suspended' } : prev
+      prev && prev.key.toLowerCase().trim() === cleanKey.toLowerCase() ? { ...prev, status: prev.status === 'Suspended' ? 'Active' : 'Suspended' } : prev
     )
-    showToast(isNowBanned ? `Key ${key} banida com sucesso!` : `Key ${key} desbanida com sucesso!`)
+    showToast(isNowBanned ? `Key ${cleanKey} banida com sucesso!` : `Key ${cleanKey} desbanida com sucesso!`)
+
     fetch('/api/licenses', {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ key, status: isNowBanned ? 'Suspended' : 'Active' }),
+      body: JSON.stringify({ key: cleanKey, status: isNowBanned ? 'Suspended' : 'Active' }),
     }).catch(() => {})
+
+    if (isNowBanned) {
+      fetch('/api/blacklist', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          id: cleanKey,
+          reason: 'Banida pelo administrador no painel de licenças',
+          actor: currentUser.username,
+        }),
+      }).catch(() => {})
+    } else {
+      fetch(`/api/blacklist?id=${encodeURIComponent(cleanKey)}`, {
+        method: 'DELETE',
+      }).catch(() => {})
+    }
+
     onAddNotification?.(
       isNowBanned ? 'Key Suspensa / Banida' : 'Key Reativada',
-      `A chave ${key} agora está com status ${isNowBanned ? 'Suspensa' : 'Ativa'}.`,
+      `A chave ${cleanKey} agora está com status ${isNowBanned ? 'Suspensa' : 'Ativa'}.`,
       isNowBanned ? 'warning' : 'success'
     )
   }
 
   const handleDeleteKey = (key: string) => {
-    setLicenses((prev) => prev.filter((lic) => lic.key !== key))
+    const cleanKey = key.replace(/^#\s*/, '').replace(/["'\r\n\t]/g, '').trim()
+    try {
+      const saved = localStorage.getItem('hooked_auth_deleted_keys')
+      const deletedArr = saved ? JSON.parse(saved) : []
+      if (!deletedArr.includes(cleanKey.toLowerCase())) {
+        deletedArr.push(cleanKey.toLowerCase())
+        localStorage.setItem('hooked_auth_deleted_keys', JSON.stringify(deletedArr))
+      }
+    } catch {}
+
+    setLicenses((prev) =>
+      prev.filter(
+        (lic) =>
+          lic.key.toLowerCase().trim() !== cleanKey.toLowerCase() &&
+          lic.discordId?.toLowerCase().trim() !== cleanKey.toLowerCase()
+      )
+    )
     setSelectedDetailsLicense(null)
-    showToast(`Key ${key} deletada permanentemente.`)
-    fetch(`/api/licenses?key=${encodeURIComponent(key)}`, {
+    showToast(`Key ${cleanKey} deletada permanentemente.`)
+
+    fetch(`/api/licenses?key=${encodeURIComponent(cleanKey)}`, {
       method: 'DELETE',
     }).catch(() => {})
+
     onAddNotification?.(
       'Key Removida',
-      `A chave ${key} foi deletada do sistema.`,
+      `A chave ${cleanKey} foi deletada do sistema.`,
       'warning'
     )
   }
@@ -2382,1187 +2225,6 @@ function LicensesTab({
         </div>
       </ModalPortal>
     )}
-    </div>
-  )
-}
-
-/* =========================================================================================
- * 3. Screen Tab (Prints / Screenshots - Acesso exclusivo: Hookedadmin)
- * ========================================================================================= */
-export interface ScreenPrintItem {
-  id: string
-  title: string
-  clientName: string
-  discordId: string
-  game: 'Free Fire' | 'Valorant' | 'FiveM'
-  date: string
-  status: 'Verificado' | 'Pendente' | 'Suspeito'
-  imageUrl: string
-  notes?: string
-}
-
-function ScreenTab({
-  onAddNotification,
-}: {
-  onAddNotification?: (title: string, desc: string, type: 'success' | 'info' | 'warning' | 'security') => void
-}) {
-  const [filterGame, setFilterGame] = useState<'All' | 'Free Fire' | 'Valorant' | 'FiveM'>('All')
-  const [search, setSearch] = useState('')
-  const [selectedPrint, setSelectedPrint] = useState<ScreenPrintItem | null>(null)
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false)
-  const [toastMsg, setToastMsg] = useState<string | null>(null)
-
-  const showToast = (msg: string) => {
-    setToastMsg(msg)
-    setTimeout(() => setToastMsg(null), 3000)
-  }
-
-  // Form State para Novo Print
-  const [newTitle, setNewTitle] = useState('')
-  const [newClientName, setNewClientName] = useState('')
-  const [newDiscordId, setNewDiscordId] = useState('')
-  const [newGame, setNewGame] = useState<'Free Fire' | 'Valorant' | 'FiveM'>('Free Fire')
-  const [newStatus, setNewStatus] = useState<'Verificado' | 'Pendente' | 'Suspeito'>('Verificado')
-  const [newImage, setNewImage] = useState<string>('')
-  const [newNotes, setNewNotes] = useState<string>('')
-  const [formError, setFormError] = useState('')
-
-  // SVGs simulados para pré-visualização de alta fidelidade
-  const ffMockSvg = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450"><defs><linearGradient id="g1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="%231e1b4b"/><stop offset="100%" stop-color="%230f172a"/></linearGradient></defs><rect width="800" height="450" fill="url(%23g1)"/><rect x="25" y="25" width="750" height="400" rx="14" fill="%230b0f19" stroke="%2338bdf8" stroke-width="1.5" stroke-opacity="0.3"/><circle cx="50" cy="55" r="5" fill="%23ef4444"/><circle cx="68" cy="55" r="5" fill="%23eab308"/><circle cx="86" cy="55" r="5" fill="%2322c55e"/><text x="115" y="60" fill="%2394a3b8" font-family="monospace" font-size="12">HOOKED_AUTH_FF_INJECTOR_V4.2.exe</text><rect x="50" y="90" width="700" height="1" fill="%23334155"/><text x="60" y="140" fill="%23f97316" font-family="sans-serif" font-size="24" font-weight="bold">FREE FIRE · HWID VALIDATION</text><text x="60" y="175" fill="%2338bdf8" font-family="monospace" font-size="14">CLIENT: 22cao (Hookedadmin)</text><text x="60" y="205" fill="%23cbd5e1" font-family="monospace" font-size="14">DISCORD ID: 1517054236041416800</text><text x="60" y="235" fill="%23cbd5e1" font-family="monospace" font-size="14">HWID: SHA256-6096A426-22B82276</text><text x="60" y="265" fill="%23cbd5e1" font-family="monospace" font-size="14">PLAN: Vitalício (Lifetime)</text><rect x="60" y="300" width="220" height="42" rx="8" fill="%23059669" fill-opacity="0.2" stroke="%2310b981"/><text x="80" y="327" fill="%2334d399" font-family="monospace" font-size="15" font-weight="bold">STATUS: AUTHORIZED</text><text x="60" y="380" fill="%2364748b" font-family="sans-serif" font-size="12">Hooked Auth Security Engine © 2026 · Anti-Ban Enabled</text></svg>`
-
-  const valMockSvg = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450"><defs><linearGradient id="g2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="%232e1022"/><stop offset="100%" stop-color="%2309090b"/></linearGradient></defs><rect width="800" height="450" fill="url(%23g2)"/><rect x="25" y="25" width="750" height="400" rx="14" fill="%2309070a" stroke="%23fb7185" stroke-width="1.5" stroke-opacity="0.3"/><circle cx="50" cy="55" r="5" fill="%23ef4444"/><circle cx="68" cy="55" r="5" fill="%23eab308"/><circle cx="86" cy="55" r="5" fill="%2322c55e"/><text x="115" y="60" fill="%2394a3b8" font-family="monospace" font-size="12">VANGUARD_KERNEL_CLIENT_V2.0.exe</text><rect x="50" y="90" width="700" height="1" fill="%23334155"/><text x="60" y="140" fill="%23f43f5e" font-family="sans-serif" font-size="24" font-weight="bold">VALORANT · KERNEL DRIVER ACTIVE</text><text x="60" y="175" fill="%23fb7185" font-family="monospace" font-size="14">CLIENT: Puto Xitadinho</text><text x="60" y="205" fill="%23cbd5e1" font-family="monospace" font-size="14">DISCORD ID: 1506778729425408112</text><text x="60" y="235" fill="%23cbd5e1" font-family="monospace" font-size="14">HWID: SHA256-03B148AB-78B22918</text><text x="60" y="265" fill="%23cbd5e1" font-family="monospace" font-size="14">PLAN: 30 Dias (Mensal)</text><rect x="60" y="300" width="220" height="42" rx="8" fill="%23059669" fill-opacity="0.2" stroke="%2310b981"/><text x="80" y="327" fill="%2334d399" font-family="monospace" font-size="15" font-weight="bold">STATUS: INJECTED (OK)</text><text x="60" y="380" fill="%2364748b" font-family="sans-serif" font-size="12">Hooked Auth Kernel Subsystem · Zero Detection</text></svg>`
-
-  const fivemMockSvg = `data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450"><defs><linearGradient id="g3" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="%23082f49"/><stop offset="100%" stop-color="%23020617"/></linearGradient></defs><rect width="800" height="450" fill="url(%23g3)"/><rect x="25" y="25" width="750" height="400" rx="14" fill="%23030712" stroke="%2306b6d4" stroke-width="1.5" stroke-opacity="0.3"/><circle cx="50" cy="55" r="5" fill="%23ef4444"/><circle cx="68" cy="55" r="5" fill="%23eab308"/><circle cx="86" cy="55" r="5" fill="%2322c55e"/><text x="115" y="60" fill="%2394a3b8" font-family="monospace" font-size="12">CITIZENFX_INTERNAL_LOADER.dll</text><rect x="50" y="90" width="700" height="1" fill="%23334155"/><text x="60" y="140" fill="%2306b6d4" font-family="sans-serif" font-size="24" font-weight="bold">FIVEM · SERVER CONNECTION SCREEN</text><text x="60" y="175" fill="%2338bdf8" font-family="monospace" font-size="14">CLIENT: Lcpkrl</text><text x="60" y="205" fill="%23cbd5e1" font-family="monospace" font-size="14">DISCORD ID: 1118361148417396786</text><text x="60" y="235" fill="%23cbd5e1" font-family="monospace" font-size="14">SERVER: Complexo RJ / Roleplay</text><text x="60" y="265" fill="%23cbd5e1" font-family="monospace" font-size="14">PLAN: 27 Dias</text><rect x="60" y="300" width="220" height="42" rx="8" fill="%23d97706" fill-opacity="0.2" stroke="%23f59e0b"/><text x="80" y="327" fill="%23fbbf24" font-family="monospace" font-size="15" font-weight="bold">STATUS: AUTORIZADO</text><text x="60" y="380" fill="%2364748b" font-family="sans-serif" font-size="12">Hooked Auth FiveM Hook · Memory Integrity Verified</text></svg>`
-
-  const [prints, setPrints] = useState<ScreenPrintItem[]>([
-    {
-      id: 'p-1',
-      title: 'Validação HWID In-Game',
-      clientName: '22cao',
-      discordId: '1517054236041416800',
-      game: 'Free Fire',
-      date: 'Hoje, 21:14',
-      status: 'Verificado',
-      imageUrl: ffMockSvg,
-      notes: 'Cheat injetado com sucesso no emulador LDPlayer9.',
-    },
-    {
-      id: 'p-2',
-      title: 'Comprovante & Ativação de Chave',
-      clientName: 'Puto Xitadinho',
-      discordId: '1506778729425408112',
-      game: 'Valorant',
-      date: 'Hoje, 18:30',
-      status: 'Verificado',
-      imageUrl: valMockSvg,
-      notes: 'Bypass validado em Windows 11.',
-    },
-    {
-      id: 'p-3',
-      title: 'Screen de Conexão Servidor',
-      clientName: 'Lcpkrl',
-      discordId: '1118361148417396786',
-      game: 'Valorant',
-      date: 'Hoje, 23:45',
-      status: 'Verificado',
-      imageUrl: fivemMockSvg,
-      notes: 'Autenticado com sucesso.',
-    },
-  ])
-
-  // Processar upload de arquivo de imagem do computador do usuário
-  const handleImageFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0]
-    if (file) {
-      if (file.size > 10 * 1024 * 1024) {
-        setFormError('A imagem deve ter no máximo 10MB.')
-        return
-      }
-      const reader = new FileReader()
-      reader.onload = () => {
-        setNewImage(reader.result as string)
-        setFormError('')
-      }
-      reader.readAsDataURL(file)
-    }
-  }
-
-  const handleAddPrint = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!newTitle.trim()) {
-      setFormError('Por favor informe o título da captura.')
-      return
-    }
-    if (!newDiscordId.trim()) {
-      setFormError('Por favor informe o Discord ID do cliente.')
-      return
-    }
-    if (!newImage) {
-      setFormError('Por favor selecione ou envie uma imagem/print.')
-      return
-    }
-
-    const created: ScreenPrintItem = {
-      id: 'p-' + Date.now(),
-      title: newTitle.trim(),
-      clientName: newClientName.trim() || 'Cliente Hooked',
-      discordId: newDiscordId.trim(),
-      game: newGame,
-      date: 'Hoje, ' + new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
-      status: newStatus,
-      imageUrl: newImage,
-      notes: newNotes.trim() || undefined,
-    }
-
-    setPrints((prev) => [created, ...prev])
-    setIsAddModalOpen(false)
-    setNewTitle('')
-    setNewClientName('')
-    setNewDiscordId('')
-    setNewImage('')
-    setNewNotes('')
-    setFormError('')
-
-    showToast('Print adicionado com sucesso!')
-    onAddNotification?.(
-      'Novo Print Adicionado',
-      `Captura de tela enviada para ${created.clientName} (${created.game}).`,
-      'info'
-    )
-  }
-
-  const handleDeletePrint = (id: string) => {
-    setPrints((prev) => prev.filter((p) => p.id !== id))
-    if (selectedPrint?.id === id) setSelectedPrint(null)
-    showToast('Print removido com sucesso.')
-  }
-
-  const handleDownload = (print: ScreenPrintItem) => {
-    const a = document.createElement('a')
-    a.href = print.imageUrl
-    a.download = `print-${print.game.toLowerCase().replace(/\s+/g, '-')}-${print.discordId}.png`
-    document.body.appendChild(a)
-    a.click()
-    document.body.removeChild(a)
-    showToast('Download do print iniciado!')
-  }
-
-  const handleCopyDiscord = (discordId: string) => {
-    navigator.clipboard.writeText(discordId)
-    showToast('Discord ID copiado para a área de transferência!')
-  }
-
-  const filteredPrints = prints
-    .filter((p) => (filterGame === 'All' ? true : p.game === filterGame))
-    .filter((p) => {
-      if (!search.trim()) return true
-      const q = search.toLowerCase()
-      return (
-        p.title.toLowerCase().includes(q) ||
-        p.clientName.toLowerCase().includes(q) ||
-        p.discordId.toLowerCase().includes(q) ||
-        p.game.toLowerCase().includes(q)
-      )
-    })
-
-  const ffCount = prints.filter((p) => p.game === 'Free Fire').length
-  const valCount = prints.filter((p) => p.game === 'Valorant').length
-  const fivemCount = prints.filter((p) => p.game === 'FiveM').length
-
-  return (
-    <div>
-      {/* Header */}
-      <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div>
-          <p className="mb-2 text-xs font-semibold uppercase tracking-[0.16em] text-pink-500">
-            Painel Exclusivo Admin (Hookedadmin)
-          </p>
-          <h2 className="text-2xl font-semibold tracking-[-0.04em] sm:text-3xl flex items-center gap-2.5">
-            <Camera className="size-6 text-pink-500" />
-            Screen
-          </h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Repositório e galeria de capturas de tela (prints), comprovantes de ativação e validações in-game dos clientes.
-          </p>
-        </div>
-        <button
-          onClick={() => {
-            setFormError('')
-            setIsAddModalOpen(true)
-          }}
-          className="flex w-full sm:w-fit items-center justify-center gap-2 rounded-lg bg-pink-600 hover:bg-pink-500 px-4 py-2.5 text-xs font-semibold text-white shadow-md shadow-pink-500/25 btn-interactive hover-lift"
-        >
-          <Plus className="size-4" /> Adicionar Print
-        </button>
-      </div>
-
-      {/* Métricas / Stat Cards */}
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
-        {[
-          { label: 'Total de Prints', value: prints.length.toString(), icon: Camera, tone: 'blue' },
-          { label: 'Free Fire Prints', value: ffCount.toString(), icon: Gamepad2, tone: 'amber' },
-          { label: 'Valorant Prints', value: valCount.toString(), icon: Shield, tone: 'rose' },
-          { label: 'FiveM Prints', value: fivemCount.toString(), icon: Monitor, tone: 'cyan' },
-        ].map(({ label, value, icon: Icon }) => (
-          <div
-            key={label}
-            className="group rounded-xl border border-border/70 bg-card p-4 sm:p-5 card-hover shadow-sm cursor-default"
-          >
-            <div className="flex items-start justify-between">
-              <span
-                className="grid size-8 sm:size-9 place-items-center rounded-lg bg-pink-950/40 text-pink-400 border border-pink-500/25 transition-transform duration-300 group-hover:scale-110"
-              >
-                <Icon className="size-3.5 sm:size-4" />
-              </span>
-              <span className="text-[10px] sm:text-[11px] font-medium text-pink-400">Repositório</span>
-            </div>
-            <p className="mt-3 sm:mt-5 text-xl sm:text-2xl font-bold tracking-[-0.04em] transition-colors group-hover:text-primary">
-              {value}
-            </p>
-            <p className="mt-1 text-[11px] sm:text-xs text-muted-foreground">{label}</p>
-          </div>
-        ))}
-      </div>
-
-      {/* Filtros por Jogo e Busca */}
-      <div className="mt-8 flex flex-col justify-between gap-3 sm:flex-row sm:items-center">
-        <div className="flex items-center gap-1 rounded-xl border border-border/80 bg-zinc-950/70 p-1 overflow-x-auto pb-1 sm:pb-0 w-full sm:w-auto shadow-inner">
-          {(['All', 'Free Fire', 'Valorant', 'FiveM'] as const).map((tab) => (
-            <button
-              key={tab}
-              onClick={() => setFilterGame(tab)}
-              className={`flex-1 sm:flex-initial rounded-lg px-3 py-1.5 text-xs font-semibold btn-interactive transition-all duration-200 whitespace-nowrap ${
-                filterGame === tab
-                  ? 'border border-pink-500/40 bg-gradient-to-r from-pink-600 to-pink-500 text-white shadow-md shadow-pink-500/25'
-                  : 'text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50'
-              }`}
-            >
-              {tab === 'All' ? 'Todos os Jogos' : tab}
-            </button>
-          ))}
-        </div>
-
-        <div className="relative w-full sm:w-72">
-          <Search className="absolute left-3 top-2.5 size-3.5 text-muted-foreground" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Buscar print por Discord ID, cliente ou jogo..."
-            className="w-full rounded-lg border border-border bg-card py-2 pl-9 pr-4 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-          />
-        </div>
-      </div>
-
-      {/* Grid de Prints / Screenshots */}
-      <div className="mt-6">
-        {filteredPrints.length === 0 ? (
-          <div className="rounded-xl border border-border/70 bg-card p-12 text-center">
-            <Camera className="mx-auto size-10 text-muted-foreground/30 mb-3" />
-            <h3 className="text-sm font-semibold text-foreground">Nenhum print encontrado</h3>
-            <p className="text-xs text-muted-foreground mt-1 max-w-sm mx-auto">
-              Nenhuma captura de tela corresponde ao filtro selecionado. Clique em &quot;Adicionar Print&quot; para fazer upload.
-            </p>
-            <button
-              onClick={() => setIsAddModalOpen(true)}
-              className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-primary px-3.5 py-2 text-xs font-medium text-primary-foreground hover:opacity-90"
-            >
-              <Plus className="size-3.5" /> Enviar Novo Print
-            </button>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filteredPrints.map((print) => (
-              <div
-                key={print.id}
-                className="group relative rounded-xl border border-border/70 bg-card overflow-hidden card-hover shadow-sm flex flex-col"
-              >
-                {/* Thumbnail Container */}
-                <div className="relative aspect-video w-full bg-slate-950 overflow-hidden cursor-pointer" onClick={() => setSelectedPrint(print)}>
-                  {/* Imagem do Print */}
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img
-                    src={print.imageUrl}
-                    alt={print.title}
-                    className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                  />
-
-                  {/* Overlay ao passar o mouse */}
-                  <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 backdrop-blur-[2px]">
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        setSelectedPrint(print)
-                      }}
-                      className="rounded-lg bg-white/10 hover:bg-white/20 p-2 text-white transition-colors"
-                      title="Visualizar em Tela Cheia"
-                    >
-                      <Eye className="size-4" />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleDownload(print)
-                      }}
-                      className="rounded-lg bg-white/10 hover:bg-white/20 p-2 text-white transition-colors"
-                      title="Baixar Print"
-                    >
-                      <Download className="size-4" />
-                    </button>
-                    <button
-                      onClick={(e) => {
-                        e.stopPropagation()
-                        handleCopyDiscord(print.discordId)
-                      }}
-                      className="rounded-lg bg-white/10 hover:bg-white/20 p-2 text-white transition-colors"
-                      title="Copiar Discord ID"
-                    >
-                      <Copy className="size-4" />
-                    </button>
-                  </div>
-
-                  {/* Badges superiores na imagem */}
-                  <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">
-                    <span
-                      className={`rounded-md px-2 py-0.5 text-[10px] font-semibold backdrop-blur-md ${
-                        print.game === 'Free Fire'
-                          ? 'bg-amber-500/80 text-white'
-                          : print.game === 'Valorant'
-                          ? 'bg-rose-500/80 text-white'
-                          : 'bg-pink-600/80 text-white'
-                      }`}
-                    >
-                      {print.game}
-                    </span>
-                  </div>
-
-                  <div className="absolute top-2.5 right-2.5">
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-[10px] font-medium backdrop-blur-md ${
-                        print.status === 'Verificado'
-                          ? 'bg-pink-600/90 text-white'
-                          : print.status === 'Pendente'
-                          ? 'bg-amber-600/90 text-white'
-                          : 'bg-rose-600/90 text-white'
-                      }`}
-                    >
-                      {print.status}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Card Body */}
-                <div className="p-4 flex-1 flex flex-col justify-between">
-                  <div>
-                    <h4 className="text-xs font-semibold text-foreground truncate group-hover:text-pink-400 transition-colors">
-                      {print.title}
-                    </h4>
-                    <p className="mt-1 text-[11px] text-muted-foreground flex items-center justify-between">
-                      <span className="truncate">{print.clientName}</span>
-                      <span className="text-[10px] font-mono shrink-0 text-muted-foreground/80">{print.date}</span>
-                    </p>
-
-                    <div className="mt-2.5 flex items-center justify-between rounded-lg bg-background/80 px-2.5 py-1.5 border border-border/50">
-                      <span className="flex items-center gap-1 font-mono text-[11px] text-foreground truncate">
-                        <Hash className="size-3 text-pink-500 shrink-0" />
-                        {print.discordId}
-                      </span>
-                      <button
-                        onClick={() => handleCopyDiscord(print.discordId)}
-                        className="text-muted-foreground hover:text-foreground p-0.5 rounded transition-colors"
-                        title="Copiar Discord ID"
-                      >
-                        <Copy className="size-3" />
-                      </button>
-                    </div>
-
-                    {print.notes && (
-                      <p className="mt-2 text-[10px] text-muted-foreground/80 line-clamp-2 italic">
-                        &quot;{print.notes}&quot;
-                      </p>
-                    )}
-                  </div>
-
-                  {/* Card Actions */}
-                  <div className="mt-4 pt-3 border-t border-border/50 flex items-center justify-between">
-                    <button
-                      onClick={() => setSelectedPrint(print)}
-                      className="text-[11px] text-pink-400 hover:text-pink-500 font-medium flex items-center gap-1 transition-colors"
-                    >
-                      <Maximize2 className="size-3" /> Ver Detalhes
-                    </button>
-                    <button
-                      onClick={() => handleDeletePrint(print.id)}
-                      className="text-muted-foreground hover:text-red-400 p-1 rounded transition-colors"
-                      title="Excluir Print"
-                    >
-                      <Trash2 className="size-3.5" />
-                    </button>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Lightbox / Modal de Visualização em Tela Cheia */}
-      {selectedPrint && (
-        <ModalPortal>
-          <div
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/80 p-4 backdrop-blur-md animate-fade-in overflow-y-auto"
-            style={{ backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
-            onClick={() => setSelectedPrint(null)}
-          >
-            <div
-              className="relative w-full max-w-4xl my-auto max-h-[92vh] overflow-y-auto rounded-2xl border border-pink-500/20 bg-card p-5 sm:p-6 shadow-2xl shadow-pink-950/20 animate-scale-in"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Modal Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-border/60">
-              <div className="flex items-center gap-2.5">
-                <span className="grid size-8 place-items-center rounded-lg bg-pink-950/40 text-pink-400 border border-pink-500/30">
-                  <Camera className="size-4" />
-                </span>
-                <div>
-                  <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-                    {selectedPrint.title}
-                    <span
-                      className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${
-                        selectedPrint.game === 'Free Fire'
-                          ? 'border border-amber-500/30 bg-amber-950/40 text-amber-300'
-                          : selectedPrint.game === 'Valorant'
-                          ? 'border border-rose-500/30 bg-rose-950/40 text-rose-300'
-                          : 'border border-pink-500/30 bg-pink-950/40 text-pink-300'
-                      }`}
-                    >
-                      {selectedPrint.game}
-                    </span>
-                  </h3>
-                  <p className="text-[11px] text-muted-foreground">
-                    Cliente: {selectedPrint.clientName} · {selectedPrint.date}
-                  </p>
-                </div>
-              </div>
-              <button
-                onClick={() => setSelectedPrint(null)}
-                className="rounded-md p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground"
-                aria-label="Fechar"
-              >
-                <X className="size-4" />
-              </button>
-            </div>
-
-            {/* Imagem em Destaque */}
-            <div className="mt-4 rounded-xl border border-border bg-slate-950 overflow-hidden flex items-center justify-center">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={selectedPrint.imageUrl}
-                alt={selectedPrint.title}
-                className="w-full max-h-[55vh] object-contain rounded-lg"
-              />
-            </div>
-
-            {/* Metadados e Ações */}
-            <div className="mt-4 grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs bg-muted/50 p-3 rounded-xl border border-border/60">
-              <div>
-                <span className="text-muted-foreground text-[11px] block">Discord ID:</span>
-                <span className="font-mono font-medium text-foreground">{selectedPrint.discordId}</span>
-              </div>
-              <div>
-                <span className="text-muted-foreground text-[11px] block">Status:</span>
-                <span className="font-semibold text-pink-400">{selectedPrint.status}</span>
-              </div>
-              <div>
-                <span className="text-muted-foreground text-[11px] block">Data de Captura:</span>
-                <span className="font-medium text-foreground">{selectedPrint.date}</span>
-              </div>
-              {selectedPrint.notes && (
-                <div className="sm:col-span-3 pt-2 border-t border-border/40 text-[11px] text-muted-foreground">
-                  <span className="font-medium text-foreground">Notas: </span>
-                  {selectedPrint.notes}
-                </div>
-              )}
-            </div>
-
-            {/* Botões do Rodapé */}
-            <div className="mt-4 pt-3 border-t border-border/60 flex flex-col-reverse sm:flex-row justify-between gap-2">
-              <button
-                onClick={() => handleDeletePrint(selectedPrint.id)}
-                className="flex items-center justify-center gap-1.5 rounded-lg border border-rose-500/30 bg-rose-950/30 px-3.5 py-2 text-xs font-semibold text-rose-300 hover:bg-rose-950/50 transition-colors"
-              >
-                <Trash2 className="size-3.5" /> Excluir Print
-              </button>
-              <div className="flex flex-col sm:flex-row gap-2">
-                <button
-                  onClick={() => handleCopyDiscord(selectedPrint.discordId)}
-                  className="flex items-center justify-center gap-1.5 rounded-lg border border-border px-3.5 py-2 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-                >
-                  <Copy className="size-3.5" /> Copiar Discord ID
-                </button>
-                <button
-                  onClick={() => handleDownload(selectedPrint)}
-                  className="flex items-center justify-center gap-1.5 rounded-lg bg-pink-600 hover:bg-pink-500 px-4 py-2 text-xs font-semibold text-white transition-colors shadow-md shadow-pink-500/25"
-                >
-                  <Download className="size-3.5" /> Baixar Imagem
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </ModalPortal>
-    )}
-
-      {/* Modal: Adicionar Novo Print */}
-      {isAddModalOpen && (
-        <ModalPortal>
-          <div
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/65 p-4 backdrop-blur-md animate-fade-in overflow-y-auto"
-            style={{ backdropFilter: 'blur(12px)', WebkitBackdropFilter: 'blur(12px)' }}
-            onClick={() => setIsAddModalOpen(false)}
-          >
-            <div
-              className="relative w-full max-w-lg my-auto max-h-[92vh] overflow-y-auto rounded-2xl border border-pink-500/20 bg-card p-5 sm:p-6 shadow-2xl shadow-pink-950/20 animate-scale-in"
-              onClick={(e) => e.stopPropagation()}
-            >
-              {/* Header */}
-            <div className="flex items-center justify-between pb-3 border-b border-border/60">
-              <div className="flex items-center gap-2.5">
-                <span className="grid size-8 place-items-center rounded-lg bg-pink-950/40 text-pink-400 border border-pink-500/30">
-                  <Camera className="size-4" />
-                </span>
-                <div>
-                  <h3 className="text-sm font-semibold text-foreground">Novo Print / Captura de Tela</h3>
-                  <p className="text-[11px] text-muted-foreground">Adicione um print de tela para validação de cliente</p>
-                </div>
-              </div>
-              <button
-                onClick={() => setIsAddModalOpen(false)}
-                className="rounded-md p-1.5 text-muted-foreground hover:bg-accent hover:text-foreground"
-                aria-label="Fechar"
-              >
-                <X className="size-4" />
-              </button>
-            </div>
-
-            <form onSubmit={handleAddPrint} className="mt-4 space-y-4">
-              {formError && (
-                <div className="rounded-lg border border-rose-500/30 bg-rose-950/40 px-3 py-2 text-xs text-rose-300">
-                  {formError}
-                </div>
-              )}
-
-              {/* Título */}
-              <div>
-                <label className="text-xs font-medium text-foreground">Título do Print</label>
-                <input
-                  type="text"
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  placeholder="Ex: Validação In-Game Free Fire ou Comprovante Pix"
-                  required
-                  className="mt-1.5 w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-              </div>
-
-              {/* Grid: Nome e Discord ID */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs font-medium text-foreground">Nome do Cliente</label>
-                  <input
-                    type="text"
-                    value={newClientName}
-                    onChange={(e) => setNewClientName(e.target.value)}
-                    placeholder="Ex: Carlos Silva"
-                    className="mt-1.5 w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                  />
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-foreground">Discord ID</label>
-                  <input
-                    type="text"
-                    value={newDiscordId}
-                    onChange={(e) => setNewDiscordId(e.target.value)}
-                    placeholder="Ex: 1506778729425408112"
-                    required
-                    className="mt-1.5 w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary font-mono"
-                  />
-                </div>
-              </div>
-
-              {/* Grid: Game e Status */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="text-xs font-medium text-foreground">Jogo / Software</label>
-                  <select
-                    value={newGame}
-                    onChange={(e) => setNewGame(e.target.value as 'Free Fire' | 'Valorant' | 'FiveM')}
-                    className="mt-1.5 w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                  >
-                    <option value="Free Fire">Free Fire</option>
-                    <option value="Valorant">Valorant</option>
-                    <option value="FiveM">FiveM</option>
-                  </select>
-                </div>
-                <div>
-                  <label className="text-xs font-medium text-foreground">Status da Validação</label>
-                  <select
-                    value={newStatus}
-                    onChange={(e) => setNewStatus(e.target.value as 'Verificado' | 'Pendente' | 'Suspeito')}
-                    className="mt-1.5 w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                  >
-                    <option value="Verificado">Verificado</option>
-                    <option value="Pendente">Pendente</option>
-                    <option value="Suspeito">Suspeito</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Upload de Imagem */}
-              <div>
-                <label className="text-xs font-medium text-foreground">Imagem da Captura (Print)</label>
-                <div className="mt-1.5 rounded-xl border border-dashed border-border/80 bg-background/50 p-4 text-center hover:bg-accent/20 transition-colors">
-                  {newImage ? (
-                    <div className="relative">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={newImage}
-                        alt="Preview"
-                        className="max-h-44 mx-auto rounded-lg object-contain border border-border"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setNewImage('')}
-                        className="mt-2 text-[11px] text-red-400 hover:text-red-300 font-medium transition-colors"
-                      >
-                        Trocar Imagem
-                      </button>
-                    </div>
-                  ) : (
-                    <div>
-                      <UploadCloud className="mx-auto size-8 text-muted-foreground mb-1.5" />
-                      <p className="text-xs font-medium text-foreground">
-                        Clique para selecionar ou arraste o print aqui
-                      </p>
-                      <p className="text-[10px] text-muted-foreground mt-0.5">
-                        PNG, JPG, JPEG ou WEBP (até 10MB)
-                      </p>
-                      <label className="mt-3 inline-block cursor-pointer rounded-lg bg-primary px-3 py-1.5 text-xs font-medium text-primary-foreground hover:opacity-90">
-                        Selecionar Arquivo
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={handleImageFile}
-                          className="hidden"
-                        />
-                      </label>
-
-                      {/* Opção de Usar Mock/Preset Rápido */}
-                      <div className="mt-4 pt-3 border-t border-border/40">
-                        <p className="text-[10px] text-muted-foreground mb-1.5">Ou use uma captura pré-definida de teste:</p>
-                        <div className="flex flex-wrap justify-center gap-1.5">
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setNewImage(ffMockSvg)
-                              setNewGame('Free Fire')
-                              if (!newTitle) setNewTitle('Validação In-Game Free Fire')
-                            }}
-                            className="rounded bg-accent px-2 py-1 text-[10px] text-muted-foreground hover:text-foreground"
-                          >
-                            Preset Free Fire
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setNewImage(valMockSvg)
-                              setNewGame('Valorant')
-                              if (!newTitle) setNewTitle('Comprovante Vanguard Valorant')
-                            }}
-                            className="rounded bg-accent px-2 py-1 text-[10px] text-muted-foreground hover:text-foreground"
-                          >
-                            Preset Valorant
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setNewImage(fivemMockSvg)
-                              setNewGame('FiveM')
-                              if (!newTitle) setNewTitle('Handshake FiveM Roleplay')
-                            }}
-                            className="rounded bg-accent px-2 py-1 text-[10px] text-muted-foreground hover:text-foreground"
-                          >
-                            Preset FiveM
-                          </button>
-                        </div>
-                      </div>
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Notas Opcionais */}
-              <div>
-                <label className="text-xs font-medium text-foreground">Notas / Observações (Opcional)</label>
-                <textarea
-                  value={newNotes}
-                  onChange={(e) => setNewNotes(e.target.value)}
-                  placeholder="Ex: Validação efetuada via AnyDesk; HWID conferido no painel."
-                  rows={2}
-                  className="mt-1.5 w-full rounded-lg border border-border bg-background px-3 py-2 text-xs text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                />
-              </div>
-
-              {/* Botões */}
-              <div className="flex flex-col-reverse sm:flex-row sm:justify-end gap-2 pt-3 border-t border-border/60">
-                <button
-                  type="button"
-                  onClick={() => setIsAddModalOpen(false)}
-                  className="w-full sm:w-auto rounded-lg border border-border px-4 py-2 text-xs font-medium text-muted-foreground hover:bg-accent hover:text-foreground text-center"
-                >
-                  Cancelar
-                </button>
-                <button
-                  type="submit"
-                  className="w-full sm:w-auto flex items-center justify-center gap-1.5 rounded-lg bg-primary px-4 py-2 text-xs font-medium text-primary-foreground hover:opacity-90 shadow-sm"
-                >
-                  <Plus className="size-3.5" /> Salvar Print
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      </ModalPortal>
-    )}
-
-      {/* Toast Notification */}
-      {toastMsg && (
-        <div className="fixed bottom-4 left-4 right-4 sm:left-auto sm:right-6 sm:bottom-6 z-50 flex items-center gap-2 rounded-xl border border-border bg-card/95 px-4 py-3 text-xs shadow-2xl shadow-black/60 backdrop-blur-md animate-fade-in-up">
-          <Check className="size-4 text-pink-400 shrink-0" />
-          <span className="font-medium text-foreground">{toastMsg}</span>
-        </div>
-      )}
-    </div>
-  )
-}
-
-/* =========================================================================================
- * 4. Users Tab
- * ========================================================================================= */
-function UsersTab({ currentUser }: { currentUser: AuthAccount }) {
-  const users = [
-    {
-      name: currentUser.displayName,
-      email: `${currentUser.username.toLowerCase()}@hooked.io`,
-      role: 'Workspace Owner',
-      mfa: 'Passkey / WebAuthn',
-      licenses: '3 assigned',
-      lastAuth: 'Just now',
-      status: 'Active',
-      initials: currentUser.displayName.slice(0, 2).toUpperCase(),
-    },
-    {
-      name: 'Beatriz Mendes',
-      email: 'bmendes@techcorp.com',
-      role: 'Lead Developer',
-      mfa: 'TOTP Authenticator',
-      licenses: '1 assigned',
-      lastAuth: '14 min ago',
-      status: 'Active',
-      initials: 'BM',
-    },
-    {
-      name: 'Carlos Ruiz',
-      email: 'cruiz@nexus.org',
-      role: 'End User',
-      mfa: 'Disabled',
-      licenses: '1 assigned',
-      lastAuth: '2 hours ago',
-      status: 'Active',
-      initials: 'CR',
-    },
-    {
-      name: 'Danielle Dupont',
-      email: 'danielle@design.fr',
-      role: 'Member',
-      mfa: 'TOTP Authenticator',
-      licenses: '2 assigned',
-      lastAuth: 'Yesterday',
-      status: 'Active',
-      initials: 'DD',
-    },
-    {
-      name: 'Lucas Ferreira',
-      email: 'lucas@cloud.io',
-      role: 'Security Admin',
-      mfa: 'FIDO2 Security Key',
-      licenses: '1 assigned',
-      lastAuth: '3 hours ago',
-      status: 'Active',
-      initials: 'LF',
-    },
-    {
-      name: 'Eduardo Silva',
-      email: 'eduardo@dev.io',
-      role: 'Developer',
-      mfa: 'TOTP Authenticator',
-      licenses: '0 assigned',
-      lastAuth: '5 days ago',
-      status: 'Suspended',
-      initials: 'ES',
-    },
-  ]
-
-  return (
-    <div>
-      <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div>
-          <p className="mb-2 text-xs font-medium uppercase tracking-[0.16em] text-pink-400 font-semibold">Identity Directory</p>
-          <h2 className="text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">Users</h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Manage authenticated users, team roles, credential health, and MFA enforcement.
-          </p>
-        </div>
-        <button className="flex w-fit items-center gap-2 rounded-lg bg-primary px-3.5 py-2 text-xs font-medium text-primary-foreground btn-interactive hover-lift hover:opacity-90">
-          <Plus className="size-3.5" /> Invite User
-        </button>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
-        {[
-          { label: 'Total Users', value: '8,491' },
-          { label: 'Active Today', value: '2,140' },
-          { label: 'MFA Enforced Rate', value: '94.2%' },
-          { label: 'Suspended Accounts', value: '12' },
-        ].map(({ label, value }) => (
-          <div key={label} className="rounded-xl border border-border/70 bg-card p-3.5 sm:p-4 card-hover">
-            <p className="text-xs text-muted-foreground">{label}</p>
-            <p className="mt-2 text-2xl font-semibold tracking-tight">{value}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-6 overflow-hidden rounded-xl border border-border/70 bg-card">
-        {/* Mobile View: Cards */}
-        <div className="sm:hidden divide-y divide-border/40">
-          {users.map((user) => (
-            <div key={user.email} className="p-4 space-y-3 hover:bg-pink-950/20 transition-colors">
-              <div className="flex items-start justify-between gap-2">
-                <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="grid size-9 shrink-0 place-items-center rounded-full bg-gradient-to-tr from-pink-500/20 to-rose-500/20 text-xs font-bold text-pink-400 border border-pink-500/30">
-                    {user.initials}
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-semibold text-xs text-foreground truncate">{user.name}</p>
-                    <p className="text-[10px] text-muted-foreground truncate">{user.email}</p>
-                  </div>
-                </div>
-                <div className="flex items-center gap-2 shrink-0">
-                  <span
-                    className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-semibold ${
-                      user.status === 'Active'
-                        ? 'border border-pink-500/30 bg-pink-950/40 text-pink-300'
-                        : 'border border-rose-500/30 bg-rose-950/40 text-rose-300'
-                    }`}
-                  >
-                    {user.status}
-                  </span>
-                  <button className="text-muted-foreground hover:text-foreground p-1">
-                    <MoreHorizontal className="size-4" />
-                  </button>
-                </div>
-              </div>
-
-              <div className="grid grid-cols-3 gap-2 pt-2 border-t border-border/40 text-xs">
-                <div>
-                  <span className="text-[10px] text-muted-foreground uppercase block font-medium">Função</span>
-                  <span className="text-[11px] font-medium text-foreground">{user.role}</span>
-                </div>
-                <div>
-                  <span className="text-[10px] text-muted-foreground uppercase block font-medium">Licenças</span>
-                  <span className="text-[11px] font-semibold text-pink-400 font-mono">{user.licenses}</span>
-                </div>
-                <div>
-                  <span className="text-[10px] text-muted-foreground uppercase block font-medium">2FA</span>
-                  <span className={`inline-flex items-center gap-1 text-[11px] font-medium ${user.mfa === 'Disabled' ? 'text-zinc-400' : 'text-pink-300'}`}>
-                    <Shield className="size-3" />
-                    {user.mfa}
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Desktop View: Table */}
-        <div className="hidden sm:block overflow-x-auto">
-          <table className="w-full min-w-[700px] text-left text-xs">
-            <thead>
-              <tr className="border-b border-border/60 bg-muted/20 text-[10px] uppercase tracking-wider text-muted-foreground">
-                <th className="px-5 py-3.5 font-medium">User Profile</th>
-                <th className="px-5 py-3.5 font-medium">Role</th>
-                <th className="px-5 py-3.5 font-medium">2FA / Security</th>
-                <th className="px-5 py-3.5 font-medium">Licenses</th>
-                <th className="px-5 py-3.5 font-medium">Last Authentication</th>
-                <th className="px-5 py-3.5 font-medium">Status</th>
-                <th className="px-5 py-3.5 text-right font-medium">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {users.map((user) => (
-                <tr key={user.email} className="border-b border-border/40 last:border-0 hover:bg-accent/30">
-                  <td className="px-5 py-4">
-                    <div className="flex items-center gap-3">
-                      <div className="grid size-8 place-items-center rounded-full bg-gradient-to-tr from-pink-500/20 to-rose-500/20 text-xs font-semibold text-pink-400">
-                        {user.initials}
-                      </div>
-                      <div>
-                        <p className="font-medium text-foreground">{user.name}</p>
-                        <p className="text-[10px] text-muted-foreground">{user.email}</p>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="px-5 py-4 text-muted-foreground">{user.role}</td>
-                  <td className="px-5 py-4">
-                    <span
-                      className={`inline-flex items-center gap-1.5 text-[11px] ${
-                        user.mfa === 'Disabled' ? 'text-zinc-400' : 'text-pink-300'
-                      }`}
-                    >
-                      <Shield className="size-3" />
-                      {user.mfa}
-                    </span>
-                  </td>
-                  <td className="px-5 py-4 text-muted-foreground">{user.licenses}</td>
-                  <td className="px-5 py-4 text-muted-foreground">{user.lastAuth}</td>
-                  <td className="px-5 py-4">
-                    <span
-                      className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium ${
-                        user.status === 'Active'
-                          ? 'border border-pink-500/30 bg-pink-950/40 text-pink-300'
-                          : 'border border-rose-500/30 bg-rose-950/40 text-rose-300'
-                      }`}
-                    >
-                      {user.status}
-                    </span>
-                  </td>
-                  <td className="px-5 py-4 text-right">
-                    <button className="text-muted-foreground hover:text-foreground">
-                      <MoreHorizontal className="size-4" />
-                    </button>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  )
-}
-
-/* =========================================================================================
- * 5. Sessions Tab
- * ========================================================================================= */
-function SessionsTab() {
-  const sessions = [
-    {
-      device: 'MacBook Pro 16" (Current Device)',
-      os: 'Chrome 129 · macOS Sequoia',
-      ip: '189.28.41.10',
-      location: 'São Paulo, Brazil',
-      app: 'Web Dashboard',
-      started: '12 min ago',
-      current: true,
-      icon: Laptop,
-    },
-    {
-      device: 'Windows Desktop Workstation',
-      os: 'Hooked Auth Desktop Client v2.4.0 · Windows 11',
-      ip: '189.28.41.10',
-      location: 'São Paulo, Brazil',
-      app: 'Desktop Client',
-      started: '2 hours ago',
-      current: false,
-      icon: Monitor,
-    },
-    {
-      device: 'iPhone 15 Pro',
-      os: 'Hooked Auth Mobile v3.1 · iOS 18.1',
-      ip: '177.105.22.9',
-      location: 'Rio de Janeiro, Brazil',
-      app: 'Mobile SDK',
-      started: '1 day ago',
-      current: false,
-      icon: Smartphone,
-    },
-    {
-      device: 'Linux Build Runner',
-      os: 'CLI Tool v1.0.4 · Ubuntu 24.04 LTS',
-      ip: '52.91.44.120',
-      location: 'Ashburn, VA, United States',
-      app: 'CLI Developer Tool',
-      started: '3 days ago',
-      current: false,
-      icon: Terminal,
-    },
-  ]
-
-  return (
-    <div>
-      <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div>
-          <p className="mb-2 text-xs font-medium uppercase tracking-[0.16em] text-pink-400 font-semibold">Token Observability</p>
-          <h2 className="text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">Sessions</h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Monitor real-time active sessions, authorized devices, and perform instant security revocations.
-          </p>
-        </div>
-        <button className="flex w-fit items-center gap-2 rounded-lg border border-red-500/30 bg-red-500/10 px-3.5 py-2 text-xs font-medium text-red-300 btn-interactive hover:bg-red-500/20">
-          <Trash2 className="size-3.5" /> Revoke All Other Sessions
-        </button>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
-        {[
-          { label: 'Active Sessions', value: '3,412' },
-          { label: 'Concurrent Devices', value: '2,890' },
-          { label: 'Suspicious Anomaly Flags', value: '0' },
-          { label: 'Average Session TTL', value: '4.2 hrs' },
-        ].map(({ label, value }) => (
-          <div key={label} className="rounded-xl border border-border/70 bg-card p-3.5 sm:p-4 card-hover">
-            <p className="text-xs text-muted-foreground">{label}</p>
-            <p className="mt-2 text-2xl font-semibold tracking-tight">{value}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-6 flex flex-col gap-3">
-        {sessions.map((s) => {
-          const Icon = s.icon
-          return (
-            <div
-              key={s.device}
-              className="flex flex-col justify-between gap-4 rounded-xl border border-border/70 bg-card p-4 sm:flex-row sm:items-center card-hover"
-            >
-              <div className="flex items-center gap-4">
-                <span className="grid size-10 place-items-center rounded-lg bg-pink-950/40 text-pink-400 border border-pink-500/25">
-                  <Icon className="size-5" />
-                </span>
-                <div>
-                  <div className="flex items-center gap-2">
-                    <h4 className="text-xs font-medium text-foreground">{s.device}</h4>
-                    {s.current && (
-                      <span className="rounded bg-pink-950/40 px-1.5 py-0.5 text-[9px] font-bold text-pink-300 border border-pink-500/30">
-                        Current Session
-                      </span>
-                    )}
-                  </div>
-                  <p className="mt-0.5 text-[11px] text-muted-foreground">
-                    {s.os} · {s.ip} ({s.location})
-                  </p>
-                  <p className="mt-1 text-[10px] text-muted-foreground">Application: {s.app} · Started {s.started}</p>
-                </div>
-              </div>
-              <div className="flex items-center gap-3">
-                {!s.current && (
-                  <button className="rounded-lg border border-border px-3 py-1.5 text-xs text-muted-foreground btn-interactive hover:border-red-500/40 hover:text-red-300">
-                    Revoke Token
-                  </button>
-                )}
-              </div>
-            </div>
-          )
-        })}
-      </div>
-    </div>
-  )
-}
-
-/* =========================================================================================
- * 6. Analytics Tab
- * ========================================================================================= */
-function AnalyticsTab() {
-  return (
-    <div>
-      <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-end">
-        <div>
-          <p className="mb-2 text-xs font-medium uppercase tracking-[0.16em] text-pink-400 font-semibold">Telemetry & Performance</p>
-          <h2 className="text-2xl font-semibold tracking-[-0.04em] sm:text-3xl">Analytics</h2>
-          <p className="mt-2 text-sm text-muted-foreground">
-            Deep dive into authentication requests, latency percentiles, error rates, and geo-traffic.
-          </p>
-        </div>
-        <div className="flex items-center gap-1 rounded-xl border border-border/80 bg-zinc-950/70 p-1 text-xs shadow-inner">
-          <button className="rounded-lg px-3 py-1.5 font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50 transition-colors">24h</button>
-          <button className="rounded-lg border border-pink-500/40 bg-gradient-to-r from-pink-600 to-pink-500 px-3 py-1.5 font-semibold text-white shadow-md shadow-pink-500/25">7 Days</button>
-          <button className="rounded-lg px-3 py-1.5 font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50 transition-colors">30 Days</button>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 xl:grid-cols-4">
-        {[
-          { label: 'Total Requests', value: '1.84M', change: '+14.2%' },
-          { label: 'P95 Response Latency', value: '38ms', change: '-6ms' },
-          { label: 'Token Introspection', value: '940k', change: '+22.1%' },
-          { label: 'Success Rate SLA', value: '99.82%', change: '+0.4%' },
-        ].map(({ label, value, change }) => (
-          <div key={label} className="rounded-xl border border-border/70 bg-card p-3.5 sm:p-4 card-hover">
-            <div className="flex items-center justify-between text-xs">
-              <span className="text-muted-foreground">{label}</span>
-              <span className="text-pink-400 font-semibold">{change}</span>
-            </div>
-            <p className="mt-2 text-2xl font-semibold tracking-tight">{value}</p>
-          </div>
-        ))}
-      </div>
-
-      <div className="mt-6 grid gap-5 lg:grid-cols-2">
-        {/* Method Breakdown */}
-        <div className="rounded-xl border border-border/70 bg-card p-5 card-hover">
-          <h3 className="text-sm font-medium">Authentication Methods</h3>
-          <p className="text-xs text-muted-foreground">Distribution across cryptographic schemes</p>
-          <div className="mt-6 flex flex-col gap-3">
-            {[
-              { name: 'WebAuthn / Passkeys', share: 42, color: 'bg-pink-600' },
-              { name: 'OAuth2 / OpenID Connect', share: 34, color: 'bg-pink-400' },
-              { name: 'API Secret Keys', share: 18, color: 'bg-amber-500' },
-              { name: 'Password + TOTP', share: 6, color: 'bg-pink-500' },
-            ].map((item) => (
-              <div key={item.name}>
-                <div className="flex justify-between text-xs">
-                  <span className="text-foreground">{item.name}</span>
-                  <span className="text-muted-foreground">{item.share}%</span>
-                </div>
-                <div className="mt-1.5 h-2 w-full rounded-full bg-muted/60">
-                  <div className={`h-2 rounded-full ${item.color}`} style={{ width: `${item.share}%` }} />
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Geographic Traffic */}
-        <div className="rounded-xl border border-border/70 bg-card p-5 card-hover">
-          <h3 className="text-sm font-medium">Geographic Traffic</h3>
-          <p className="text-xs text-muted-foreground">Top origin countries by validation volume</p>
-          <div className="mt-6 flex flex-col gap-3">
-            {[
-              { country: 'Brazil', requests: '810k requests', share: '44%' },
-              { country: 'United States', requests: '515k requests', share: '28%' },
-              { country: 'Germany', requests: '276k requests', share: '15%' },
-              { country: 'Japan', requests: '147k requests', share: '8%' },
-              { country: 'Others', requests: '92k requests', share: '5%' },
-            ].map((geo) => (
-              <div key={geo.country} className="flex items-center justify-between border-b border-border/40 pb-2.5 last:border-0 text-xs">
-                <span className="font-medium text-foreground">{geo.country}</span>
-                <span className="text-muted-foreground">{geo.requests}</span>
-                <span className="font-semibold text-pink-400">{geo.share}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </div>
     </div>
   )
 }
