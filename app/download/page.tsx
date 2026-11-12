@@ -96,6 +96,18 @@ function DownloadPortalContent() {
     }, 3000)
   }
 
+  const handleTriggerDownloadForGame = (targetGame: string) => {
+    if (!license?.key) return
+    setDownloading(true)
+    const url = `/api/loader/download?key=${encodeURIComponent(license.key)}&game=${encodeURIComponent(targetGame)}`
+    window.location.href = url
+    setTimeout(() => {
+      setDownloading(false)
+    }, 3000)
+  }
+
+  const isAllGames = game.toLowerCase().includes('todo') || game.toLowerCase().includes('all')
+
   const handleCopyKey = () => {
     if (license?.key) {
       navigator.clipboard?.writeText(license.key)
@@ -267,23 +279,54 @@ function DownloadPortalContent() {
               </div>
 
               {/* Botão de Download */}
-              <button
-                onClick={handleTriggerDownload}
-                disabled={downloading}
-                className="w-full flex items-center justify-center gap-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 py-3.5 px-4 text-sm font-bold text-white shadow-xl shadow-emerald-950/40 transition-all btn-interactive"
-              >
-                {downloading ? (
-                  <>
-                    <RefreshCw className="size-4 animate-spin" />
-                    <span>Iniciando Download...</span>
-                  </>
-                ) : (
-                  <>
-                    <Download className="size-4 animate-bounce" />
-                    <span>Baixar Loader ({game}-Loader.exe)</span>
-                  </>
-                )}
-              </button>
+              {isAllGames ? (
+                <div className="space-y-2">
+                  <p className="text-xs font-semibold text-zinc-300">
+                    Sua licença tem acesso liberado. Escolha o Loader para baixar:
+                  </p>
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                    <button
+                      onClick={() => handleTriggerDownloadForGame('Free Fire')}
+                      className="flex items-center justify-center gap-2 rounded-xl bg-amber-600 hover:bg-amber-500 py-3 px-3 text-xs font-bold text-white shadow-lg shadow-amber-950/40 transition-all btn-interactive"
+                    >
+                      <Flame className="size-4" />
+                      <span>Free Fire (.exe)</span>
+                    </button>
+                    <button
+                      onClick={() => handleTriggerDownloadForGame('FiveM')}
+                      className="flex items-center justify-center gap-2 rounded-xl bg-orange-600 hover:bg-orange-500 py-3 px-3 text-xs font-bold text-white shadow-lg shadow-orange-950/40 transition-all btn-interactive"
+                    >
+                      <Gamepad2 className="size-4" />
+                      <span>FiveM (.exe)</span>
+                    </button>
+                    <button
+                      onClick={() => handleTriggerDownloadForGame('Valorant')}
+                      className="flex items-center justify-center gap-2 rounded-xl bg-rose-600 hover:bg-rose-500 py-3 px-3 text-xs font-bold text-white shadow-lg shadow-rose-950/40 transition-all btn-interactive"
+                    >
+                      <Shield className="size-4" />
+                      <span>Valorant (.exe)</span>
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={handleTriggerDownload}
+                  disabled={downloading}
+                  className="w-full flex items-center justify-center gap-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-500 py-3.5 px-4 text-sm font-bold text-white shadow-xl shadow-emerald-950/40 transition-all btn-interactive"
+                >
+                  {downloading ? (
+                    <>
+                      <RefreshCw className="size-4 animate-spin" />
+                      <span>Iniciando Download...</span>
+                    </>
+                  ) : (
+                    <>
+                      <Download className="size-4 animate-bounce" />
+                      <span>Baixar Loader ({game}-Loader.exe)</span>
+                    </>
+                  )}
+                </button>
+              )}
 
               <p className="text-center text-[11px] text-muted-foreground">
                 Arquivo executável direto (.exe). Após o término, execute o arquivo para começar a jogar.

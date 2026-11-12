@@ -92,7 +92,14 @@ async function handleDownload(request: Request) {
   }
 
   const cleanKey = rawKey.replace(/^#\s*/, '').replace(/["'\r\n\t]/g, '').trim()
-  const gameKey = rawGame ? normalizeGameKey(rawGame) : null
+  let gameKey = rawGame ? normalizeGameKey(rawGame) : null
+
+  if (!gameKey && rawGame && (rawGame.toLowerCase().includes('todo') || rawGame.toLowerCase().includes('all'))) {
+    gameKey = 'freefire'
+  }
+  if (!gameKey && !rawGame) {
+    gameKey = 'freefire'
+  }
 
   if (!gameKey) {
     return NextResponse.json(
