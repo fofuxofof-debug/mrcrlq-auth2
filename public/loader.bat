@@ -1,66 +1,104 @@
 @echo off
 chcp 65001 >nul
-title Hooked Auth - Game Loader
+title Hooked Auth - Game Loader CLI
 cls
-echo ========================================================
-echo             HOOKED AUTH - GAME LOADER
-echo ========================================================
+
+echo ==================================================================
+echo                     HOOKED AUTH - GAME LOADER                    
+echo                SISTEMA DE AUTENTICAÇÃO E DOWNLOAD                 
+echo ==================================================================
 echo.
 
-set "SERVER_URL=https://mrcbypassauth.vercel.app"
-set "GAME=%~1"
+set "SERVER_URL=https://mrcrlq-auth2.vercel.app"
 
-if "%GAME%"=="" (
-    echo [?] Selecione o jogo para iniciar o Loader:
-    echo.
-    echo   [1] FiveM
-    echo   [2] Valorant
-    echo   [3] Free Fire
-    echo.
-    set /p "CHOICE=Digite o numero [1-3]: "
-    if "%CHOICE%"=="1" set "GAME=FiveM"
-    if "%CHOICE%"=="2" set "GAME=Valorant"
-    if "%CHOICE%"=="3" set "GAME=Free Fire"
-)
-
-if "%GAME%"=="" (
-    echo [ERRO] Escolha invalida.
-    pause
-    exit /b 1
-)
-
+echo [*] Servidor de Autenticação: ONLINE
 echo.
-echo [*] Jogo Selecionado: %GAME%
-echo.
-set /p "KEY=[>] Digite a sua Chave de Licenca (Key): "
+set /p "KEY=[>] Digite a sua Chave de Licença (Key): "
 
 if "%KEY%"=="" (
-    echo [ERRO] A chave nao pode estar em branco.
+    echo.
+    echo [-] ERRO: A chave de licença não pode estar em branco.
+    echo.
     pause
     exit /b 1
 )
 
 echo.
-echo [*] Verificando licenca e autenticando...
+echo [*] Conectando ao servidor e validando licença...
 
 powershell -NoProfile -ExecutionPolicy Bypass -Command ^
   "$ProgressPreference = 'SilentlyContinue'; " ^
-  "$key = '%KEY%'.Trim(); " ^
-  "$game = '%GAME%'.Trim(); " ^
-  "$url = '%SERVER_URL%/api/loader/download?key=' + [uri]::EscapeDataString($key) + '&game=' + [uri]::EscapeDataString($game); " ^
-  "$outFile = '%GAME%-Loader.exe'; " ^
+  "$key = '%KEY%'.Trim().Trim('""').Trim(''''); " ^
+  "$url = '%SERVER_URL%/api/loader/validate?key=' + [uri]::EscapeDataString($key); " ^
   "try { " ^
-  "  $resp = Invoke-WebRequest -Uri $url -OutFile $outFile -UseBasicParsing -TimeoutSec 30; " ^
-  "  Write-Host '[+] Licenca autenticada com sucesso!' -ForegroundColor Green; " ^
-  "  Write-Host '[+] Loader baixado: ' $outFile -ForegroundColor Green; " ^
-  "  Write-Host '[*] Iniciando o executavel...' -ForegroundColor Cyan; " ^
-  "  Start-Process -FilePath $outFile; " ^
-  "} catch { " ^
-  "  Write-Host '[ERRO] Falha ao autenticar ou baixar o loader.' -ForegroundColor Red; " ^
-  "  Write-Host 'Verifique se sua chave esta ativa, correta e se o loader foi enviado no painel.' -ForegroundColor Yellow; " ^
-  "  if (Test-Path $outFile) { Remove-Item $outFile -Force -ErrorAction SilentlyContinue } " ^
-  "  exit 1; " ^
-  "}"
+  "  $resp = Invoke-RestMethod -Uri $url -Method Get -TimeoutSec 15; " ^
+  "  if (-not $resp.success) { exit 2 } " ^
+  "  Write-Host '[+] LICENÇA AUTENTICADA COM SUCESSO!' -ForegroundColor Green; " ^
+  "  Write-Host ' [•] Cliente  : ' -NoNewline; Write-Host $resp.license.name -ForegroundColor White; " ^
+  "  Write-Host ' [•] Plano    : ' -NoNewline; Write-Host $resp.license.plano -ForegroundColor Cyan; " ^
+  "  Write-Host ' [•] Validade : ' -NoNewline; Write-Host $resp.license.expiry -ForegroundColor Yellow; " ^
+  "  Write-Host ' [•] Status   : ' -NoNewline; Write-Host 'ATIVO' -ForegroundColor Green; " ^
+  "} catch { exit 1 }"
+
+if errorlevel 2 (
+    echo.
+    echo [-] ACESSO NEGADO: Licença suspensa ou bloqueada.
+    echo.
+    pause
+    exit /b 1
+)
+if errorlevel 1 (
+    echo.
+    echo [-] FALHA NA AUTENTICAÇÃO: Chave inválida, expirada ou inexistente.
+    echo.
+    pause
+    exit /b 1
+)
+
+echo ------------------------------------------------------------------
+echo.
+echo [?] Selecione qual Loader deseja instalar e executar:
+echo.
+echo    [1] Free Fire
+echo    [2] FiveM
+echo    [3] Valorant
+echo.
+set /p "CHOICE=[>] Digite o número da opção desejada [1-3] (Padrão: 1): "
+
+set "GAME=Free Fire"
+if "%CHOICE%"=="2" set "GAME=FiveM"
+if "%CHOICE%"=="3" set "GAME=Valorant"
 
 echo.
-pause
+echo [*] Jogo Selecionado: %GAME%
+echo [*] Baixando executável oficial do servidor...
+
+powershell -NoProfile -ExecutionPolicy Bypass -Command ^
+  "$ProgressPreference = 'SilentlyContinue'; " ^
+  "$key = '%KEY%'.Trim().Trim('""').Trim(''''); " ^
+  "$game = '%GAME%'.Trim(); " ^
+  "$url = '%SERVER_URL%/api/loader/download?key=' + [uri]::EscapeDataString($key) + '&game=' + [uri]::EscapeDataString($game); " ^
+  "$dest = Join-Path $env:USERPROFILE 'Downloads' ($game.Replace(' ', '') + '-Loader.exe'); " ^
+  "try { " ^
+  "  Invoke-WebRequest -Uri $url -OutFile $dest -TimeoutSec 60; " ^
+  "  if ((Test-Path $dest) -and ((Get-Item $dest).Length -gt 1000)) { " ^
+  "    Write-Host '[+] DOWNLOAD CONCLUÍDO COM SUCESSO!' -ForegroundColor Green; " ^
+  "    Write-Host (' [•] Arquivo salvo em: ' + $dest) -ForegroundColor White; " ^
+  "    Write-Host '[*] Iniciando o executável automaticamente...' -ForegroundColor Cyan; " ^
+  "    Start-Process -FilePath $dest; " ^
+  "    exit 0; " ^
+  "  } else { exit 3 } " ^
+  "} catch { exit 4 }"
+
+if errorlevel 1 (
+    echo.
+    echo [-] ERRO: Falha ao baixar o arquivo. Verifique se a sua chave tem acesso ao jogo.
+    echo.
+    pause
+    exit /b 1
+)
+
+echo.
+echo [+] Processo concluído com sucesso.
+timeout /t 3 >nul
+exit /b 0

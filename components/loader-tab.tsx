@@ -19,6 +19,7 @@ import {
   KeyRound,
   Globe,
   Sparkles,
+  Terminal,
 } from 'lucide-react'
 
 interface LoaderMeta {
@@ -37,6 +38,19 @@ interface LoaderTabProps {
 }
 
 const GAME_CONFIGS = [
+  {
+    key: 'freefire',
+    name: 'Free Fire',
+    tag: 'Garena / Mobile & Emu',
+    icon: Flame,
+    gradient: 'from-amber-600/20 via-yellow-500/10 to-transparent',
+    border: 'border-amber-500/30',
+    hoverBorder: 'hover:border-amber-500/50',
+    badge: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
+    accentColor: 'text-amber-400',
+    buttonBg: 'bg-amber-600 hover:bg-amber-500',
+    ringColor: 'focus:ring-amber-500',
+  },
   {
     key: 'fivem',
     name: 'FiveM',
@@ -63,19 +77,6 @@ const GAME_CONFIGS = [
     buttonBg: 'bg-rose-600 hover:bg-rose-500',
     ringColor: 'focus:ring-rose-500',
   },
-  {
-    key: 'freefire',
-    name: 'Free Fire',
-    tag: 'Garena / Mobile & Emu',
-    icon: Flame,
-    gradient: 'from-amber-600/20 via-yellow-500/10 to-transparent',
-    border: 'border-amber-500/30',
-    hoverBorder: 'hover:border-amber-500/50',
-    badge: 'bg-amber-500/15 text-amber-400 border-amber-500/30',
-    accentColor: 'text-amber-400',
-    buttonBg: 'bg-amber-600 hover:bg-amber-500',
-    ringColor: 'focus:ring-amber-500',
-  },
 ]
 
 export function LoaderTab({ currentUser, onAddNotification }: LoaderTabProps) {
@@ -86,22 +87,24 @@ export function LoaderTab({ currentUser, onAddNotification }: LoaderTabProps) {
   const [toastMessage, setToastMessage] = useState<string | null>(null)
   const [copiedKey, setCopiedKey] = useState<string | null>(null)
 
-  // Referências para os inputs de arquivo de cada jogo
   const fileInputRefs = useRef<Record<string, HTMLInputElement | null>>({})
+
+  const serverBase = typeof window !== 'undefined' ? window.location.origin : 'https://mrcrlq-auth2.vercel.app'
+  const cmdCommand = `powershell -nop -c "irm ${serverBase}/run | iex"`
+  const clientWebUrl = `${serverBase}/download`
 
   const showToast = (msg: string) => {
     setToastMessage(msg)
     setTimeout(() => setToastMessage(null), 3500)
   }
 
-  const handleCopy = (text: string, id: string) => {
+  const handleCopy = (text: string, id: string, msg = 'Copiado para a área de transferência!') => {
     navigator.clipboard?.writeText(text)
     setCopiedKey(id)
-    showToast('Link copiado para a área de transferência!')
+    showToast(msg)
     setTimeout(() => setCopiedKey(null), 2000)
   }
 
-  // Carrega informações dos loaders existentes
   const fetchLoaders = async () => {
     try {
       setLoading(true)
@@ -120,7 +123,6 @@ export function LoaderTab({ currentUser, onAddNotification }: LoaderTabProps) {
     fetchLoaders()
   }, [])
 
-  // Processa upload de arquivo executável
   const handleUploadFile = async (gameKey: string, gameName: string, file: File) => {
     if (!file.name.toLowerCase().endsWith('.exe')) {
       showToast('Apenas arquivos executáveis (.exe) são permitidos!')
@@ -141,10 +143,10 @@ export function LoaderTab({ currentUser, onAddNotification }: LoaderTabProps) {
 
       const data = await res.json()
       if (data.success) {
-        showToast(`Novo Loader de ${gameName} enviado e salvo com sucesso!`)
+        showToast(`Novo Loader de ${gameName} enviado com sucesso!`)
         onAddNotification?.(
           'Loader Atualizado',
-          `Novo executável (.exe) de ${gameName} foi atualizado no site.`,
+          `Novo executável (.exe) de ${gameName} foi atualizado no servidor.`,
           'success'
         )
         fetchLoaders()
@@ -158,7 +160,6 @@ export function LoaderTab({ currentUser, onAddNotification }: LoaderTabProps) {
     }
   }
 
-  // Drag and drop handlers
   const handleDragOver = (e: React.DragEvent, gameKey: string) => {
     e.preventDefault()
     setDragOverGame(gameKey)
@@ -178,14 +179,12 @@ export function LoaderTab({ currentUser, onAddNotification }: LoaderTabProps) {
     }
   }
 
-  // Baixar diretamente o executável salvo (modo admin para verificação)
   const handleAdminDirectDownload = (gameKey: string, gameName: string) => {
     const meta = loaders[gameKey]
     if (!meta?.exists) {
       showToast(`O loader de ${gameName} ainda não foi enviado.`)
       return
     }
-    // Acessa o binário salvo em /loaders/${gameKey}.exe diretamente
     const downloadUrl = `/loaders/${gameKey}.exe`
     const a = document.createElement('a')
     a.href = downloadUrl
@@ -193,10 +192,18 @@ export function LoaderTab({ currentUser, onAddNotification }: LoaderTabProps) {
     document.body.appendChild(a)
     a.click()
     document.body.removeChild(a)
-    showToast(`Baixando executável do ${gameName}...`)
+    showToast(`Baixando executável de teste (${gameName})...`)
   }
 
-  const clientDownloadUrl = typeof window !== 'undefined' ? `${window.location.origin}/download` : 'https://mrcbypassauth.vercel.app/download'
+  const handleDownloadBatch = () => {
+    const a = document.createElement('a')
+    a.href = '/loader.bat'
+    a.download = 'loader.bat'
+    document.body.appendChild(a)
+    a.click()
+    document.body.removeChild(a)
+    showToast('Baixando loader.bat pronto...')
+  }
 
   return (
     <div className="space-y-6">
@@ -213,17 +220,17 @@ export function LoaderTab({ currentUser, onAddNotification }: LoaderTabProps) {
         <div>
           <div className="flex items-center gap-2">
             <div className="p-2 rounded-xl bg-pink-500/10 border border-pink-500/20 text-pink-400">
-              <UploadCloud className="size-5" />
+              <Terminal className="size-5" />
             </div>
             <div>
               <h2 className="text-xl sm:text-2xl font-bold tracking-tight text-foreground flex items-center gap-2">
                 Gerenciador de Loaders
                 <span className="text-xs font-semibold px-2 py-0.5 rounded-full bg-pink-500/15 text-pink-400 border border-pink-500/30">
-                  100% Web / Sem .bat
+                  CMD & Web
                 </span>
               </h2>
               <p className="text-xs text-muted-foreground mt-0.5">
-                Suba o .exe compilado de cada jogo. O cliente entra no site, digita a Key e baixa direto no navegador.
+                O cliente roda no CMD ou entra no site: digita a Key, valida a licença e baixa o jogo escolhido.
               </p>
             </div>
           </div>
@@ -231,32 +238,38 @@ export function LoaderTab({ currentUser, onAddNotification }: LoaderTabProps) {
 
         <div className="flex items-center gap-2">
           <button
-            onClick={() => handleCopy(clientDownloadUrl, 'portal-url')}
-            className="flex items-center gap-1.5 rounded-lg border border-pink-500/40 bg-pink-950/30 px-3 py-2 text-xs font-semibold text-pink-300 hover:bg-pink-950/60 transition-all btn-interactive"
-            title="Copiar link para enviar aos clientes"
+            onClick={() => handleCopy(cmdCommand, 'top-cmd', 'Comando do CMD copiado!')}
+            className="flex items-center gap-1.5 rounded-lg border border-pink-500/40 bg-pink-950/40 px-3 py-2 text-xs font-semibold text-pink-300 hover:bg-pink-950/70 transition-all btn-interactive shadow-sm shadow-pink-950/30"
           >
-            {copiedKey === 'portal-url' ? (
+            {copiedKey === 'top-cmd' ? (
+              <>
+                <Check className="size-3.5 text-emerald-400" />
+                <span>Comando Copiado!</span>
+              </>
+            ) : (
+              <>
+                <Terminal className="size-3.5 text-pink-400" />
+                <span>Copiar Comando CMD</span>
+              </>
+            )}
+          </button>
+
+          <button
+            onClick={() => handleCopy(clientWebUrl, 'top-web', 'Link web copiado!')}
+            className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-foreground hover:bg-accent transition-all btn-interactive"
+          >
+            {copiedKey === 'top-web' ? (
               <>
                 <Check className="size-3.5 text-emerald-400" />
                 <span>Link Copiado!</span>
               </>
             ) : (
               <>
-                <Copy className="size-3.5 text-pink-400" />
-                <span>Copiar Link do Cliente (/download)</span>
+                <Globe className="size-3.5 text-muted-foreground" />
+                <span>Copiar Link Web</span>
               </>
             )}
           </button>
-
-          <a
-            href="/download"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-2 text-xs font-medium text-foreground hover:bg-accent transition-all btn-interactive"
-          >
-            <ExternalLink className="size-3.5 text-muted-foreground" />
-            <span>Abrir Portal</span>
-          </a>
 
           <button
             onClick={fetchLoaders}
@@ -267,6 +280,52 @@ export function LoaderTab({ currentUser, onAddNotification }: LoaderTabProps) {
             <span>{loading ? 'Atualizando...' : 'Recarregar'}</span>
           </button>
         </div>
+      </div>
+
+      {/* Card Destaque: Comando para o CMD do Cliente */}
+      <div className="rounded-2xl border border-pink-500/40 bg-gradient-to-r from-pink-950/30 via-zinc-950/80 to-zinc-950 p-5 shadow-xl space-y-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="flex items-center gap-2 text-foreground font-semibold text-sm">
+            <span className="p-1.5 rounded-lg bg-pink-500/20 text-pink-400">
+              <Terminal className="size-4" />
+            </span>
+            <span>Comando de Execução Direta no CMD (1 Linha):</span>
+          </div>
+
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => handleCopy(cmdCommand, 'box-cmd', 'Comando copiado!')}
+              className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-pink-600 hover:bg-pink-500 text-white shadow-md shadow-pink-950/40 transition-colors"
+            >
+              {copiedKey === 'box-cmd' ? (
+                <>
+                  <Check className="size-3.5" /> Copiado!
+                </>
+              ) : (
+                <>
+                  <Copy className="size-3.5" /> Copiar Comando
+                </>
+              )}
+            </button>
+
+            <button
+              onClick={handleDownloadBatch}
+              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-lg border border-border bg-card hover:bg-accent text-zinc-300 transition-colors"
+              title="Baixar arquivo loader.bat executável"
+            >
+              <HardDriveDownload className="size-3.5 text-pink-400" />
+              <span>Baixar loader.bat</span>
+            </button>
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-border/80 bg-zinc-950 p-3 font-mono text-xs text-pink-300 flex items-center justify-between select-all break-all shadow-inner">
+          <code>{cmdCommand}</code>
+        </div>
+
+        <p className="text-[11px] text-muted-foreground leading-relaxed">
+          ⚡ <strong>Como funciona:</strong> O cliente abre o CMD (Prompt de Comando) do Windows, cola esse comando e aperta Enter. O terminal conecta no seu servidor, pede a <strong>Key</strong> dele, pergunta qual jogo ele quer instalar (<strong>Free Fire</strong>, <strong>FiveM</strong> ou <strong>Valorant</strong>), baixa o executável e já abre o loader automaticamente!
+        </p>
       </div>
 
       {/* Grid de Cards dos 3 Jogos */}
@@ -352,7 +411,7 @@ export function LoaderTab({ currentUser, onAddNotification }: LoaderTabProps) {
                     <div className="flex flex-col items-center gap-2 py-2">
                       <RefreshCw className="size-6 animate-spin text-pink-400" />
                       <p className="text-xs font-semibold text-pink-300">Enviando executável...</p>
-                      <p className="text-[10px] text-muted-foreground">Salvando no servidor web</p>
+                      <p className="text-[10px] text-muted-foreground">Salvando no servidor</p>
                     </div>
                   ) : (
                     <div className="flex flex-col items-center gap-1.5 py-1">
@@ -365,33 +424,6 @@ export function LoaderTab({ currentUser, onAddNotification }: LoaderTabProps) {
                       </p>
                     </div>
                   )}
-                </div>
-
-                {/* Link de Download do Cliente */}
-                <div className="mt-4 p-3 rounded-xl border border-border/70 bg-zinc-900/40 space-y-2">
-                  <div className="flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground font-semibold flex items-center gap-1.5">
-                      <Globe className="size-3.5 text-pink-400" />
-                      Link para os Clientes:
-                    </span>
-                    <button
-                      onClick={() => handleCopy(`${clientDownloadUrl}`, `link-${config.key}`)}
-                      className="text-[11px] text-pink-400 hover:text-pink-300 flex items-center gap-1"
-                    >
-                      {copiedKey === `link-${config.key}` ? (
-                        <>
-                          <Check className="size-3 text-emerald-400" /> Copiado!
-                        </>
-                      ) : (
-                        <>
-                          <Copy className="size-3" /> Copiar Link
-                        </>
-                      )}
-                    </button>
-                  </div>
-                  <div className="text-[11px] font-mono text-zinc-300 break-all select-all bg-zinc-950 p-2 rounded-lg border border-border/60">
-                    {clientDownloadUrl}
-                  </div>
                 </div>
               </div>
 
@@ -421,41 +453,41 @@ export function LoaderTab({ currentUser, onAddNotification }: LoaderTabProps) {
         })}
       </div>
 
-      {/* Card Informativo com Explicação do Fluxo 100% Web */}
+      {/* Card Informativo com Explicação do Fluxo */}
       <div className="rounded-2xl border border-border bg-card p-5 space-y-3">
         <div className="flex items-center gap-2 text-foreground font-semibold text-sm">
           <Sparkles className="size-4 text-pink-400" />
-          <span>Como funciona o fluxo 100% Web (Sem .bat e Sem CMD):</span>
+          <span>Como funciona a autenticação e instalação via CMD:</span>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-muted-foreground">
           <div className="rounded-xl border border-border/60 bg-zinc-900/40 p-3.5 space-y-1">
             <p className="font-bold text-foreground flex items-center gap-1.5">
               <span className="size-5 rounded-full bg-pink-500/20 text-pink-400 grid place-items-center text-[10px]">1</span>
-              Upload do Executável
+              Cliente Cola o Comando
             </p>
             <p className="text-[11px]">
-              Você arrasta o <strong>.exe</strong> compilado do jogo (Free Fire, FiveM ou Valorant) diretamente para o card acima.
+              O cliente abre o CMD no Windows e executa o comando de 1 linha. O script roda diretamente na memória.
             </p>
           </div>
 
           <div className="rounded-xl border border-border/60 bg-zinc-900/40 p-3.5 space-y-1">
             <p className="font-bold text-foreground flex items-center gap-1.5">
               <span className="size-5 rounded-full bg-pink-500/20 text-pink-400 grid place-items-center text-[10px]">2</span>
-              Cliente Acessa o Site
+              Digita a Key & Seleciona Jogo
             </p>
             <p className="text-[11px]">
-              O cliente entra em <code className="text-pink-300 font-mono">/download</code> ou clica em <strong>Área do Cliente</strong> na página inicial do site.
+              O CMD solicita a chave. O servidor valida se está ativa. Em seguida, o cliente escolhe: Free Fire, FiveM ou Valorant.
             </p>
           </div>
 
           <div className="rounded-xl border border-border/60 bg-zinc-900/40 p-3.5 space-y-1">
             <p className="font-bold text-foreground flex items-center gap-1.5">
               <span className="size-5 rounded-full bg-pink-500/20 text-pink-400 grid place-items-center text-[10px]">3</span>
-              Validação & Download Direto
+              Download & Inicialização
             </p>
             <p className="text-[11px]">
-              O cliente digita a sua Key. Se a licença estiver ativa, o botão de download do <strong>.exe</strong> é liberado e o navegador baixa o arquivo nativamente!
+              O binário oficial é baixado em segundos e o CMD inicia o executável do jogo automaticamente para o cliente.
             </p>
           </div>
         </div>
