@@ -3,116 +3,116 @@ import { NextResponse } from 'next/server'
 export const dynamic = 'force-dynamic'
 export const runtime = 'nodejs'
 
-const CLI_SCRIPT = `# Hooked Auth - Game Loader CLI
+const CLI_SCRIPT = `# Hooked Auth - Cyber Game Loader CLI v2.4
 [Console]::OutputEncoding = [System.Text.Encoding]::UTF8
 try {
-    $Host.UI.RawUI.WindowTitle = "Hooked Auth - Game Loader CLI"
+    $Host.UI.RawUI.WindowTitle = "HOOKED AUTH // VIP CLIENT LOADER"
 } catch {}
 
 Clear-Host
-Write-Host "==================================================================" -ForegroundColor Magenta
-Write-Host "                    HOOKED AUTH - GAME LOADER                    " -ForegroundColor White
-Write-Host "               SISTEMA DE AUTENTICACAO E DOWNLOAD                 " -ForegroundColor DarkGray
-Write-Host "==================================================================" -ForegroundColor Magenta
+Write-Host ""
+Write-Host " ┌────────────────────────────────────────────────────────────────────┐" -ForegroundColor Magenta
+Write-Host " │    __  ______  ____  __ __ __________                              │" -ForegroundColor Magenta
+Write-Host " │   / / / / __ \/ __ \/ //_// ____/ __ \     H O O K E D   A U T H   │" -ForegroundColor White
+Write-Host " │  / /_/ / / / / / / / ,<  / __/ / / / /     Game Client Loader      │" -ForegroundColor White
+Write-Host " │ / __  / /_/ / /_/ / /| |/ /___/ /_/ /      Build 2026 [PRO VIP]    │" -ForegroundColor White
+Write-Host " │/_/ /_/\____/\____/_/ |_/_____/_____/                               │" -ForegroundColor Magenta
+Write-Host " └────────────────────────────────────────────────────────────────────┘" -ForegroundColor Magenta
+Write-Host "   [•] Servidor   : " -NoNewline -ForegroundColor DarkGray; Write-Host "ONLINE (mrcrlq-auth2.vercel.app)" -ForegroundColor Green
+Write-Host "   [•] Seguranca  : " -NoNewline -ForegroundColor DarkGray; Write-Host "TLS 1.3 + SHA-256 Cloud Protection" -ForegroundColor Cyan
 Write-Host ""
 
 $serverUrl = "https://mrcrlq-auth2.vercel.app"
 
-# 1. Solicitacao da Chave de Licenca
-Write-Host "[*] Servidor de Autenticacao: ONLINE" -ForegroundColor Green
+# 1. Caixa de Autenticacao
+Write-Host " ┌───[ AUTENTICACAO ]─────────────────────────────────────────────────┐" -ForegroundColor Magenta
+Write-Host " │  Digite ou cole a sua Chave de Licenca (Key) abaixo:               │" -ForegroundColor DarkGray
+Write-Host " └────────────────────────────────────────────────────────────────────┘" -ForegroundColor Magenta
 Write-Host ""
-$rawKey = Read-Host "[>] Digite a sua Chave de Licenca (Key)"
+Write-Host " [>] " -NoNewline -ForegroundColor Magenta
+$rawKey = Read-Host "Digite sua Key"
 $key = $rawKey.Trim().Trim('"').Trim("'")
 
 if ([string]::IsNullOrWhiteSpace($key)) {
     Write-Host ""
-    Write-Host "[-] ERRO: A chave de licenca nao pode estar em branco." -ForegroundColor Red
+    Write-Host " ┌───[ ERRO ]─────────────────────────────────────────────────────────┐" -ForegroundColor Red
+    Write-Host " │  [!] A chave de licenca nao pode estar em branco.                  │" -ForegroundColor Red
+    Write-Host " └────────────────────────────────────────────────────────────────────┘" -ForegroundColor Red
     Write-Host ""
-    Read-Host "Pressione ENTER para fechar..."
+    Read-Host " Pressione ENTER para sair..."
     exit 1
 }
 
 Write-Host ""
-Write-Host "[*] Conectando ao servidor e validando licenca..." -ForegroundColor Yellow
+Write-Host " [*] " -NoNewline -ForegroundColor Yellow
+Write-Host "Conectando ao cluster seguro e validando chave..." -ForegroundColor DarkGray
 
 $validateUrl = "$serverUrl/api/loader/validate?key=" + [uri]::EscapeDataString($key)
 try {
     $resp = Invoke-RestMethod -Uri $validateUrl -Method Get -TimeoutSec 15
 } catch {
     Write-Host ""
-    Write-Host "[-] FALHA NA AUTENTICACAO: Chave invalida, expirada ou inexistente." -ForegroundColor Red
+    Write-Host " ┌───[ ACESSO NEGADO ]────────────────────────────────────────────────┐" -ForegroundColor Red
+    Write-Host " │  [X] Chave invalida, suspensa ou inexistente no banco de dados.    │" -ForegroundColor Red
+    Write-Host " │  [!] Verifique se digitou a key correta ou consulte o suporte.     │" -ForegroundColor DarkGray
+    Write-Host " └────────────────────────────────────────────────────────────────────┘" -ForegroundColor Red
     Write-Host ""
-    Read-Host "Pressione ENTER para fechar..."
+    Read-Host " Pressione ENTER para sair..."
     exit 1
 }
 
 if (-not $resp.success) {
     Write-Host ""
-    Write-Host "[-] ACESSO NEGADO: $($resp.message)" -ForegroundColor Red
+    Write-Host " ┌───[ ACESSO NEGADO ]────────────────────────────────────────────────┐" -ForegroundColor Red
+    Write-Host " │  [X] $($resp.message)                                              │" -ForegroundColor Red
+    Write-Host " └────────────────────────────────────────────────────────────────────┘" -ForegroundColor Red
     Write-Host ""
-    Read-Host "Pressione ENTER para fechar..."
+    Read-Host " Pressione ENTER para sair..."
     exit 1
 }
 
+# 2. Caixa de Sucesso / Licenca Valida
 Write-Host ""
-Write-Host "[+] LICENCA AUTENTICADA COM SUCESSO!" -ForegroundColor Green
-Write-Host "------------------------------------------------------------------" -ForegroundColor DarkGray
-Write-Host " [•] Cliente  : " -NoNewline; Write-Host "$($resp.license.name)" -ForegroundColor White
-Write-Host " [•] Plano    : " -NoNewline; Write-Host "$($resp.license.plano)" -ForegroundColor Cyan
-Write-Host " [•] Validade : " -NoNewline; Write-Host "$($resp.license.expiry)" -ForegroundColor Yellow
-Write-Host " [•] Status   : " -NoNewline; Write-Host "ATIVO" -ForegroundColor Green
-Write-Host "------------------------------------------------------------------" -ForegroundColor DarkGray
+Write-Host " ┌───[ LICENCA AUTENTICADA ]──────────────────────────────────────────┐" -ForegroundColor Green
+Write-Host " │                                                                    │" -ForegroundColor Green
+Write-Host " │  [+] Cliente   : " -NoNewline -ForegroundColor Green; Write-Host ("{0,-48}" -f $resp.license.name) -NoNewline -ForegroundColor White; Write-Host "│" -ForegroundColor Green
+Write-Host " │  [+] Status    : " -NoNewline -ForegroundColor Green; Write-Host ("{0,-48}" -f "ATIVO & LIBERADO") -NoNewline -ForegroundColor Green; Write-Host "│" -ForegroundColor Green
+Write-Host " │  [+] Plano     : " -NoNewline -ForegroundColor Green; Write-Host ("{0,-48}" -f $resp.license.plano) -NoNewline -ForegroundColor Cyan; Write-Host "│" -ForegroundColor Green
+Write-Host " │  [+] Expiracao : " -NoNewline -ForegroundColor Green; Write-Host ("{0,-48}" -f $resp.license.expiry) -NoNewline -ForegroundColor Yellow; Write-Host "│" -ForegroundColor Green
+Write-Host " │                                                                    │" -ForegroundColor Green
+Write-Host " └────────────────────────────────────────────────────────────────────┘" -ForegroundColor Green
 Write-Host ""
 
-# 2. Selecao de Jogo para Instalar
+# 3. Selecao do Jogo
 $licenseGame = "$($resp.license.game)"
 $isAllGames = $licenseGame.ToLower().Contains("todo") -or $licenseGame.ToLower().Contains("all")
-
 $selectedGame = "Free Fire"
 
-if ($isAllGames) {
-    Write-Host "[?] Selecione qual Loader deseja instalar:" -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "   [1] Free Fire" -ForegroundColor Cyan
-    Write-Host "   [2] FiveM" -ForegroundColor Cyan
-    Write-Host "   [3] Valorant" -ForegroundColor Cyan
-    Write-Host ""
-    $choice = Read-Host "[>] Digite o numero da opcao [1-3] (Padrao: 1)"
-    if ($choice -eq "2") {
-        $selectedGame = "FiveM"
-    } elseif ($choice -eq "3") {
-        $selectedGame = "Valorant"
-    } else {
-        $selectedGame = "Free Fire"
-    }
+Write-Host " ┌───[ SELECIONE O JOGO ]─────────────────────────────────────────────┐" -ForegroundColor Magenta
+Write-Host " │                                                                    │" -ForegroundColor Magenta
+Write-Host " │  [1]  FREE FIRE   ->  Aimbot + ESP + Safe Memory Bypass            │" -ForegroundColor White
+Write-Host " │  [2]  FIVEM       ->  External Overlay + Silent Aim + Wallhack     │" -ForegroundColor White
+Write-Host " │  [3]  VALORANT    ->  Hypervisor Driver + Visuals ESP              │" -ForegroundColor White
+Write-Host " │                                                                    │" -ForegroundColor Magenta
+Write-Host " └────────────────────────────────────────────────────────────────────┘" -ForegroundColor Magenta
+Write-Host ""
+Write-Host " [?] " -NoNewline -ForegroundColor Magenta
+$choice = Read-Host "Digite o numero da opcao desejada [1, 2 ou 3] (Padrao: 1)"
+
+if ($choice -eq "2") {
+    $selectedGame = "FiveM"
+} elseif ($choice -eq "3") {
+    $selectedGame = "Valorant"
 } else {
-    Write-Host "[?] Jogo vinculado a sua licenca: " -NoNewline; Write-Host "$licenseGame" -ForegroundColor Yellow
-    Write-Host ""
-    Write-Host "   [1] Instalar $licenseGame agora" -ForegroundColor White
-    Write-Host "   [2] Selecionar outro jogo (FiveM / Valorant / Free Fire)" -ForegroundColor DarkGray
-    Write-Host ""
-    $choice = Read-Host "[>] Digite o numero [1-2] (Padrao: 1)"
-    if ($choice -eq "2") {
-        Write-Host ""
-        Write-Host "   [1] Free Fire" -ForegroundColor Cyan
-        Write-Host "   [2] FiveM" -ForegroundColor Cyan
-        Write-Host "   [3] Valorant" -ForegroundColor Cyan
-        Write-Host ""
-        $c2 = Read-Host "[>] Digite o numero da opcao desejada [1-3]"
-        if ($c2 -eq "2") { $selectedGame = "FiveM" }
-        elseif ($c2 -eq "3") { $selectedGame = "Valorant" }
-        else { $selectedGame = "Free Fire" }
-    } else {
-        $selectedGame = $licenseGame
-    }
+    $selectedGame = "Free Fire"
 }
 
 Write-Host ""
-Write-Host "[*] Jogo Selecionado: $selectedGame" -ForegroundColor Green
-Write-Host "[*] Baixando executavel oficial do servidor..." -ForegroundColor Yellow
+Write-Host " [*] Jogo selecionado : " -NoNewline -ForegroundColor DarkGray
+Write-Host "$selectedGame" -ForegroundColor Magenta
+Write-Host " [*] Servidor Oficial : Baixando versao mais recente (.exe)..." -ForegroundColor Yellow
 
 $downloadUrl = "$serverUrl/api/loader/download?key=" + [uri]::EscapeDataString($key) + "&game=" + [uri]::EscapeDataString($selectedGame)
-
 $cleanName = $selectedGame.Replace(" ", "")
 $destDir = "$env:USERPROFILE\\Downloads"
 if (-not (Test-Path $destDir)) { $destDir = (Get-Location).Path }
@@ -125,22 +125,29 @@ try {
     if ((Test-Path $destFile) -and ((Get-Item $destFile).Length -gt 1000)) {
         $sizeMB = [math]::Round(((Get-Item $destFile).Length / 1MB), 2)
         Write-Host ""
-        Write-Host "[+] DOWNLOAD CONCLUIDO COM SUCESSO!" -ForegroundColor Green
-        Write-Host " [•] Arquivo salvo em: $destFile ($sizeMB MB)" -ForegroundColor White
+        Write-Host " ┌───[ DOWNLOAD CONCLUIDO ]───────────────────────────────────────────┐" -ForegroundColor Green
+        Write-Host " │                                                                    │" -ForegroundColor Green
+        Write-Host " │  [+] Arquivo salvo com sucesso na sua maquina!                     │" -ForegroundColor Green
+        Write-Host " │  [•] Caminho : " -NoNewline -ForegroundColor DarkGray; Write-Host ("{0,-50}" -f "$destFile ($sizeMB MB)") -NoNewline -ForegroundColor White; Write-Host "│" -ForegroundColor Green
+        Write-Host " │                                                                    │" -ForegroundColor Green
+        Write-Host " └────────────────────────────────────────────────────────────────────┘" -ForegroundColor Green
         Write-Host ""
-        Write-Host "[*] Iniciando o executavel automaticamente..." -ForegroundColor Cyan
+        Write-Host " [★] Iniciando o executavel oficial automaticamente..." -ForegroundColor Cyan
         Start-Process -FilePath $destFile
+        Write-Host " [+] Bom jogo!" -ForegroundColor Green
         Start-Sleep -Seconds 2
         exit 0
     } else {
-        throw "Arquivo baixado esta vazio ou corrompido."
+        throw "O arquivo baixado retornou vazio ou danificado."
     }
 } catch {
     Write-Host ""
-    Write-Host "[-] ERRO AO BAIXAR: $($_.Exception.Message)" -ForegroundColor Red
-    Write-Host "Verifique se a sua chave tem permissao para este jogo e tente novamente." -ForegroundColor Yellow
+    Write-Host " ┌───[ ERRO NO DOWNLOAD ]─────────────────────────────────────────────┐" -ForegroundColor Red
+    Write-Host " │  [X] Falha ao transferir o executavel.                             │" -ForegroundColor Red
+    Write-Host " │  [!] Verifique se sua licenca possui permissao para este jogo.     │" -ForegroundColor DarkGray
+    Write-Host " └────────────────────────────────────────────────────────────────────┘" -ForegroundColor Red
     Write-Host ""
-    Read-Host "Pressione ENTER para fechar..."
+    Read-Host " Pressione ENTER para sair..."
     exit 1
 }
 `

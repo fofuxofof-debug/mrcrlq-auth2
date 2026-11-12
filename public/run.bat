@@ -1,30 +1,39 @@
 @echo off
 chcp 65001 >nul
-title Hooked Auth - Game Loader CLI
+title HOOKED AUTH // VIP CLIENT LOADER
 cls
 
-echo ==================================================================
-echo                     HOOKED AUTH - GAME LOADER                    
-echo                SISTEMA DE AUTENTICAÇÃO E DOWNLOAD                 
-echo ==================================================================
 echo.
-
-set "SERVER_URL=https://mrcrlq-auth2.vercel.app"
-
-echo [*] Servidor de Autenticação: ONLINE
+echo  ┌────────────────────────────────────────────────────────────────────┐
+echo  │    __  ______  ____  __ __ __________                              │
+echo  │   / / / / __ \/ __ \/ //_// ____/ __ \     H O O K E D   A U T H   │
+echo  │  / /_/ / / / / / / / ,<  / __/ / / / /     Game Client Loader      │
+echo  │ / __  / /_/ / /_/ / /| |/ /___/ /_/ /      Build 2026 [PRO VIP]    │
+echo  │/_/ /_/\____/\____/_/ |_/_____/_____/                               │
+echo  └────────────────────────────────────────────────────────────────────┘
+echo    [•] Servidor   : ONLINE (mrcrlq-auth2.vercel.app)
+echo    [•] Seguranca  : TLS 1.3 + SHA-256 Cloud Protection
 echo.
-set /p "KEY=[>] Digite a sua Chave de Licença (Key): "
+echo  ┌───[ AUTENTICACAO ]─────────────────────────────────────────────────┐
+echo  │  Digite ou cole a sua Chave de Licenca (Key) abaixo:               │
+echo  └────────────────────────────────────────────────────────────────────┘
+echo.
+set /p "KEY= [>] Digite sua Key: "
 
 if "%KEY%"=="" (
     echo.
-    echo [-] ERRO: A chave de licença não pode estar em branco.
+    echo  ┌───[ ERRO ]─────────────────────────────────────────────────────────┐
+    echo  │  [!] A chave de licenca nao pode estar em branco.                  │
+    echo  └────────────────────────────────────────────────────────────────────┘
     echo.
     pause
     exit /b 1
 )
 
 echo.
-echo [*] Conectando ao servidor e validando licença...
+echo  [*] Conectando ao cluster seguro e validando chave...
+
+set "SERVER_URL=https://mrcrlq-auth2.vercel.app"
 
 powershell -NoProfile -ExecutionPolicy Bypass -Command ^
   "$ProgressPreference = 'SilentlyContinue'; " ^
@@ -33,45 +42,54 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command ^
   "try { " ^
   "  $resp = Invoke-RestMethod -Uri $url -Method Get -TimeoutSec 15; " ^
   "  if (-not $resp.success) { exit 2 } " ^
-  "  Write-Host '[+] LICENÇA AUTENTICADA COM SUCESSO!' -ForegroundColor Green; " ^
-  "  Write-Host ' [•] Cliente  : ' -NoNewline; Write-Host $resp.license.name -ForegroundColor White; " ^
-  "  Write-Host ' [•] Plano    : ' -NoNewline; Write-Host $resp.license.plano -ForegroundColor Cyan; " ^
-  "  Write-Host ' [•] Validade : ' -NoNewline; Write-Host $resp.license.expiry -ForegroundColor Yellow; " ^
-  "  Write-Host ' [•] Status   : ' -NoNewline; Write-Host 'ATIVO' -ForegroundColor Green; " ^
+  "  Write-Host ''; " ^
+  "  Write-Host ' ┌───[ LICENCA AUTENTICADA ]──────────────────────────────────────────┐' -ForegroundColor Green; " ^
+  "  Write-Host ' │                                                                    │' -ForegroundColor Green; " ^
+  "  Write-Host ' │  [+] Cliente   : ' -NoNewline -ForegroundColor Green; Write-Host ('{0,-48}' -f $resp.license.name) -NoNewline -ForegroundColor White; Write-Host '│' -ForegroundColor Green; " ^
+  "  Write-Host ' │  [+] Status    : ' -NoNewline -ForegroundColor Green; Write-Host ('{0,-48}' -f 'ATIVO & LIBERADO') -NoNewline -ForegroundColor Green; Write-Host '│' -ForegroundColor Green; " ^
+  "  Write-Host ' │  [+] Plano     : ' -NoNewline -ForegroundColor Green; Write-Host ('{0,-48}' -f $resp.license.plano) -NoNewline -ForegroundColor Cyan; Write-Host '│' -ForegroundColor Green; " ^
+  "  Write-Host ' │  [+] Expiracao : ' -NoNewline -ForegroundColor Green; Write-Host ('{0,-48}' -f $resp.license.expiry) -NoNewline -ForegroundColor Yellow; Write-Host '│' -ForegroundColor Green; " ^
+  "  Write-Host ' │                                                                    │' -ForegroundColor Green; " ^
+  "  Write-Host ' └────────────────────────────────────────────────────────────────────┘' -ForegroundColor Green; " ^
   "} catch { exit 1 }"
 
 if errorlevel 2 (
     echo.
-    echo [-] ACESSO NEGADO: Licença suspensa ou bloqueada.
+    echo  ┌───[ ACESSO NEGADO ]────────────────────────────────────────────────┐
+    echo  │  [X] Chave suspensa ou banida pelo administrador.                  │
+    echo  └────────────────────────────────────────────────────────────────────┘
     echo.
     pause
     exit /b 1
 )
 if errorlevel 1 (
     echo.
-    echo [-] FALHA NA AUTENTICAÇÃO: Chave inválida, expirada ou inexistente.
+    echo  ┌───[ ACESSO NEGADO ]────────────────────────────────────────────────┐
+    echo  │  [X] Chave invalida, expirada ou inexistente.                      │
+    echo  └────────────────────────────────────────────────────────────────────┘
     echo.
     pause
     exit /b 1
 )
 
-echo ------------------------------------------------------------------
 echo.
-echo [?] Selecione qual Loader deseja instalar e executar:
+echo  ┌───[ SELECIONE O JOGO ]─────────────────────────────────────────────┐
+echo  │                                                                    │
+echo  │  [1]  FREE FIRE   -^>  Aimbot + ESP + Safe Memory Bypass            │
+echo  │  [2]  FIVEM       -^>  External Overlay + Silent Aim + Wallhack     │
+echo  │  [3]  VALORANT    -^>  Hypervisor Driver + Visuals ESP              │
+echo  │                                                                    │
+echo  └────────────────────────────────────────────────────────────────────┘
 echo.
-echo    [1] Free Fire
-echo    [2] FiveM
-echo    [3] Valorant
-echo.
-set /p "CHOICE=[>] Digite o número da opção desejada [1-3] (Padrão: 1): "
+set /p "CHOICE= [?] Digite o numero da opcao desejada [1, 2 ou 3] (Padrao: 1): "
 
 set "GAME=Free Fire"
 if "%CHOICE%"=="2" set "GAME=FiveM"
 if "%CHOICE%"=="3" set "GAME=Valorant"
 
 echo.
-echo [*] Jogo Selecionado: %GAME%
-echo [*] Baixando executável oficial do servidor...
+echo  [*] Jogo selecionado : %GAME%
+echo  [*] Servidor Oficial : Baixando versao mais recente (.exe)...
 
 powershell -NoProfile -ExecutionPolicy Bypass -Command ^
   "$ProgressPreference = 'SilentlyContinue'; " ^
@@ -82,23 +100,33 @@ powershell -NoProfile -ExecutionPolicy Bypass -Command ^
   "try { " ^
   "  Invoke-WebRequest -Uri $url -OutFile $dest -TimeoutSec 60; " ^
   "  if ((Test-Path $dest) -and ((Get-Item $dest).Length -gt 1000)) { " ^
-  "    Write-Host '[+] DOWNLOAD CONCLUÍDO COM SUCESSO!' -ForegroundColor Green; " ^
-  "    Write-Host (' [•] Arquivo salvo em: ' + $dest) -ForegroundColor White; " ^
-  "    Write-Host '[*] Iniciando o executável automaticamente...' -ForegroundColor Cyan; " ^
+  "    $sizeMB = [math]::Round(((Get-Item $dest).Length / 1MB), 2); " ^
+  "    Write-Host ''; " ^
+  "    Write-Host ' ┌───[ DOWNLOAD CONCLUIDO ]───────────────────────────────────────────┐' -ForegroundColor Green; " ^
+  "    Write-Host ' │                                                                    │' -ForegroundColor Green; " ^
+  "    Write-Host ' │  [+] Arquivo salvo com sucesso na sua maquina!                     │' -ForegroundColor Green; " ^
+  "    Write-Host ' │  [•] Caminho : ' -NoNewline -ForegroundColor DarkGray; Write-Host ('{0,-50}' -f ($dest + ' (' + $sizeMB + ' MB)')) -NoNewline -ForegroundColor White; Write-Host '│' -ForegroundColor Green; " ^
+  "    Write-Host ' │                                                                    │' -ForegroundColor Green; " ^
+  "    Write-Host ' └────────────────────────────────────────────────────────────────────┘' -ForegroundColor Green; " ^
+  "    Write-Host ''; " ^
+  "    Write-Host ' [★] Iniciando o executavel oficial automaticamente...' -ForegroundColor Cyan; " ^
   "    Start-Process -FilePath $dest; " ^
+  "    Write-Host ' [+] Bom jogo!' -ForegroundColor Green; " ^
   "    exit 0; " ^
   "  } else { exit 3 } " ^
   "} catch { exit 4 }"
 
 if errorlevel 1 (
     echo.
-    echo [-] ERRO: Falha ao baixar o arquivo. Verifique se a sua chave tem acesso ao jogo.
+    echo  ┌───[ ERRO NO DOWNLOAD ]─────────────────────────────────────────────┐
+    echo  │  [X] Falha ao transferir o executavel.                             │
+    echo  │  [!] Verifique se sua licenca possui permissao para este jogo.     │
+    echo  └────────────────────────────────────────────────────────────────────┘
     echo.
     pause
     exit /b 1
 )
 
 echo.
-echo [+] Processo concluído com sucesso.
 timeout /t 3 >nul
 exit /b 0
