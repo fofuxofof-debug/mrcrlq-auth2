@@ -21,6 +21,7 @@ import {
   isLifetime,
 } from '@/lib/duration'
 import { BannedTab } from '@/components/banned-tab'
+import { LoaderTab } from '@/components/loader-tab'
 
 export interface AuthAccount {
   username: string
@@ -85,6 +86,7 @@ export interface NotificationItem {
 
 const navItems = [
   ['Licenses', KeyRound],
+  ['Loader', Download],
   ['Banidas & Discord', ShieldAlert],
   ['Logs', FileText],
   ['Settings', Settings2],
@@ -795,6 +797,12 @@ export function Platform() {
               onAddNotification={addNotification}
               onRefresh={syncWithServer}
               isRefreshing={isRefreshingLicenses}
+            />
+          )}
+          {active === 'Loader' && (
+            <LoaderTab
+              currentUser={currentUser}
+              onAddNotification={addNotification}
             />
           )}
           {active === 'Banidas & Discord' && (
