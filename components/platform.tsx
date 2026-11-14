@@ -22,6 +22,7 @@ import {
 } from '@/lib/duration'
 import { BannedTab } from '@/components/banned-tab'
 import { LoaderTab } from '@/components/loader-tab'
+import { UpdateTab } from '@/components/update-tab'
 
 export interface AuthAccount {
   username: string
@@ -87,6 +88,7 @@ export interface NotificationItem {
 const navItems = [
   ['Licenses', KeyRound],
   ['Loader', Download],
+  ['Update', RefreshCw],
   ['Banidas & Discord', ShieldAlert],
   ['Logs', FileText],
   ['Settings', Settings2],
@@ -801,6 +803,12 @@ export function Platform() {
           )}
           {active === 'Loader' && (
             <LoaderTab
+              currentUser={currentUser}
+              onAddNotification={addNotification}
+            />
+          )}
+          {active === 'Update' && (
+            <UpdateTab
               currentUser={currentUser}
               onAddNotification={addNotification}
             />
